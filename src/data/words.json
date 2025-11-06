@@ -1,0 +1,12 @@
+[
+  { "sound": "kat", "options": ["kat", "kan", "kam"], "correct": "kat" },
+  { "sound": "boom", "options": ["boom", "boem", "boon"], "correct": "boom" },
+  { "sound": "maan", "options": ["maan", "man", "meen"], "correct": "maan" },
+  { "sound": "ster", "options": ["ster", "steer", "staart"], "correct": "ster" },
+  { "sound": "boek", "options": ["boek", "beek", "boeg"], "correct": "boek" },
+  { "sound": "vis", "options": ["vis", "vos", "vas"], "correct": "vis" },
+  { "sound": "huis", "options": ["huis", "hijs", "huisje"], "correct": "huis" },
+  { "sound": "blad", "options": ["blad", "bal", "bad"], "correct": "blad" },
+  { "sound": "dak", "options": ["dak", "dok", "duik"], "correct": "dak" },
+  { "sound": "kind", "options": ["kind", "kant", "kand"], "correct": "kind" }
+]
