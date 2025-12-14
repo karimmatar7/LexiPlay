@@ -14,18 +14,18 @@ export default function Reward() {
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-100 p-4 sm:p-6 md:p-8 text-center ${fontClass} ${sizeMap[fontSize]} relative overflow-hidden`}>
       
-      {/* Celebration Animation Background */}
+      {/* Simplified Celebration Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 text-5xl md:text-6xl animate-bounce">🎉</div>
-        <div className="absolute top-20 right-20 text-4xl md:text-5xl animate-bounce animation-delay-2000">⭐</div>
-        <div className="absolute bottom-20 left-1/4 text-5xl md:text-6xl animate-bounce animation-delay-4000">✨</div>
-        <div className="absolute bottom-10 right-1/3 text-4xl md:text-5xl animate-spin-slow">🌟</div>
-        <div className="absolute top-1/2 left-10 text-3xl md:text-4xl animate-bounce">🎊</div>
-        <div className="absolute top-1/3 right-1/4 text-4xl md:text-5xl animate-bounce animation-delay-2000">💫</div>
+        <div className="absolute top-10 left-10 text-5xl animate-bounce">🎉</div>
+        <div className="absolute top-20 right-20 text-4xl animate-bounce" style={{animationDelay: '0.2s'}}>⭐</div>
+        <div className="absolute bottom-20 left-1/4 text-5xl animate-bounce" style={{animationDelay: '0.4s'}}>✨</div>
+        <div className="absolute bottom-10 right-1/3 text-4xl">🌟</div>
+        <div className="absolute top-1/2 left-10 text-3xl animate-bounce" style={{animationDelay: '0.3s'}}>🎊</div>
+        <div className="absolute top-1/3 right-1/4 text-4xl animate-bounce" style={{animationDelay: '0.5s'}}>💫</div>
         
-        {/* Blob animations */}
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
+        {/* Soft background shapes */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-yellow-200 rounded-full opacity-30" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-orange-200 rounded-full opacity-25" />
       </div>
 
       {/* Main Content */}
@@ -33,34 +33,34 @@ export default function Reward() {
         
         {/* Trophy Container */}
         <div className="mb-8">
-          <div className="inline-block bg-white rounded-full p-8 md:p-12 shadow-2xl animate-float">
-            <span className="text-7xl md:text-8xl lg:text-9xl">🏆</span>
+          <div className="inline-block bg-white rounded-full p-10 md:p-12 shadow-lg border-4 border-amber-300">
+            <span className="text-7xl md:text-8xl">🏆</span>
           </div>
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-gradient-to-r from-amber-600 via-yellow-600 to-orange-600 bg-clip-text mb-6 md:mb-8 leading-tight">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-amber-700 mb-6 md:mb-8" style={{letterSpacing: '-0.02em'}}>
           Super gedaan!
         </h1>
 
         {/* Stars Display */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 md:p-10 shadow-2xl mb-8 md:mb-10">
-          <p className="text-lg md:text-xl lg:text-2xl text-gray-700 font-semibold mb-4">
+        <div className="bg-white rounded-3xl border-3 border-amber-300 p-8 md:p-10 shadow-lg mb-8 md:mb-10">
+          <p className="text-xl md:text-2xl text-gray-700 font-bold mb-6">
             Je hebt verdiend:
           </p>
-          <div className="flex justify-center gap-3 md:gap-4 mb-4">
-            <span className="text-5xl md:text-6xl lg:text-7xl animate-bounce">🌟</span>
-            <span className="text-5xl md:text-6xl lg:text-7xl animate-bounce animation-delay-2000">🌟</span>
-            <span className="text-5xl md:text-6xl lg:text-7xl animate-bounce animation-delay-4000">🌟</span>
+          <div className="flex justify-center gap-4 md:gap-6 mb-6">
+            <span className="text-5xl md:text-6xl animate-bounce">🌟</span>
+            <span className="text-5xl md:text-6xl animate-bounce" style={{animationDelay: '0.2s'}}>🌟</span>
+            <span className="text-5xl md:text-6xl animate-bounce" style={{animationDelay: '0.4s'}}>🌟</span>
           </div>
-          <p className="text-3xl md:text-4xl lg:text-5xl font-black text-transparent bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text">
+          <p className="text-3xl md:text-4xl font-black text-amber-600">
             3 Sterren!
           </p>
         </div>
 
         {/* Encouragement Message */}
-        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 mb-8 border-4 border-amber-200 shadow-lg">
-          <p className="text-lg md:text-xl lg:text-2xl text-gray-700 font-medium">
+        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl border-2 border-amber-300 p-6 mb-8 shadow-sm">
+          <p className="text-xl md:text-2xl text-gray-700 font-bold">
             Je bent een echte kampioen! 🎯
           </p>
         </div>
@@ -69,7 +69,7 @@ export default function Reward() {
         <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
           <Link
             to="/game"
-            className="group inline-flex items-center justify-center gap-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 md:px-10 py-4 md:py-5 rounded-2xl text-lg md:text-xl lg:text-2xl font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+            className="group inline-flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-600 text-white px-10 py-5 rounded-2xl text-xl md:text-2xl font-bold shadow-md border-b-4 border-amber-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           >
             <span className="text-2xl">▶️</span>
             <span>Verder spelen</span>
@@ -78,7 +78,7 @@ export default function Reward() {
           
           <Link
             to="/menu"
-            className="group inline-flex items-center justify-center gap-3 bg-white text-gray-700 px-8 md:px-10 py-4 md:py-5 rounded-2xl text-lg md:text-xl lg:text-2xl font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-gray-200"
+            className="group inline-flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-700 px-10 py-5 rounded-2xl text-xl md:text-2xl font-bold shadow-md border-2 border-gray-300 hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           >
             <span className="text-2xl">🏠</span>
             <span>Terug naar menu</span>

@@ -10,6 +10,33 @@ body {
   --font-size: 1rem;
 }
 
+
 body {
   font-size: var(--font-size);
+  font-family: var(--font-family); 
+}
+
+
+:root {
+  --animation-duration: 7s;
+}
+
+.animate-blob {
+  animation: blob var(--animation-duration) infinite;
+}
+
+
+[data-theme="light"] {
+  --bg-primary: #fff9f3;
+  --text-primary: #333;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --text-primary: #eee;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }

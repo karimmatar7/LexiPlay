@@ -43,3 +43,63 @@ export async function updateProgress(userId, newProgress) {
     return null
   }
 }
+
+// Update user's settings
+export async function updateSettings(userId, newSettings) {
+  try {
+    const { data: user, error: fetchError } = await supabase
+      .from("users")
+      .select("settings")
+      .eq("id", userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const mergedSettings = { ...(user.settings || {}), ...newSettings };
+
+    const { data, error: updateError } = await supabase
+      .from("users")
+      .update({ settings: mergedSettings })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    return data; // full user object with updated settings
+  } catch (err) {
+    console.error("Error updating settings:", err);
+    return null;
+  }
+}
+
+export const addReward = async (userId, stars = 3) => {
+  // Get current rewards
+  const { data, error } = await supabase
+    .from("users")
+    .select("rewards")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching rewards:", error);
+    return null;
+  }
+
+  const newRewards = (data.rewards || 0) + stars;
+
+  const { data: updated, error: updateError } = await supabase
+    .from("users")
+    .update({ rewards: newRewards })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error("Error updating rewards:", updateError);
+    return null;
+  }
+
+  return updated.rewards;
+};
+
