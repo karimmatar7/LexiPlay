@@ -1,7 +1,14 @@
-import React from "react"
-import Button from "./Button"
+import React, { useEffect } from "react";
+import Button from "./Button";
 
 export default function LevelCompleteScreen({ nextLevel, fontClass, sizeMap }) {
+  useEffect(() => {
+const audio = new Audio(`${process.env.PUBLIC_URL}/sounds/level-passed.mp3`);
+audio.volume = 0.5;
+audio.play().catch(err => console.error("Audio play error:", err));
+
+  }, []);
+
   return (
     <div className={`min-h-screen flex justify-center items-center bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 ${fontClass} ${sizeMap?.small || "text-base"} p-4 relative overflow-hidden`}>
       {/* Simple background decoration */}
@@ -43,5 +50,5 @@ export default function LevelCompleteScreen({ nextLevel, fontClass, sizeMap }) {
         </button>
       </div>
     </div>
-  )
+  );
 }

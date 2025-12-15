@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "./Button";
 
-export default function VictoryScreen({ gameType, startNewGame, score, words, fontClass, sizeMap, onRestart  }) {
+export default function VictoryScreen({ gameType, startNewGame, score, words, fontClass, sizeMap, onRestart }) {
+  // Play success sound when component mounts
+  useEffect(() => {
+    const audio = new Audio(`${process.env.PUBLIC_URL}/sounds/success.mp3`);
+    audio.volume = 0.5;
+    audio.play().catch(err => console.error("Audio play error:", err));
+  }, []);
+
   const handleRestart = () => {
-    // Calls the callback with the game type to restart the correct game
     if (startNewGame && gameType) startNewGame(gameType);
   };
 
   return (
-    <div className={`min-h-screen flex justify-center items-center bg-gradient-to-br from-amber-100 via-orange-100 to-pink-100 ${fontClass} ${sizeMap.small || "text-base"} p-4 relative overflow-hidden`}>
+    <div className={`min-h-screen flex justify-center items-center bg-gradient-to-br from-amber-100 via-orange-100 to-pink-100 ${fontClass} ${sizeMap?.small || "text-base"} p-4 relative overflow-hidden`}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 text-5xl animate-spin-slow">🏆</div>
         <div className="absolute top-1/4 right-10 text-4xl animate-bounce">⭐</div>
