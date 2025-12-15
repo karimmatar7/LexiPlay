@@ -134,13 +134,12 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
 
   const currentWord = (levels[level] || [])[levelIndex];
 
-  const playWord = (word) => {
-    if (!soundOn || paused || !word) return;
-    const utter = new SpeechSynthesisUtterance(word);
-    utter.lang = "nl-NL";
-    utter.rate = 0.7;
-    speechSynthesis.speak(utter);
-  };
+const playWord = (word) => {
+  if (!soundOn || paused || !word) return;
+  const audio = new Audio(`/sounds/${word}.mp3`);
+  audio.play().catch(err => console.error("Audio play error:", err));
+};
+
 
   const handleAnswer = (opt) => {
     if (answered || paused) return;

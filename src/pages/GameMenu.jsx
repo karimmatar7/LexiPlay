@@ -49,7 +49,7 @@ export default function GameMenu({ user }) {
             desc="Bouw woorden letter voor letter en wordt een spelling-kampioen!"
             active={letterBuildUnlocked}
             to={letterBuildUnlocked ? "/letterbuild" : null}
-            unlockMsg="Voltooi eerst Niveau 1 van Woord Match"
+            unlockMsg="Scoor 7 punten in Woord Match"
             bgColor="bg-blue-100"
             borderColor="border-blue-400"
           />

@@ -175,13 +175,11 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const currentWord = (words[level] || [])[levelIndex]
 
   // ---------------- SOUND ----------------
-  const playWord = (word) => {
-    if (!soundOn || paused || !word) return
-    const utter = new SpeechSynthesisUtterance(word)
-    utter.lang = "nl-NL"
-    utter.rate = 0.7
-    speechSynthesis.speak(utter)
-  }
+const playWord = (word) => {
+  if (!soundOn || paused || !word) return;
+  const audio = new Audio(`/sounds/${word}.mp3`);
+  audio.play().catch(err => console.error("Audio play error:", err));
+};
 
   // ---------------- LETTER HANDLING ----------------
   const handleLetterClick = (letter, index) => {
