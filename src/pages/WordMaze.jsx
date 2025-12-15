@@ -6,6 +6,7 @@ import ProgressBar from "../components/ProgressBar";
 import FeedbackModal from "../components/FeedbackModal";
 import PauseOverlay from "../components/PauseOverlay";
 import LoadingScreen from "../components/LoadingScreen";
+import LevelCompleteScreen from "../components/LevelCompleteScreen";
 import VictoryScreen from "../components/VictoryScreen";
 import ResetConfirmationModal from "../components/ResetConfirmationModal";
 import wordData from "../data/words.json";
@@ -26,12 +27,16 @@ const generateMazeOptions = (word) => {
   return options.map(arr => shuffleArray(arr));
 };
 
+// Generate random starting position for revealed letter
+const getRandomRevealedIndex = (wordLength) => {
+  return Math.floor(Math.random() * wordLength);
+};
+
 // --- Main Component ---
-export default function WordMaze({ user, setUser }) {
+export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
   const { fontType, fontSize } = useSettings();
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
   const sizeMap = { small: "text-base md:text-lg", medium: "text-lg md:text-xl", large: "text-xl md:text-2xl" };
-  const WORDS_PER_LEVEL = 5;
   const navigate = useNavigate();
 
   const [words, setWords] = useState([]);
@@ -41,11 +46,13 @@ export default function WordMaze({ user, setUser }) {
     score: 0,
     rewardsEarned: [false, false, false]
   });
+  const [revealedLetterIndex, setRevealedLetterIndex] = useState(0);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(1);
   const [feedback, setFeedback] = useState("");
   const [paused, setPaused] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [starEarned, setStarEarned] = useState(false);
 
   const { level, levelIndex, score, rewardsEarned } = mazeProgress;
   const currentWord = (words[level] || [])[levelIndex];
@@ -66,8 +73,8 @@ export default function WordMaze({ user, setUser }) {
 
       const progress = data.progress?.wordMaze || {};
       const levels = Array.from(
-        { length: Math.ceil(wordData.length / WORDS_PER_LEVEL) },
-        (_, i) => wordData.slice(i * WORDS_PER_LEVEL, i * WORDS_PER_LEVEL + WORDS_PER_LEVEL)
+        { length: Math.ceil(wordData.length / wordsPerLevel) },
+        (_, i) => wordData.slice(i * wordsPerLevel, i * wordsPerLevel + wordsPerLevel)
       );
       setWords(levels);
 
@@ -77,11 +84,30 @@ export default function WordMaze({ user, setUser }) {
         score: progress.score || 0,
         rewardsEarned: progress.rewardsEarned || [false, false, false]
       });
-      setCurrentLetterIndex(1);
+      
+      // Set random revealed letter for initial word
+      const initialWord = levels[progress.level || 0][progress.levelIndex || 0];
+      if (initialWord) {
+        const randomIndex = getRandomRevealedIndex(initialWord.correct.length);
+        setRevealedLetterIndex(randomIndex);
+        // Start guessing from the next position (wrapping around if needed)
+        setCurrentLetterIndex((randomIndex + 1) % initialWord.correct.length);
+      }
+      
       setLoaded(true);
     };
     loadProgress();
-  }, [user]);
+  }, [user, wordsPerLevel]);
+
+  // Update revealed letter when word changes
+  useEffect(() => {
+    if (currentWord) {
+      const randomIndex = getRandomRevealedIndex(currentWord.correct.length);
+      setRevealedLetterIndex(randomIndex);
+      // Start guessing from the next position after revealed letter
+      setCurrentLetterIndex((randomIndex + 1) % currentWord.correct.length);
+    }
+  }, [currentWord?.correct]);
 
   // --- Save progress ---
   const saveProgress = async (progressData = mazeProgress) => {
@@ -97,10 +123,19 @@ export default function WordMaze({ user, setUser }) {
   const resetMaze = async () => {
     const newProgress = { level: 0, levelIndex: 0, score: 0, rewardsEarned: [false, false, false] };
     setMazeProgress(newProgress);
-    setCurrentLetterIndex(1);
+    
+    // Reset to first word with random revealed letter
+    if (words.length > 0 && words[0].length > 0) {
+      const firstWord = words[0][0];
+      const randomIndex = getRandomRevealedIndex(firstWord.correct.length);
+      setRevealedLetterIndex(randomIndex);
+      setCurrentLetterIndex((randomIndex + 1) % firstWord.correct.length);
+    }
+    
     setFeedback("");
     setPaused(false);
     setShowResetModal(false);
+    setStarEarned(false);
     await saveProgress(newProgress);
   };
 
@@ -113,16 +148,37 @@ export default function WordMaze({ user, setUser }) {
 
     const targetLetter = currentWord.correct[currentLetterIndex];
     if (letter === targetLetter) {
-      if (currentLetterIndex + 1 === currentWord.correct.length) {
-        // Word complete
+      // Move to next letter, skipping the revealed one
+      let nextIndex = (currentLetterIndex + 1) % currentWord.correct.length;
+      
+      // Skip the revealed letter if we encounter it
+      if (nextIndex === revealedLetterIndex) {
+        nextIndex = (nextIndex + 1) % currentWord.correct.length;
+      }
+      
+      // Check if word is complete (all letters except revealed one are guessed)
+      const revealedSet = new Set([revealedLetterIndex]);
+      const guessedCount = Array.from({length: currentWord.correct.length}, (_, i) => i)
+        .filter(i => !revealedSet.has(i))
+        .filter(i => {
+          // Check if this position has been passed
+          if (revealedLetterIndex < currentLetterIndex) {
+            return i <= currentLetterIndex && i !== revealedLetterIndex;
+          } else {
+            return (i <= currentLetterIndex || i > revealedLetterIndex);
+          }
+        }).length;
+      
+      // Word complete when we've guessed all letters except the revealed one
+      if (guessedCount === currentWord.correct.length - 1) {
         setMazeProgress(prev => {
           const updated = { ...prev, score: prev.score + 1 };
-          nextWordOrLevel(updated);
+          setTimeout(() => nextWordOrLevel(updated), 1500);
           return updated;
         });
         setFeedback("correct");
       } else {
-        setCurrentLetterIndex(prev => prev + 1);
+        setCurrentLetterIndex(nextIndex);
       }
     } else {
       setFeedback("incorrect");
@@ -132,39 +188,47 @@ export default function WordMaze({ user, setUser }) {
 
   // --- Next word / next level with reward calculation ---
   const nextWordOrLevel = async (progress = mazeProgress) => {
-    setCurrentLetterIndex(1);
-    setFeedback("");
-
-    const currentLevelWords = words[level] || [];
+    const currentLevelWords = words[progress.level] || [];
     let newProgress = { ...progress };
 
     // Next word in level
-    if (levelIndex + 1 < currentLevelWords.length) {
+    if (progress.levelIndex + 1 < currentLevelWords.length) {
       newProgress.levelIndex += 1;
-
+    }
     // Next level
-    } else if (level + 1 < words.length) {
+    else if (progress.level + 1 < words.length) {
       newProgress.level += 1;
       newProgress.levelIndex = 0;
-
+    }
     // Victory
-    } else {
+    else {
       newProgress.rewardsEarned = [true, true, true];
+      setMazeProgress(newProgress);
       setFeedback("victory");
+      return;
     }
 
     // --- Calculate stars and award rewards ---
     const totalWords = words.flat().length;
-    const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1;
-    const progressPercent = (currentPosition / totalWords) * 100;
+    const currentPosition = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1;
+    const progressPercent = Math.min((currentPosition / totalWords) * 100, 100);
 
-    await checkAndAwardStars(newProgress, progressPercent, totalWords);
+    await checkAndAwardStars(newProgress, progressPercent);
+    
     setMazeProgress(newProgress);
+    
+    // Show star screen if new rewards earned, otherwise continue
+    if (newProgress.rewardsEarned.some((r, i) => !progress.rewardsEarned[i] && r)) {
+      setFeedback("");
+    } else {
+      // New word will be set via useEffect when currentWord changes
+      setFeedback("");
+    }
   };
 
-  const checkAndAwardStars = async (progressData, progressPercent, totalWords) => {
+  const checkAndAwardStars = async (newProgress, progressPercent) => {
     const starsEarned = calculateStars(progressPercent);
-    const rewards = progressData.rewardsEarned || [false, false, false];
+    const rewards = newProgress.rewardsEarned || [false, false, false];
     let rewardsAdded = 0;
 
     for (let i = 0; i < starsEarned; i++) {
@@ -174,27 +238,46 @@ export default function WordMaze({ user, setUser }) {
       }
     }
 
-    progressData.rewardsEarned = rewards;
-    await updateProgress(user.id, { wordMaze: progressData });
+    newProgress.rewardsEarned = rewards;
+    await updateProgress(user.id, { wordMaze: newProgress });
 
     if (rewardsAdded > 0) {
+      setStarEarned(true);
       await addReward(user.id, rewardsAdded);
       setUser(prev => ({
         ...prev,
         rewards: (prev.rewards || 0) + rewardsAdded,
-        progress: { ...prev.progress, wordMaze: progressData }
+        progress: { ...prev.progress, wordMaze: newProgress }
       }));
     }
   };
 
+  // --- Continue to next level after star ---
+  const goToNextLevel = async () => {
+    setStarEarned(false);
+    setFeedback("");
+    await saveProgress();
+  };
+
   if (!loaded) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
+
+  // Show level complete screen when star is earned
+  if (starEarned)
+    return (
+      <LevelCompleteScreen
+        nextLevel={goToNextLevel}
+        fontClass={fontClass}
+        sizeMap={sizeMap}
+      />
+    );
+
   if (feedback === "victory") return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={score} words={words} onRestart={resetMaze} />;
 
   const options = currentWord ? generateMazeOptions(currentWord.correct) : [];
 
-  const displayProgress = words.length
-    ? ((levelIndex + 1 + level * WORDS_PER_LEVEL) / words.flat().length) * 100
-    : 0;
+  const totalWords = words.flat().length;
+  const currentPosition = level * wordsPerLevel + levelIndex + 1;
+  const displayProgress = (currentPosition / totalWords) * 100;
 
   return (
     <div className={`min-h-screen bg-purple-50 p-4 md:p-6 ${fontClass} ${sizeMap[fontSize || "medium"]} relative`}>
@@ -205,8 +288,8 @@ export default function WordMaze({ user, setUser }) {
 
       <div className="relative max-w-3xl mx-auto">
         <HeaderBar
-          score={score}
-          total={words.flat().length}
+          score={currentPosition - 1}
+          total={totalWords}
           paused={paused}
           rewardsEarned={rewardsEarned}
           onPauseToggle={togglePause}
@@ -220,9 +303,13 @@ export default function WordMaze({ user, setUser }) {
             <div className="text-center">
               <div className="mb-8 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-2xl p-6 shadow-sm">
                 <div className="text-3xl md:text-5xl font-black tracking-wider text-purple-700 mb-4">
-                  {currentWord?.correct.split("").map((l, i) => 
-                    i === 0 ? l : i < currentLetterIndex ? l : "_"
-                  ).join(" ")}
+                  {currentWord?.correct.split("").map((l, i) => {
+                    if (i === revealedLetterIndex) return l; // Show revealed letter
+                    if (i < currentLetterIndex && currentLetterIndex > revealedLetterIndex) return l; // Show guessed letters before current
+                    if (i < currentLetterIndex && currentLetterIndex < revealedLetterIndex && i < revealedLetterIndex) return l; // Handle wrap-around
+                    if (currentLetterIndex < revealedLetterIndex && i > revealedLetterIndex && i <= currentLetterIndex + currentWord.correct.length - revealedLetterIndex - 1) return l;
+                    return "_"; // Hide unguessed letters
+                  }).join(" ")}
                 </div>
                 <div className="text-5xl md:text-6xl mb-2">{emojiHints[currentWord?.correct] || "❓"}</div>
                 <p className="text-sm md:text-base text-gray-600 font-medium">

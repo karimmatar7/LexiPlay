@@ -14,6 +14,7 @@ import UnlockModal from "../components/UnlockModal"
 import { updateProgress, getUser, addReward } from "../supabaseFunctions.js"
 import { calculateStars } from "../utils/progressStars"
 
+
 function GameArea({
   currentWord,
   selectedLetters,
@@ -89,13 +90,13 @@ function GameArea({
   )
 }
 
-export default function LetterBuild({ user, setUser }) {
+
+export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const { fontType, fontSize, soundOn } = useSettings()
   const navigate = useNavigate()
 
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans"
   const sizeMap = { small: "text-base md:text-lg", medium: "text-lg md:text-xl", large: "text-xl md:text-2xl" }
-  const WORDS_PER_LEVEL = 7
 
   // ---------------- STATE ----------------
   const [words, setWords] = useState([])
@@ -113,6 +114,7 @@ export default function LetterBuild({ user, setUser }) {
   const [loading, setLoading] = useState(true)
   const [showResetModal, setShowResetModal] = useState(false)
   const [showUnlockModal, setShowUnlockModal] = useState(false)
+  const [starEarned, setStarEarned] = useState(false)
 
   // Dragging
   const [dragged, setDragged] = useState({ letter: null, index: null, area: null })
@@ -128,8 +130,8 @@ export default function LetterBuild({ user, setUser }) {
       // Generate levels
       const shuffled = [...wordData].sort(() => 0.5 - Math.random())
       const levels = Array.from(
-        { length: Math.ceil(shuffled.length / WORDS_PER_LEVEL) },
-        (_, i) => shuffled.slice(i * WORDS_PER_LEVEL, i * WORDS_PER_LEVEL + WORDS_PER_LEVEL)
+        { length: Math.ceil(shuffled.length / wordsPerLevel) },
+        (_, i) => shuffled.slice(i * wordsPerLevel, i * wordsPerLevel + wordsPerLevel)
       )
       setWords(levels)
 
@@ -150,7 +152,7 @@ export default function LetterBuild({ user, setUser }) {
     }
 
     load()
-  }, [user])
+  }, [user, wordsPerLevel])
 
   // ---------------- SUPABASE SAVE ----------------
   const saveToSupabase = async (progressData = letterBuildProgress) => {
@@ -248,12 +250,12 @@ export default function LetterBuild({ user, setUser }) {
 
           setLetterBuildProgress(prev => {
             const updated = { ...prev, score: prev.score + 1 }
-            
+           
             // Check if score reaches 10 and maze not unlocked yet
             if (updated.score === 10 && !prev.mazeUnlocked) {
               updated.mazeUnlocked = true
               setShowUnlockModal(true)
-              
+             
               // Update user state so GameMenu knows immediately
               if (typeof setUser === "function") {
                 setUser(prevUser => ({
@@ -265,7 +267,7 @@ export default function LetterBuild({ user, setUser }) {
                 }))
               }
             }
-            
+           
             setTimeout(() => nextWordOrLevel(updated), 1500)
             return updated
           })
@@ -288,64 +290,58 @@ export default function LetterBuild({ user, setUser }) {
     // Next word inside same level
     if (progress.levelIndex + 1 < currentLevelWords.length) {
       newProgress.levelIndex += 1
-      
-      // Calculate stars AFTER updating position
-      const totalWords = words.flat().length
-      const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1
-      const progressPercent = (currentPosition / totalWords) * 100
-      
-      await checkAndAwardStars(newProgress, progressPercent)
-      
-      setLetterBuildProgress(newProgress)
-      setupLetters(words[newProgress.level][newProgress.levelIndex].correct)
-      setFeedback("")
-      return
     }
-
     // Next level
-    if (progress.level + 1 < words.length) {
+    else if (progress.level + 1 < words.length) {
       newProgress.level += 1
       newProgress.levelIndex = 0
-      
-      // Calculate stars AFTER updating to new level
-      const totalWords = words.flat().length
-      const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1
-      const progressPercent = (currentPosition / totalWords) * 100
-      
-      await checkAndAwardStars(newProgress, progressPercent)
-      
+    }
+    // Victory
+    else {
+      newProgress.rewardsEarned = [true, true, true]
       setLetterBuildProgress(newProgress)
-      setupLetters(words[newProgress.level][0].correct)
-      setFeedback("level_complete")
+      setFeedback("victory")
       return
     }
 
-    // Victory - ensure all stars are awarded
-    newProgress.rewardsEarned = [true, true, true]
-    await checkAndAwardStars(newProgress, 100)
+    // Calculate stars and check if new star earned
+    const totalWords = words.flat().length
+    const currentPosition = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1
+    const progressPercent = Math.min((currentPosition / totalWords) * 100, 100)
+    
+    await checkAndAwardStars(newProgress, progressPercent)
+    
     setLetterBuildProgress(newProgress)
-    setFeedback("victory")
+    
+    // Show star screen if new rewards earned, otherwise continue
+    if (newProgress.rewardsEarned.some((r, i) => !progress.rewardsEarned[i] && r)) {
+      setFeedback("")
+    } else {
+      setupLetters(words[newProgress.level][newProgress.levelIndex].correct)
+      setFeedback("")
+    }
   }
 
   // Helper function to check and award stars
   const checkAndAwardStars = async (newProgress, progressPercent) => {
     const starsEarned = calculateStars(progressPercent)
-    
-    const rewardsEarned = newProgress.rewardsEarned || [false, false, false]
+   
+    const rewards = newProgress.rewardsEarned || [false, false, false]
     let rewardsAdded = 0
-    
+   
     for (let i = 0; i < starsEarned; i++) {
-      if (!rewardsEarned[i]) {
-        rewardsEarned[i] = true
+      if (!rewards[i]) {
+        rewards[i] = true
         rewardsAdded += 1
       }
     }
-    
-    newProgress.rewardsEarned = rewardsEarned
-    
+   
+    newProgress.rewardsEarned = rewards
+   
     await updateProgress(user.id, { letterBuild: newProgress })
 
     if (rewardsAdded > 0) {
+      setStarEarned(true)
       await addReward(user.id, rewardsAdded)
       setUser(prev => ({
         ...prev,
@@ -354,6 +350,16 @@ export default function LetterBuild({ user, setUser }) {
       }))
     }
   }
+
+  // ---------------- CONTINUE TO NEXT LEVEL AFTER STAR ----------------
+// ---------------- CONTINUE TO NEXT LEVEL AFTER STAR ----------------
+const goToNextLevel = async () => {
+  setStarEarned(false)
+  setupLetters(words[letterBuildProgress.level][letterBuildProgress.levelIndex].correct)
+  setFeedback("")
+  await saveToSupabase()
+}
+
 
   // ---------------- PAUSE ----------------
   const togglePause = async () => {
@@ -370,17 +376,18 @@ export default function LetterBuild({ user, setUser }) {
       mazeUnlocked,
       rewardsEarned: [false, false, false]
     }
-    
+   
     setLetterBuildProgress(newProgress)
     setFeedback("")
     setPaused(false)
     setShowResetModal(false)
-    
+    setStarEarned(false)
+   
     // Reset to first word
     if (words.length > 0 && words[0].length > 0) {
       setupLetters(words[0][0].correct)
     }
-    
+   
     await saveToSupabase(newProgress)
   }
 
@@ -404,10 +411,11 @@ export default function LetterBuild({ user, setUser }) {
       />
     )
 
-  if (feedback === "level_complete")
+  // Show level complete screen when star is earned
+  if (starEarned)
     return (
       <LevelCompleteScreen
-        nextLevel={() => { setFeedback("") }}
+        nextLevel={goToNextLevel}
         fontClass={fontClass}
         sizeMap={sizeMap}
       />
@@ -426,7 +434,7 @@ export default function LetterBuild({ user, setUser }) {
 
   // Calculate current progress for display
   const totalWords = words.flat().length
-  const currentPosition = level * WORDS_PER_LEVEL + levelIndex + 1
+  const currentPosition = level * wordsPerLevel + levelIndex + 1
   const displayProgress = (currentPosition / totalWords) * 100
 
   return (
