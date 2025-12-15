@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSettings } from "../context/SettingsContext";
 import { useNavigate } from "react-router-dom";
-import HeaderBar from "../components/HeaderBar";
-import ProgressBar from "../components/ProgressBar";
-import FeedbackModal from "../components/FeedbackModal";
-import PauseOverlay from "../components/PauseOverlay";
+import GameContainer from "../components/GameContainer";
 import LoadingScreen from "../components/LoadingScreen";
 import LevelCompleteScreen from "../components/LevelCompleteScreen";
 import VictoryScreen from "../components/VictoryScreen";
@@ -27,10 +24,52 @@ const generateMazeOptions = (word) => {
   return options.map(arr => shuffleArray(arr));
 };
 
-// Generate random starting position for revealed letter
 const getRandomRevealedIndex = (wordLength) => {
   return Math.floor(Math.random() * wordLength);
 };
+
+// --- Game Area Component ---
+function MazeGameArea({ 
+  currentWord, 
+  revealedLetterIndex, 
+  currentLetterIndex, 
+  options, 
+  handleLetterClick 
+}) {
+  if (!currentWord) return null;
+
+  return (
+    <div className="text-center">
+      <div className="mb-8 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-2xl p-6 shadow-sm">
+        <div className="text-3xl md:text-5xl font-black tracking-wider text-purple-700 mb-4">
+          {currentWord.correct.split("").map((l, i) => {
+            if (i === revealedLetterIndex) return l;
+            if (i < currentLetterIndex && currentLetterIndex > revealedLetterIndex) return l;
+            if (i < currentLetterIndex && currentLetterIndex < revealedLetterIndex && i < revealedLetterIndex) return l;
+            if (currentLetterIndex < revealedLetterIndex && i > revealedLetterIndex && i <= currentLetterIndex + currentWord.correct.length - revealedLetterIndex - 1) return l;
+            return "_";
+          }).join(" ")}
+        </div>
+        <div className="text-5xl md:text-6xl mb-2">{emojiHints[currentWord.correct] || "❓"}</div>
+        <p className="text-sm md:text-base text-gray-600 font-medium">
+          Klik op de juiste letter!
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+        {(options[currentLetterIndex] || []).map((letter, idx) => (
+          <button
+            key={idx}
+            onClick={() => letter && handleLetterClick(letter)}
+            className="aspect-square bg-gradient-to-br from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white font-black text-3xl md:text-4xl rounded-2xl shadow-md border-b-4 border-rose-600 hover:shadow-lg transform hover:scale-110 transition-all duration-200 active:scale-95"
+          >
+            {letter.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // --- Main Component ---
 export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
@@ -56,7 +95,6 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
 
   const { level, levelIndex, score, rewardsEarned } = mazeProgress;
   const currentWord = (words[level] || [])[levelIndex];
-  const currentEmojiHint = emojiHints[currentWord?.correct] || "❓";
 
   // --- Load progress ---
   useEffect(() => {
@@ -85,12 +123,10 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
         rewardsEarned: progress.rewardsEarned || [false, false, false]
       });
       
-      // Set random revealed letter for initial word
       const initialWord = levels[progress.level || 0][progress.levelIndex || 0];
       if (initialWord) {
         const randomIndex = getRandomRevealedIndex(initialWord.correct.length);
         setRevealedLetterIndex(randomIndex);
-        // Start guessing from the next position (wrapping around if needed)
         setCurrentLetterIndex((randomIndex + 1) % initialWord.correct.length);
       }
       
@@ -104,7 +140,6 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     if (currentWord) {
       const randomIndex = getRandomRevealedIndex(currentWord.correct.length);
       setRevealedLetterIndex(randomIndex);
-      // Start guessing from the next position after revealed letter
       setCurrentLetterIndex((randomIndex + 1) % currentWord.correct.length);
     }
   }, [currentWord?.correct]);
@@ -124,7 +159,6 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     const newProgress = { level: 0, levelIndex: 0, score: 0, rewardsEarned: [false, false, false] };
     setMazeProgress(newProgress);
     
-    // Reset to first word with random revealed letter
     if (words.length > 0 && words[0].length > 0) {
       const firstWord = words[0][0];
       const randomIndex = getRandomRevealedIndex(firstWord.correct.length);
@@ -148,20 +182,16 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
 
     const targetLetter = currentWord.correct[currentLetterIndex];
     if (letter === targetLetter) {
-      // Move to next letter, skipping the revealed one
       let nextIndex = (currentLetterIndex + 1) % currentWord.correct.length;
       
-      // Skip the revealed letter if we encounter it
       if (nextIndex === revealedLetterIndex) {
         nextIndex = (nextIndex + 1) % currentWord.correct.length;
       }
       
-      // Check if word is complete (all letters except revealed one are guessed)
       const revealedSet = new Set([revealedLetterIndex]);
       const guessedCount = Array.from({length: currentWord.correct.length}, (_, i) => i)
         .filter(i => !revealedSet.has(i))
         .filter(i => {
-          // Check if this position has been passed
           if (revealedLetterIndex < currentLetterIndex) {
             return i <= currentLetterIndex && i !== revealedLetterIndex;
           } else {
@@ -169,7 +199,6 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
           }
         }).length;
       
-      // Word complete when we've guessed all letters except the revealed one
       if (guessedCount === currentWord.correct.length - 1) {
         setMazeProgress(prev => {
           const updated = { ...prev, score: prev.score + 1 };
@@ -191,24 +220,18 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     const currentLevelWords = words[progress.level] || [];
     let newProgress = { ...progress };
 
-    // Next word in level
     if (progress.levelIndex + 1 < currentLevelWords.length) {
       newProgress.levelIndex += 1;
-    }
-    // Next level
-    else if (progress.level + 1 < words.length) {
+    } else if (progress.level + 1 < words.length) {
       newProgress.level += 1;
       newProgress.levelIndex = 0;
-    }
-    // Victory
-    else {
+    } else {
       newProgress.rewardsEarned = [true, true, true];
       setMazeProgress(newProgress);
       setFeedback("victory");
       return;
     }
 
-    // --- Calculate stars and award rewards ---
     const totalWords = words.flat().length;
     const currentPosition = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1;
     const progressPercent = Math.min((currentPosition / totalWords) * 100, 100);
@@ -217,11 +240,9 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     
     setMazeProgress(newProgress);
     
-    // Show star screen if new rewards earned, otherwise continue
     if (newProgress.rewardsEarned.some((r, i) => !progress.rewardsEarned[i] && r)) {
       setFeedback("");
     } else {
-      // New word will be set via useEffect when currentWord changes
       setFeedback("");
     }
   };
@@ -252,7 +273,6 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     }
   };
 
-  // --- Continue to next level after star ---
   const goToNextLevel = async () => {
     setStarEarned(false);
     setFeedback("");
@@ -261,7 +281,6 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
 
   if (!loaded) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
 
-  // Show level complete screen when star is earned
   if (starEarned)
     return (
       <LevelCompleteScreen
@@ -271,7 +290,8 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
       />
     );
 
-  if (feedback === "victory") return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={score} words={words} onRestart={resetMaze} />;
+  if (feedback === "victory") 
+    return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={score} words={words} onRestart={resetMaze} />;
 
   const options = currentWord ? generateMazeOptions(currentWord.correct) : [];
 
@@ -280,67 +300,37 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
   const displayProgress = (currentPosition / totalWords) * 100;
 
   return (
-    <div className={`min-h-screen bg-purple-50 p-4 md:p-6 ${fontClass} ${sizeMap[fontSize || "medium"]} relative`}>
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-10 left-10 w-40 h-40 bg-purple-200 rounded-full opacity-30" />
-        <div className="absolute bottom-20 right-20 w-48 h-48 bg-pink-200 rounded-full opacity-25" />
-      </div>
-
-      <div className="relative max-w-3xl mx-auto">
-        <HeaderBar
-          score={currentPosition - 1}
-          total={totalWords}
-          paused={paused}
-          rewardsEarned={rewardsEarned}
-          onPauseToggle={togglePause}
-          onHome={goHome}
-          onReset={() => setShowResetModal(true)}
+    <>
+      <GameContainer
+        fontClass={fontClass}
+        sizeClass={sizeMap[fontSize || "medium"]}
+        bgColor="bg-purple-50"
+        bgVariant="purple"
+        score={currentPosition - 1}
+        total={totalWords}
+        paused={paused}
+        rewardsEarned={rewardsEarned}
+        progress={displayProgress}
+        feedback={feedback}
+        onPauseToggle={togglePause}
+        onHome={goHome}
+        onReset={() => setShowResetModal(true)}
+      >
+        <MazeGameArea
+          currentWord={currentWord}
+          revealedLetterIndex={revealedLetterIndex}
+          currentLetterIndex={currentLetterIndex}
+          options={options}
+          handleLetterClick={handleLetterClick}
         />
-        <ProgressBar progress={displayProgress} />
+      </GameContainer>
 
-        <div className="bg-white rounded-3xl border-3 border-purple-200 shadow-lg p-6 md:p-10">
-          {paused ? <PauseOverlay /> : (
-            <div className="text-center">
-              <div className="mb-8 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-2xl p-6 shadow-sm">
-                <div className="text-3xl md:text-5xl font-black tracking-wider text-purple-700 mb-4">
-                  {currentWord?.correct.split("").map((l, i) => {
-                    if (i === revealedLetterIndex) return l; // Show revealed letter
-                    if (i < currentLetterIndex && currentLetterIndex > revealedLetterIndex) return l; // Show guessed letters before current
-                    if (i < currentLetterIndex && currentLetterIndex < revealedLetterIndex && i < revealedLetterIndex) return l; // Handle wrap-around
-                    if (currentLetterIndex < revealedLetterIndex && i > revealedLetterIndex && i <= currentLetterIndex + currentWord.correct.length - revealedLetterIndex - 1) return l;
-                    return "_"; // Hide unguessed letters
-                  }).join(" ")}
-                </div>
-                <div className="text-5xl md:text-6xl mb-2">{emojiHints[currentWord?.correct] || "❓"}</div>
-                <p className="text-sm md:text-base text-gray-600 font-medium">
-                  Klik op de juiste letter!
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
-                {(options[currentLetterIndex] || []).map((letter, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => letter && handleLetterClick(letter)}
-                    className="aspect-square bg-gradient-to-br from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white font-black text-3xl md:text-4xl rounded-2xl shadow-md border-b-4 border-rose-600 hover:shadow-lg transform hover:scale-110 transition-all duration-200 active:scale-95"
-                  >
-                    {letter.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <FeedbackModal type={feedback === "correct" ? "correct" : feedback === "incorrect" ? "incorrect" : ""} />
-      </div>
-
-      {showResetModal &&
+      {showResetModal && (
         <ResetConfirmationModal
           onCancel={() => setShowResetModal(false)}
           onConfirm={resetMaze}
         />
-      }
-    </div>
+      )}
+    </>
   );
 }

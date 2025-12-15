@@ -77,13 +77,6 @@ export default function GameMenu({ user }) {
         {/* Navigation Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            to="/"
-            className="group inline-flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-700 px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-2 border-gray-300 transform hover:scale-105 transition-all duration-200"
-          >
-            <span className="text-2xl">⬅️</span>
-            <span>Terug naar Start</span>
-          </Link>
-          <Link
             to="/settings"
             className="group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
           >

@@ -1,4 +1,3 @@
-// Settings.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
@@ -19,7 +18,7 @@ export default function Settings({ user, setUser }) {
           <div className="inline-block mb-6 bg-white rounded-3xl p-8 shadow-sm border-4 border-rose-300">
             <span className="text-7xl">⚙️</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-4 text-rose-700" style={{letterSpacing: '-0.02em'}}>
+          <h1 className="text-5xl md:text-6xl font-black mb-4 text-rose-700" style={{ letterSpacing: '-0.02em' }}>
             Instellingen
           </h1>
           <p className="text-xl text-gray-700 font-medium">
@@ -27,7 +26,7 @@ export default function Settings({ user, setUser }) {
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm border-2 border-gray-200 p-8 mb-10 space-y-8">
+        <div className="bg-white rounded-3xl shadow-sm border-2 p-8 mb-10 space-y-8">
           {/* Font Type */}
           <SettingCard 
             icon="🔤" 
@@ -79,56 +78,51 @@ export default function Settings({ user, setUser }) {
             title="Geluid" 
             description="Zet geluidseffecten aan of uit"
           >
-            <div className="mt-4 flex items-center justify-center">
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-lg font-semibold">Geluidseffecten</span>
               <button
                 onClick={() => setSoundOn(!soundOn)}
-                className={`relative w-24 h-12 rounded-full shadow-inner transition-all duration-300 border-2 ${
-                  soundOn 
-                    ? "bg-green-400 border-green-600" 
-                    : "bg-gray-300 border-gray-400"
-                }`}
+                className={`relative w-24 h-12 rounded-full shadow-inner transition-all duration-300 border-2 flex items-center`}
                 aria-label="Toggle sound"
               >
-                <span
-                  className={`absolute top-1 ${
+                <div
+                  className={`absolute top-1 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 ${
                     soundOn ? "right-1" : "left-1"
-                  } w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 text-2xl`}
+                  }`}
                 >
                   {soundOn ? "🔊" : "🔇"}
-                </span>
+                </div>
+                <div
+                  className={`absolute inset-0 rounded-full transition-colors duration-300 ${
+                    soundOn ? "bg-green-400 border-green-600" : "bg-gray-300 border-gray-400"
+                  } border-2`}
+                />
               </button>
             </div>
           </SettingCard>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation buttons side by side */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
           <Link
-            to="/"
-            className="group inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-700 px-10 py-5 rounded-2xl font-bold shadow-sm hover:shadow-md border-2 border-gray-300 transform hover:scale-105 transition-all duration-200"
-          >
-            <span className="text-2xl">⬅️</span>
-            <span>Terug</span>
-          </Link>
-          <Link
             to="/menu"
-            className="group inline-flex items-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
+            className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-5 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
           >
             <span className="text-2xl">🎮</span>
             <span>Naar Spellen</span>
           </Link>
-        </div>
 
-        <button
-          onClick={() => {
-            localStorage.removeItem("lexiplay_user");
-            if (setUser) setUser(null);
-            window.location.href = "/";
-          }}
-          className="w-full bg-red-400 hover:bg-red-500 text-white px-10 py-5 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-red-600 transform hover:scale-105 transition-all duration-200"
-        >
-          🔓 Logout
-        </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem("lexiplay_user");
+              if (setUser) setUser(null);
+              window.location.href = "/";
+            }}
+            className="flex-1 text-center bg-red-400 hover:bg-red-500 text-white px-4 py-5 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-red-600 transform hover:scale-105 transition-all duration-200"
+          >
+            🔓 Uitloggen
+          </button>
+        </div>
       </div>
     </div>
   );

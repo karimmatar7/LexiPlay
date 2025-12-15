@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useSettings } from "../context/SettingsContext";
 import { useNavigate } from "react-router-dom";
-import HeaderBar from "../components/HeaderBar";
-import ProgressBar from "../components/ProgressBar";
-import FeedbackModal from "../components/FeedbackModal";
-import PauseOverlay from "../components/PauseOverlay";
+import GameContainer from "../components/GameContainer";
+import AudioButton from "../components/AudioButton";
 import LoadingScreen from "../components/LoadingScreen";
 import LevelCompleteScreen from "../components/LevelCompleteScreen";
 import VictoryScreen from "../components/VictoryScreen";
@@ -55,7 +53,7 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
   const [loaded, setLoaded] = useState(false);
   const [starEarned, setStarEarned] = useState(false);
 
-  const { level, levelIndex, rewardsEarned, letterBuildUnlocked } = progress;
+  const { level, levelIndex, rewardsEarned } = progress;
 
   // --- Load progress ---
   useEffect(() => {
@@ -134,13 +132,6 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
 
   const currentWord = (levels[level] || [])[levelIndex];
 
-const playWord = (word) => {
-  if (!soundOn || paused || !word) return;
-  const audio = new Audio(`/sounds/${word}.mp3`);
-  audio.play().catch(err => console.error("Audio play error:", err));
-};
-
-
   const handleAnswer = (opt) => {
     if (answered || paused) return;
     setAnswered(true);
@@ -162,26 +153,20 @@ const playWord = (word) => {
     const currentLevelWords = levels[newProgress.level] || [];
     let updatedProgress = { ...newProgress };
 
-    // --- Next word ---
     if (updatedProgress.levelIndex + 1 < currentLevelWords.length) {
       updatedProgress.levelIndex += 1;
-    }
-    // --- Next level ---
-    else if (updatedProgress.level + 1 < levels.length) {
+    } else if (updatedProgress.level + 1 < levels.length) {
       updatedProgress.level += 1;
       updatedProgress.levelIndex = 0;
       if (updatedProgress.level === 1 && !updatedProgress.letterBuildUnlocked) {
         updatedProgress.letterBuildUnlocked = true;
         setShowUnlockModal(true);
       }
-    }
-    // --- Victory ---
-    else {
+    } else {
       updatedProgress.rewardsEarned = [true, true, true];
       setFeedback("victory");
     }
 
-    // --- Check and award stars ---
     const totalWords = levels.flat().length;
     const currentPosition = updatedProgress.level * wordsPerLevel + updatedProgress.levelIndex + 1;
     const progressPercent = Math.min((currentPosition / totalWords) * 100, 100);
@@ -227,7 +212,6 @@ const playWord = (word) => {
     await saveProgress();
   };
 
-  // --- UI States ---
   if (!loaded) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
 
   if (showUnlockModal)
@@ -253,63 +237,55 @@ const playWord = (word) => {
   if (feedback === "victory")
     return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={progress.score} words={levels} onRestart={resetScore} />;
 
-  // --- Progress calculation ---
   const totalWords = levels.flat().length;
   const currentPosition = level * wordsPerLevel + levelIndex + 1;
   const displayProgress = (currentPosition / totalWords) * 100;
 
   return (
-    <div className={`min-h-screen bg-sky-50 p-4 md:p-6 ${fontClass} ${sizeMap[fontSize || "medium"]} relative`}>
-      <BackgroundDecor />
-      <div className="relative max-w-5xl mx-auto">
-        <HeaderBar
-          score={currentPosition - 1}
-          total={totalWords}
+    <>
+      <GameContainer
+        fontClass={fontClass}
+        sizeClass={sizeMap[fontSize || "medium"]}
+        bgColor="bg-sky-50"
+        bgVariant="default"
+        score={currentPosition - 1}
+        total={totalWords}
+        paused={paused}
+        rewardsEarned={rewardsEarned}
+        progress={displayProgress}
+        feedback={feedback}
+        onPauseToggle={togglePause}
+        onHome={goHome}
+        onReset={() => setShowResetModal(true)}
+      >
+        <WordOptions 
+          currentWord={currentWord} 
+          answered={answered} 
+          soundOn={soundOn}
           paused={paused}
-          rewardsEarned={rewardsEarned}
-          onPauseToggle={togglePause}
-          onHome={goHome}
-          onReset={() => setShowResetModal(true)}
+          handleAnswer={handleAnswer} 
         />
-        <ProgressBar progress={displayProgress} />
-        <div className="bg-white rounded-3xl border-3 border-blue-200 shadow-lg p-6 md:p-10 lg:p-12">
-          {paused ? (
-            <PauseOverlay />
-          ) : (
-            <WordOptions currentWord={currentWord} answered={answered} playWord={playWord} handleAnswer={handleAnswer} />
-          )}
-        </div>
-        <FeedbackModal type={feedback === "correct" ? "correct" : feedback === "incorrect" ? "incorrect" : ""} />
-      </div>
+      </GameContainer>
 
       {showResetModal && <ResetConfirmationModal onCancel={() => setShowResetModal(false)} onConfirm={resetScore} />}
-    </div>
+    </>
   );
 }
 
-// --- Helper Components ---
-const BackgroundDecor = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <div className="absolute top-10 left-10 w-40 h-40 bg-blue-200 rounded-full opacity-30" />
-    <div className="absolute bottom-20 right-20 w-48 h-48 bg-purple-200 rounded-full opacity-25" />
-    <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-pink-200 rounded-full opacity-30" />
-  </div>
-);
-
-const WordOptions = ({ currentWord, answered, playWord, handleAnswer }) => {
+const WordOptions = ({ currentWord, answered, soundOn, paused, handleAnswer }) => {
   if (!currentWord) return null;
   const options = generateOptions(currentWord.correct, wordData);
 
   return (
     <>
       <div className="mb-8 md:mb-12">
-        <button
-          onClick={() => playWord(currentWord.sound)}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-2xl md:text-3xl rounded-2xl py-6 md:py-8 shadow-md border-b-4 border-indigo-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-        >
-          <span className="text-4xl mr-3">🔊</span>
-          Speel het woord af
-        </button>
+        <AudioButton
+          word={currentWord.sound}
+          soundOn={soundOn}
+          paused={paused}
+          label="Speel het woord af"
+          className="w-full text-2xl md:text-3xl py-6 md:py-8"
+        />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
         {options.map((opt, i) => (

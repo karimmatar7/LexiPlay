@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react"
 import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
-import HeaderBar from "../components/HeaderBar"
-import ProgressBar from "../components/ProgressBar"
-import FeedbackModal from "../components/FeedbackModal"
-import PauseOverlay from "../components/PauseOverlay"
-import wordData from "../data/words.json"
+import GameContainer from "../components/GameContainer"
+import AudioButton from "../components/AudioButton"
 import LoadingScreen from "../components/LoadingScreen"
 import LevelCompleteScreen from "../components/LevelCompleteScreen"
 import VictoryScreen from "../components/VictoryScreen"
 import ResetConfirmationModal from "../components/ResetConfirmationModal"
 import UnlockModal from "../components/UnlockModal"
+import wordData from "../data/words.json"
 import { updateProgress, getUser, addReward } from "../supabaseFunctions.js"
 import { calculateStars } from "../utils/progressStars"
-
 
 function GameArea({
   currentWord,
@@ -25,19 +22,19 @@ function GameArea({
   handleDragOver,
   handleDropOnSelected,
   handleDropOnAvailable,
-  playWord
+  soundOn,
+  paused
 }) {
   return (
     <div className="flex flex-col items-center gap-8">
-
       {/* Word Playback Button */}
-      <button
-        onClick={() => playWord(currentWord.correct)}
-        className="px-8 py-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xl md:text-2xl rounded-2xl shadow-md border-b-4 border-indigo-700 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-      >
-        <span className="text-3xl mr-2">🔊</span>
-        Luister
-      </button>
+      <AudioButton
+        word={currentWord.correct}
+        soundOn={soundOn}
+        paused={paused}
+        label="Luister"
+        className="px-8 py-4 text-xl md:text-2xl"
+      />
 
       {/* Selected Letters Drop Zone */}
       <div
@@ -90,7 +87,6 @@ function GameArea({
   )
 }
 
-
 export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const { fontType, fontSize, soundOn } = useSettings()
   const navigate = useNavigate()
@@ -127,7 +123,6 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
       const userData = await getUser(user.id)
       const saved = userData?.progress?.letterBuild
 
-      // Generate levels
       const shuffled = [...wordData].sort(() => 0.5 - Math.random())
       const levels = Array.from(
         { length: Math.ceil(shuffled.length / wordsPerLevel) },
@@ -175,11 +170,11 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const currentWord = (words[level] || [])[levelIndex]
 
   // ---------------- SOUND ----------------
-const playWord = (word) => {
-  if (!soundOn || paused || !word) return;
-  const audio = new Audio(`/sounds/${word}.mp3`);
-  audio.play().catch(err => console.error("Audio play error:", err));
-};
+  const playWord = (word) => {
+    if (!soundOn || paused || !word) return;
+    const audio = new Audio(`/sounds/${word}.mp3`);
+    audio.play().catch(err => console.error("Audio play error:", err));
+  }
 
   // ---------------- LETTER HANDLING ----------------
   const handleLetterClick = (letter, index) => {
@@ -249,12 +244,10 @@ const playWord = (word) => {
           setLetterBuildProgress(prev => {
             const updated = { ...prev, score: prev.score + 1 }
            
-            // Check if score reaches 10 and maze not unlocked yet
             if (updated.score === 10 && !prev.mazeUnlocked) {
               updated.mazeUnlocked = true
               setShowUnlockModal(true)
              
-              // Update user state so GameMenu knows immediately
               if (typeof setUser === "function") {
                 setUser(prevUser => ({
                   ...prevUser,
@@ -285,24 +278,18 @@ const playWord = (word) => {
     const currentLevelWords = words[progress.level] || []
     let newProgress = { ...progress }
 
-    // Next word inside same level
     if (progress.levelIndex + 1 < currentLevelWords.length) {
       newProgress.levelIndex += 1
-    }
-    // Next level
-    else if (progress.level + 1 < words.length) {
+    } else if (progress.level + 1 < words.length) {
       newProgress.level += 1
       newProgress.levelIndex = 0
-    }
-    // Victory
-    else {
+    } else {
       newProgress.rewardsEarned = [true, true, true]
       setLetterBuildProgress(newProgress)
       setFeedback("victory")
       return
     }
 
-    // Calculate stars and check if new star earned
     const totalWords = words.flat().length
     const currentPosition = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1
     const progressPercent = Math.min((currentPosition / totalWords) * 100, 100)
@@ -311,7 +298,6 @@ const playWord = (word) => {
     
     setLetterBuildProgress(newProgress)
     
-    // Show star screen if new rewards earned, otherwise continue
     if (newProgress.rewardsEarned.some((r, i) => !progress.rewardsEarned[i] && r)) {
       setFeedback("")
     } else {
@@ -320,7 +306,6 @@ const playWord = (word) => {
     }
   }
 
-  // Helper function to check and award stars
   const checkAndAwardStars = async (newProgress, progressPercent) => {
     const starsEarned = calculateStars(progressPercent)
    
@@ -349,23 +334,18 @@ const playWord = (word) => {
     }
   }
 
-  // ---------------- CONTINUE TO NEXT LEVEL AFTER STAR ----------------
-// ---------------- CONTINUE TO NEXT LEVEL AFTER STAR ----------------
-const goToNextLevel = async () => {
-  setStarEarned(false)
-  setupLetters(words[letterBuildProgress.level][letterBuildProgress.levelIndex].correct)
-  setFeedback("")
-  await saveToSupabase()
-}
+  const goToNextLevel = async () => {
+    setStarEarned(false)
+    setupLetters(words[letterBuildProgress.level][letterBuildProgress.levelIndex].correct)
+    setFeedback("")
+    await saveToSupabase()
+  }
 
-
-  // ---------------- PAUSE ----------------
   const togglePause = async () => {
     setPaused(prev => !prev)
     if (!paused) await saveToSupabase()
   }
 
-  // ---------------- RESET ----------------
   const resetScore = async () => {
     const newProgress = {
       score: 0,
@@ -381,7 +361,6 @@ const goToNextLevel = async () => {
     setShowResetModal(false)
     setStarEarned(false)
    
-    // Reset to first word
     if (words.length > 0 && words[0].length > 0) {
       setupLetters(words[0][0].correct)
     }
@@ -392,7 +371,6 @@ const goToNextLevel = async () => {
   if (loading) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
   if (!currentWord) return null
 
-  // Show unlock modal when maze is unlocked
   if (showUnlockModal)
     return (
       <UnlockModal
@@ -409,7 +387,6 @@ const goToNextLevel = async () => {
       />
     )
 
-  // Show level complete screen when star is earned
   if (starEarned)
     return (
       <LevelCompleteScreen
@@ -430,56 +407,44 @@ const goToNextLevel = async () => {
       />
     )
 
-  // Calculate current progress for display
   const totalWords = words.flat().length
   const currentPosition = level * wordsPerLevel + levelIndex + 1
   const displayProgress = (currentPosition / totalWords) * 100
 
   return (
-    <div className={`min-h-screen bg-cyan-50 p-4 sm:p-6 md:p-8 ${fontClass} ${sizeMap[fontSize]} relative`}>
-      {/* Simple Background Decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 right-10 w-40 h-40 bg-cyan-200 rounded-full opacity-30" />
-        <div className="absolute bottom-20 left-20 w-48 h-48 bg-blue-200 rounded-full opacity-25" />
-      </div>
-
-      <div className="relative max-w-5xl mx-auto">
-        <HeaderBar
-          score={currentPosition - 1} // Show completed words
-          total={totalWords}
+    <>
+      <GameContainer
+        fontClass={fontClass}
+        sizeClass={sizeMap[fontSize]}
+        bgColor="bg-cyan-50"
+        bgVariant="cyan"
+        score={currentPosition - 1}
+        total={totalWords}
+        paused={paused}
+        rewardsEarned={rewardsEarned}
+        progress={displayProgress}
+        feedback={feedback}
+        onPauseToggle={togglePause}
+        onHome={async () => {
+          await saveToSupabase()
+          navigate("/menu")
+        }}
+        onReset={() => setShowResetModal(true)}
+      >
+        <GameArea
+          currentWord={currentWord}
+          selectedLetters={selectedLetters}
+          currentLetters={currentLetters}
+          handleLetterClick={handleLetterClick}
+          handleUndo={handleUndo}
+          handleDragStart={handleDragStart}
+          handleDragOver={handleDragOver}
+          handleDropOnSelected={handleDropOnSelected}
+          handleDropOnAvailable={handleDropOnAvailable}
+          soundOn={soundOn}
           paused={paused}
-          rewardsEarned={rewardsEarned}
-          onPauseToggle={togglePause}
-          onHome={async () => {
-            await saveToSupabase()
-            navigate("/menu")
-          }}
-          onReset={() => setShowResetModal(true)}
         />
-
-        <ProgressBar progress={displayProgress} />
-
-        <div className="bg-white rounded-3xl border-3 border-blue-200 shadow-lg p-6 md:p-10 lg:p-12">
-          {paused ? (
-            <PauseOverlay />
-          ) : (
-            <GameArea
-              currentWord={currentWord}
-              selectedLetters={selectedLetters}
-              currentLetters={currentLetters}
-              handleLetterClick={handleLetterClick}
-              handleUndo={handleUndo}
-              handleDragStart={handleDragStart}
-              handleDragOver={handleDragOver}
-              handleDropOnSelected={handleDropOnSelected}
-              handleDropOnAvailable={handleDropOnAvailable}
-              playWord={playWord}
-            />
-          )}
-        </div>
-
-        <FeedbackModal type={feedback === "correct" ? "correct" : feedback === "incorrect" ? "incorrect" : ""} />
-      </div>
+      </GameContainer>
 
       {showResetModal && (
         <ResetConfirmationModal
@@ -487,6 +452,6 @@ const goToNextLevel = async () => {
           onConfirm={resetScore}
         />
       )}
-    </div>
+    </>
   )
 }

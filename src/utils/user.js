@@ -1,21 +1,30 @@
-import { supabase } from '../supaBaseClient.js'
+// src/utils/user.js
+import { supabase } from '../supaBaseClient.js';
+import { sha256 } from 'js-sha256';
+
+/* =========================
+   BROWSER-SAFE RECOVERY CODE GENERATOR
+========================= */
+function generateRecoveryCode(length = 6) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    const randIndex = Math.floor(window.crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1) * chars.length);
+    code += chars[randIndex];
+  }
+  return code;
+}
 
 /* =========================
    CREATE USER
 ========================= */
 export async function createUser(name, pin) {
   try {
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id')
-      .eq('name', name)
-      .eq('pin', pin)
-      .maybeSingle()
+    const hashedPin = sha256(pin);
 
-    if (existing) {
-      console.error('User with this name and PIN already exists')
-      return null
-    }
+    // Generate a 6-character recovery code
+    const recoveryCode = generateRecoveryCode();
+    const hashedRecovery = sha256(recoveryCode);
 
     const defaultProgress = {
       wordMatch: {
@@ -23,35 +32,37 @@ export async function createUser(name, pin) {
         levelIndex: 0,
         score: 0,
         letterBuildUnlocked: false,
-        rewardsEarned: [false, false, false]
-      }
-    }
+        rewardsEarned: [false, false, false],
+      },
+    };
 
     const defaultSettings = {
       fontType: 'normal',
       fontSize: 'medium',
-      soundOn: true
-    }
+      soundOn: true,
+    };
 
     const { data, error } = await supabase
       .from('users')
       .insert([
         {
           name,
-          pin,
+          pin: hashedPin,
+          recovery_code: hashedRecovery,
           rewards: 0,
           progress: defaultProgress,
-          settings: defaultSettings
-        }
+          settings: defaultSettings,
+        },
       ])
       .select()
-      .single()
+      .single();
 
-    if (error) throw error
-    return data
+    if (error) throw error;
+    // return plain recovery code so you can show it to the kid
+    return { user: data, recoveryCode };
   } catch (err) {
-    console.error('Error creating user:', err)
-    return null
+    console.error('Error creating user:', err);
+    return null;
   }
 }
 
@@ -64,14 +75,59 @@ export async function loginUser(name, pin) {
       .from('users')
       .select('*')
       .eq('name', name)
-      .eq('pin', pin)
-      .single()
+      .single();
 
-    if (error) throw error
-    return data
+    if (error || !data) return null;
+
+    if (sha256(pin) !== data.pin) return null;
+    return data;
   } catch (err) {
-    console.error('Error logging in:', err)
-    return null
+    console.error('Error logging in:', err);
+    return null;
+  }
+}
+
+/* =========================
+   GET USER BY ID
+========================= */
+export async function getUser(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) return null;
+    return data;
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    return null;
+  }
+}
+
+/* =========================
+   RESET PIN WITH RECOVERY CODE
+========================= */
+export async function resetPin(name, recoveryCode, newPin) {
+  try {
+    const hashedRecovery = sha256(recoveryCode);
+    const hashedPin = sha256(newPin);
+
+    // DON'T invalidate the recovery code - keep it for future use
+    const { data, error } = await supabase
+      .from('users')
+      .update({ pin: hashedPin })
+      .eq('name', name)
+      .eq('recovery_code', hashedRecovery)
+      .select()
+      .single();
+
+    if (error || !data) return null;
+    return data;
+  } catch (err) {
+    console.error('Error resetting PIN:', err);
+    return null;
   }
 }
 
@@ -84,11 +140,11 @@ export async function updateProgress(userId, newProgressPart) {
       .from('users')
       .select('progress')
       .eq('id', userId)
-      .single()
+      .single();
 
-    if (fetchError) throw fetchError
+    if (fetchError) throw fetchError;
 
-    const mergedProgress = { ...(user.progress || {}) }
+    const mergedProgress = { ...(user.progress || {}) };
 
     for (const gameKey in newProgressPart) {
       mergedProgress[gameKey] = {
@@ -97,8 +153,8 @@ export async function updateProgress(userId, newProgressPart) {
         rewardsEarned:
           newProgressPart[gameKey]?.rewardsEarned ??
           mergedProgress[gameKey]?.rewardsEarned ??
-          [false, false, false]
-      }
+          [false, false, false],
+      };
     }
 
     const { data, error } = await supabase
@@ -106,13 +162,13 @@ export async function updateProgress(userId, newProgressPart) {
       .update({ progress: mergedProgress })
       .eq('id', userId)
       .select()
-      .single()
+      .single();
 
-    if (error) throw error
-    return data
+    if (error) throw error;
+    return data;
   } catch (err) {
-    console.error('Error updating progress:', err)
-    return null
+    console.error('Error updating progress:', err);
+    return null;
   }
 }
 
@@ -125,24 +181,24 @@ export async function addReward(userId, stars = 1) {
       .from('users')
       .select('rewards')
       .eq('id', userId)
-      .single()
+      .single();
 
-    if (error) throw error
+    if (error) throw error;
 
-    const newRewards = (user.rewards || 0) + stars
+    const newRewards = (user.rewards || 0) + stars;
 
     const { data, error: updateError } = await supabase
       .from('users')
       .update({ rewards: newRewards })
       .eq('id', userId)
       .select()
-      .single()
+      .single();
 
-    if (updateError) throw updateError
-    return data.rewards
+    if (updateError) throw updateError;
+    return data.rewards;
   } catch (err) {
-    console.error('Error adding reward:', err)
-    return null
+    console.error('Error adding reward:', err);
+    return null;
   }
 }
 
@@ -155,26 +211,26 @@ export async function updateSettings(userId, newSettings) {
       .from('users')
       .select('settings')
       .eq('id', userId)
-      .single()
+      .single();
 
-    if (fetchError) throw fetchError
+    if (fetchError) throw fetchError;
 
     const mergedSettings = {
       ...(user.settings || {}),
-      ...newSettings
-    }
+      ...newSettings,
+    };
 
     const { data, error } = await supabase
       .from('users')
       .update({ settings: mergedSettings })
       .eq('id', userId)
       .select()
-      .single()
+      .single();
 
-    if (error) throw error
-    return data
+    if (error) throw error;
+    return data;
   } catch (err) {
-    console.error('Error updating settings:', err)
-    return null
+    console.error('Error updating settings:', err);
+    return null;
   }
 }
