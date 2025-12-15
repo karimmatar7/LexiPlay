@@ -19,30 +19,42 @@ export async function getUser(userId) {
 export async function updateProgress(userId, newProgress) {
   try {
     const { data: existing, error: fetchError } = await supabase
-      .from('users')
-      .select('progress, rewards')
-      .eq('id', userId)
+      .from("users")
+      .select("progress")
+      .eq("id", userId)
       .single()
+
     if (fetchError) throw fetchError
 
-    const mergedProgress = {
-      ...existing.progress,
-      ...newProgress
+    const mergedProgress = { ...(existing.progress || {}) }
+
+    for (const gameKey in newProgress) {
+      mergedProgress[gameKey] = {
+        ...(mergedProgress[gameKey] || {}),
+        ...newProgress[gameKey],
+        rewardsEarned:
+          newProgress[gameKey]?.rewardsEarned ??
+          mergedProgress[gameKey]?.rewardsEarned ??
+          [false, false, false]
+      }
     }
 
     const { data, error: updateError } = await supabase
-      .from('users')
+      .from("users")
       .update({ progress: mergedProgress })
-      .eq('id', userId)
+      .eq("id", userId)
       .select()
+      .single()
 
     if (updateError) throw updateError
-    return data[0]
+
+    return data
   } catch (err) {
-    console.error('Error updating progress:', err)
+    console.error("Error updating progress:", err)
     return null
   }
 }
+
 
 // Update user's settings
 export async function updateSettings(userId, newSettings) {

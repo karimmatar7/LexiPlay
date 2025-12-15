@@ -11,8 +11,9 @@ import VictoryScreen from "../components/VictoryScreen"
 import UnlockModal from "../components/UnlockModal"
 import ResetConfirmationModal from "../components/ResetConfirmationModal"
 import wordData from "../data/words.json"
-import { updateProgress } from "../supabaseFunctions.js"
+import { updateProgress, addReward } from "../supabaseFunctions.js"
 import { supabase } from "../supaBaseClient";
+import { calculateStars } from "../utils/progressStars";
 
 // --- Helpers ---
 const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5)
@@ -44,7 +45,8 @@ export default function WordMatch({ user, setUser }) {
     level: 0,
     levelIndex: 0,
     score: 0,
-    letterBuildUnlocked: false
+    letterBuildUnlocked: false,
+    rewardsEarned: [false, false, false]
   })
   const [feedback, setFeedback] = useState("")
   const [answered, setAnswered] = useState(false)
@@ -53,7 +55,7 @@ export default function WordMatch({ user, setUser }) {
   const [showResetModal, setShowResetModal] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
-  const { level, levelIndex, score, letterBuildUnlocked } = wordMatchProgress
+  const { level, levelIndex, score, letterBuildUnlocked, rewardsEarned } = wordMatchProgress
 
   // --- Load progress ---
   useEffect(() => {
@@ -82,7 +84,8 @@ export default function WordMatch({ user, setUser }) {
         level: progress.level || 0,
         levelIndex: progress.levelIndex || 0,
         score: progress.score || 0,
-        letterBuildUnlocked: progress.letterBuildUnlocked || false
+        letterBuildUnlocked: progress.letterBuildUnlocked || false,
+        rewardsEarned: progress.rewardsEarned || [false, false, false]
       });
 
       setLoaded(true);
@@ -95,7 +98,14 @@ export default function WordMatch({ user, setUser }) {
   const saveProgress = async (progressData = wordMatchProgress) => {
     if (!user) return
     const updated = await updateProgress(user.id, { wordMatch: progressData })
-    if (updated) user.progress = updated.progress
+    if (updated) {
+      user.progress = updated.progress
+      // Update local user state to keep rewards in sync
+      setUser(prev => ({
+        ...prev,
+        progress: updated.progress
+      }))
+    }
   }
 
   // --- Reset score handler ---
@@ -104,7 +114,8 @@ export default function WordMatch({ user, setUser }) {
       ...wordMatchProgress,
       score: 0,
       level: 0,
-      levelIndex: 0
+      levelIndex: 0,
+      rewardsEarned: [false, false, false]
     }
     setWordMatchProgress(newProgress)
     setFeedback("")
@@ -141,41 +152,91 @@ export default function WordMatch({ user, setUser }) {
 
     if (opt === currentWord.correct) {
       setFeedback("correct")
-      setWordMatchProgress(prev => ({ ...prev, score: prev.score + 1 }))
-      setTimeout(nextWordOrLevel, 1500)
+
+      setWordMatchProgress(prev => {
+        const updated = { ...prev, score: prev.score + 1 }
+        // Pass the updated progress to nextWordOrLevel
+        setTimeout(() => nextWordOrLevel(updated), 1500)
+        return updated
+      })
+      
     } else {
       setFeedback("incorrect")
       setTimeout(() => { setFeedback(""); setAnswered(false) }, 1500)
     }
   }
 
-  const nextWordOrLevel = async () => {
-    const currentLevelWords = words[level] || []
-    if (levelIndex + 1 < currentLevelWords.length) {
-      setWordMatchProgress(prev => ({ ...prev, levelIndex: prev.levelIndex + 1 }))
+  const nextWordOrLevel = async (progress = wordMatchProgress) => {
+    const currentLevelWords = words[progress.level] || []
+    let newProgress = { ...progress }
+
+    // --- Check if more words in the level ---
+    if (progress.levelIndex + 1 < currentLevelWords.length) {
+      newProgress.levelIndex += 1
+      
+      // Calculate stars AFTER updating position
+      const totalWords = words.flat().length
+      const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1
+      const progressPercent = (currentPosition / totalWords) * 100
+      
+      await checkAndAwardStars(newProgress, progressPercent, totalWords)
+      
+      setWordMatchProgress(newProgress)
       setFeedback("")
       setAnswered(false)
-      await saveProgress()
-    } else if (level + 1 < words.length) {
-      setFeedback("level_complete")
-      if (level === 0 && !letterBuildUnlocked) {
-        const newProgress = { ...wordMatchProgress, letterBuildUnlocked: true }
-        
-        await updateProgress(user.id, { wordMatch: newProgress })
-        setWordMatchProgress(newProgress)
-        setUser(prev => ({
-          ...prev,
-          progress: {
-            ...prev.progress,
-            wordMatch: newProgress
-          }
-        }))
 
+    } else if (progress.level + 1 < words.length) {
+      setFeedback("level_complete")
+      if (progress.level === 0 && !progress.letterBuildUnlocked) {
+        newProgress.letterBuildUnlocked = true
         setShowUnlockModal(true)
       }
+      newProgress.level += 1
+      newProgress.levelIndex = 0
+      
+      // Calculate stars AFTER updating to new level
+      const totalWords = words.flat().length
+      const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1
+      const progressPercent = (currentPosition / totalWords) * 100
+      
+      await checkAndAwardStars(newProgress, progressPercent, totalWords)
+      
     } else {
+      // Victory - ensure all stars are awarded
+      const totalWords = words.flat().length
+      newProgress.rewardsEarned = [true, true, true]
+      await checkAndAwardStars(newProgress, 100, totalWords)
       setFeedback("victory")
-      await saveProgress()
+    }
+
+    setWordMatchProgress(newProgress)
+  }
+
+  // Helper function to check and award stars
+  const checkAndAwardStars = async (newProgress, progressPercent, totalWords) => {
+    const starsEarned = calculateStars(progressPercent)
+    
+    const rewardsEarned = newProgress.rewardsEarned || [false, false, false]
+    let rewardsAdded = 0
+    
+    for (let i = 0; i < starsEarned; i++) {
+      if (!rewardsEarned[i]) {
+        rewardsEarned[i] = true
+        rewardsAdded += 1
+      }
+    }
+    
+    newProgress.rewardsEarned = rewardsEarned
+    
+    await updateProgress(user.id, { wordMatch: newProgress })
+
+    if (rewardsAdded > 0) {
+      await addReward(user.id, rewardsAdded)
+      setUser(prev => ({
+        ...prev,
+        rewards: (prev.rewards || 0) + rewardsAdded,
+        progress: { ...prev.progress, wordMatch: newProgress }
+      }))
     }
   }
 
@@ -211,21 +272,27 @@ export default function WordMatch({ user, setUser }) {
     return <LevelCompleteScreen fontClass={fontClass} sizeMap={sizeMap} nextLevel={goToNextLevel} />
 
   if (feedback === "victory")
-    return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={score} words={words} onRestart={() => window.location.reload()} />
+    return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={score} words={words} onRestart={resetScore} />
+
+  // Calculate current progress for display
+  const totalWords = words.flat().length
+  const currentPosition = level * WORDS_PER_LEVEL + levelIndex + 1
+  const displayProgress = (currentPosition / totalWords) * 100
 
   return (
     <div className={`min-h-screen bg-sky-50 p-4 md:p-6 ${fontClass} ${sizeMap[fontSize || "medium"]} relative`}>
       <BackgroundDecor />
       <div className="relative max-w-5xl mx-auto">
         <HeaderBar 
-          score={score}
-          total={words.flat().length}
+          score={currentPosition - 1} // Show completed words
+          total={totalWords}
           paused={paused}
+          rewardsEarned={rewardsEarned} 
           onPauseToggle={togglePause}
           onHome={goHome}
           onReset={() => setShowResetModal(true)}
         />
-        <ProgressBar progress={((levelIndex + 1 + level * WORDS_PER_LEVEL) / words.flat().length) * 100} />
+        <ProgressBar progress={displayProgress} />
         <div className="bg-white rounded-3xl border-3 border-blue-200 shadow-lg p-6 md:p-10 lg:p-12">
           {paused ? <PauseOverlay /> :
             <WordOptions currentWord={currentWord} answered={answered} playWord={playWord} handleAnswer={handleAnswer} />
@@ -287,4 +354,3 @@ const WordOptions = ({ currentWord, answered, playWord, handleAnswer }) => {
     </>
   )
 }
-

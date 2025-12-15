@@ -1,124 +1,180 @@
 import { supabase } from '../supaBaseClient.js'
 
-// Create a new user
+/* =========================
+   CREATE USER
+========================= */
 export async function createUser(name, pin) {
   try {
     const { data: existing } = await supabase
-      .from("users")
-      .select("id")
-      .eq("name", name)
-      .eq("pin", pin)
-      .maybeSingle();
+      .from('users')
+      .select('id')
+      .eq('name', name)
+      .eq('pin', pin)
+      .maybeSingle()
 
     if (existing) {
-      console.error("User with this name and PIN already exists");
-      return null;
+      console.error('User with this name and PIN already exists')
+      return null
+    }
+
+    const defaultProgress = {
+      wordMatch: {
+        level: 0,
+        levelIndex: 0,
+        score: 0,
+        letterBuildUnlocked: false,
+        rewardsEarned: [false, false, false]
+      }
+    }
+
+    const defaultSettings = {
+      fontType: 'normal',
+      fontSize: 'medium',
+      soundOn: true
     }
 
     const { data, error } = await supabase
       .from('users')
-      .insert([{ 
-        name, 
-        pin, 
-        rewards: 0, 
-        progress: { wordMatch: { level: 0, levelIndex: 0, score: 0, letterBuildUnlocked: false } },
-        settings: { fontType: "normal", fontSize: "medium", soundOn: true } // ← default settings
-      }])
-      .select();
+      .insert([
+        {
+          name,
+          pin,
+          rewards: 0,
+          progress: defaultProgress,
+          settings: defaultSettings
+        }
+      ])
+      .select()
+      .single()
 
-    if (error) {
-      console.error('Error creating user:', error);
-      return null;
-    }
-
-    return data[0];
+    if (error) throw error
+    return data
   } catch (err) {
-    console.error("Error in createUser:", err);
-    return null;
-  }
-}
-
-
-// Login user
-export async function loginUser(name, pin) {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*') // must include settings!
-    .eq('name', name)
-    .eq('pin', pin)
-    .single()
-
-  if (error) {
-    console.error('Error logging in:', error)
+    console.error('Error creating user:', err)
     return null
   }
-
-  return data
 }
 
+/* =========================
+   LOGIN USER
+========================= */
+export async function loginUser(name, pin) {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('name', name)
+      .eq('pin', pin)
+      .single()
 
-// Update user's progress and rewards
-export async function updateProgress(userId, newProgressPart, reward = 0) {
-  // 1️⃣ Fetch existing progress first
-  const { data: user, error: fetchError } = await supabase
-    .from('users')
-    .select('progress')
-    .eq('id', userId)
-    .single();
-
-  if (fetchError) {
-    console.error('Error fetching user for progress update:', fetchError);
-    return null;
+    if (error) throw error
+    return data
+  } catch (err) {
+    console.error('Error logging in:', err)
+    return null
   }
-
-  const mergedProgress = {
-    ...user.progress,          // existing progress
-    ...newProgressPart         // merge in new updates
-  };
-
-  // 2️⃣ Update merged progress
-  const { data, error } = await supabase
-    .from('users')
-    .update({
-      rewards: supabase.raw('rewards + ?', [reward]),
-      progress: mergedProgress
-    })
-    .eq('id', userId)
-    .select();
-
-  if (error) console.error('Error updating progress:', error);
-  return data[0];
 }
 
-// Update user settings
+/* =========================
+   UPDATE PROGRESS (SAFE)
+========================= */
+export async function updateProgress(userId, newProgressPart) {
+  try {
+    const { data: user, error: fetchError } = await supabase
+      .from('users')
+      .select('progress')
+      .eq('id', userId)
+      .single()
+
+    if (fetchError) throw fetchError
+
+    const mergedProgress = { ...(user.progress || {}) }
+
+    for (const gameKey in newProgressPart) {
+      mergedProgress[gameKey] = {
+        ...(mergedProgress[gameKey] || {}),
+        ...newProgressPart[gameKey],
+        rewardsEarned:
+          newProgressPart[gameKey]?.rewardsEarned ??
+          mergedProgress[gameKey]?.rewardsEarned ??
+          [false, false, false]
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .update({ progress: mergedProgress })
+      .eq('id', userId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  } catch (err) {
+    console.error('Error updating progress:', err)
+    return null
+  }
+}
+
+/* =========================
+   ADD REWARD (TOTAL STARS)
+========================= */
+export async function addReward(userId, stars = 1) {
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('rewards')
+      .eq('id', userId)
+      .single()
+
+    if (error) throw error
+
+    const newRewards = (user.rewards || 0) + stars
+
+    const { data, error: updateError } = await supabase
+      .from('users')
+      .update({ rewards: newRewards })
+      .eq('id', userId)
+      .select()
+      .single()
+
+    if (updateError) throw updateError
+    return data.rewards
+  } catch (err) {
+    console.error('Error adding reward:', err)
+    return null
+  }
+}
+
+/* =========================
+   UPDATE SETTINGS
+========================= */
 export async function updateSettings(userId, newSettings) {
   try {
-    // Fetch existing settings
     const { data: user, error: fetchError } = await supabase
       .from('users')
       .select('settings')
       .eq('id', userId)
-      .single();
+      .single()
 
-    if (fetchError) {
-      console.error('Error fetching user for settings update:', fetchError);
-      return null;
+    if (fetchError) throw fetchError
+
+    const mergedSettings = {
+      ...(user.settings || {}),
+      ...newSettings
     }
-
-    const mergedSettings = { ...user.settings, ...newSettings };
 
     const { data, error } = await supabase
       .from('users')
       .update({ settings: mergedSettings })
       .eq('id', userId)
       .select()
-      .single();
+      .single()
 
-    if (error) console.error('Error updating settings:', error);
-    return data;
+    if (error) throw error
+    return data
   } catch (err) {
-    console.error("Error in updateSettings:", err);
-    return null;
+    console.error('Error updating settings:', err)
+    return null
   }
 }
-

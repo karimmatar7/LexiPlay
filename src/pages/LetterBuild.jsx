@@ -11,7 +11,8 @@ import LevelCompleteScreen from "../components/LevelCompleteScreen"
 import VictoryScreen from "../components/VictoryScreen"
 import ResetConfirmationModal from "../components/ResetConfirmationModal"
 import UnlockModal from "../components/UnlockModal"
-import { updateProgress, getUser } from "../supabaseFunctions.js"
+import { updateProgress, getUser, addReward } from "../supabaseFunctions.js"
+import { calculateStars } from "../utils/progressStars"
 
 function GameArea({
   currentWord,
@@ -88,8 +89,6 @@ function GameArea({
   )
 }
 
-
-
 export default function LetterBuild({ user, setUser }) {
   const { fontType, fontSize, soundOn } = useSettings()
   const navigate = useNavigate()
@@ -100,9 +99,13 @@ export default function LetterBuild({ user, setUser }) {
 
   // ---------------- STATE ----------------
   const [words, setWords] = useState([])
-  const [level, setLevel] = useState(0)
-  const [levelIndex, setLevelIndex] = useState(0)
-  const [score, setScore] = useState(0)
+  const [letterBuildProgress, setLetterBuildProgress] = useState({
+    level: 0,
+    levelIndex: 0,
+    score: 0,
+    mazeUnlocked: false,
+    rewardsEarned: [false, false, false]
+  })
   const [feedback, setFeedback] = useState("")
   const [paused, setPaused] = useState(false)
   const [currentLetters, setCurrentLetters] = useState([])
@@ -110,24 +113,17 @@ export default function LetterBuild({ user, setUser }) {
   const [loading, setLoading] = useState(true)
   const [showResetModal, setShowResetModal] = useState(false)
   const [showUnlockModal, setShowUnlockModal] = useState(false)
-  const [mazeUnlocked, setMazeUnlocked] = useState(false)
 
   // Dragging
   const [dragged, setDragged] = useState({ letter: null, index: null, area: null })
+
+  const { level, levelIndex, score, mazeUnlocked, rewardsEarned } = letterBuildProgress
 
   // ---------------- INIT: LOAD FROM SUPABASE ----------------
   useEffect(() => {
     async function load() {
       const userData = await getUser(user.id)
-
       const saved = userData?.progress?.letterBuild
-
-      if (saved) {
-        setLevel(saved.level || 0)
-        setLevelIndex(saved.levelIndex || 0)
-        setScore(saved.score || 0)
-        setMazeUnlocked(saved.mazeUnlocked || false)
-      }
 
       // Generate levels
       const shuffled = [...wordData].sort(() => 0.5 - Math.random())
@@ -135,32 +131,38 @@ export default function LetterBuild({ user, setUser }) {
         { length: Math.ceil(shuffled.length / WORDS_PER_LEVEL) },
         (_, i) => shuffled.slice(i * WORDS_PER_LEVEL, i * WORDS_PER_LEVEL + WORDS_PER_LEVEL)
       )
-
       setWords(levels)
 
+      setLetterBuildProgress({
+        level: saved?.level || 0,
+        levelIndex: saved?.levelIndex || 0,
+        score: saved?.score || 0,
+        mazeUnlocked: saved?.mazeUnlocked || false,
+        rewardsEarned: saved?.rewardsEarned || [false, false, false]
+      })
+
       const restoredWord = saved
-        ? levels[saved.level][saved.levelIndex].correct
+        ? levels[saved.level || 0][saved.levelIndex || 0].correct
         : levels[0][0].correct
 
       setupLetters(restoredWord)
-
       setLoading(false)
     }
 
     load()
-  }, [])
+  }, [user])
 
   // ---------------- SUPABASE SAVE ----------------
-  const saveToSupabase = (customData = {}) => {
-    updateProgress(user.id, {
-      letterBuild: {
-        score,
-        level,
-        levelIndex,
-        mazeUnlocked,
-        ...customData
-      }
-    })
+  const saveToSupabase = async (progressData = letterBuildProgress) => {
+    if (!user) return
+    const updated = await updateProgress(user.id, { letterBuild: progressData })
+    if (updated) {
+      user.progress = updated.progress
+      setUser(prev => ({
+        ...prev,
+        progress: updated.progress
+      }))
+    }
   }
 
   const setupLetters = (word) => {
@@ -234,92 +236,142 @@ export default function LetterBuild({ user, setUser }) {
     setDragged({ letter: null, index: null, area: null })
   }
 
-// ---------------- CHECK WORD ----------------
-useEffect(() => {
-  if (!currentWord) return
+  // ---------------- CHECK WORD ----------------
+  useEffect(() => {
+    if (!currentWord) return
 
-  if (selectedLetters.length === currentWord.correct.length) {
-    setTimeout(async () => {
-      if (selectedLetters.join("") === currentWord.correct) {
-        setFeedback("correct")
-        const newScore = score + 1
-        setScore(newScore)
-        playWord(currentWord.correct)
+    if (selectedLetters.length === currentWord.correct.length) {
+      setTimeout(async () => {
+        if (selectedLetters.join("") === currentWord.correct) {
+          setFeedback("correct")
+          playWord(currentWord.correct)
 
-        // Check if score reaches 10 and maze not unlocked yet
-if (newScore === 10 && !mazeUnlocked) {
-  const updatedProgress = { score: newScore, mazeUnlocked: true }
-  await updateProgress(user.id, { letterBuild: updatedProgress })
-  
-  setMazeUnlocked(true)
-  setShowUnlockModal(true)
-
-  // ✅ Update user state so GameMenu knows immediately
-  if (typeof setUser === "function") {
-    setUser(prev => ({
-      ...prev,
-      progress: {
-        ...prev.progress,
-        letterBuild: updatedProgress
-      }
-    }))
-  }
-} else {
-  saveToSupabase({ score: newScore })
-}
-
-
-        setTimeout(nextWordOrLevel, 1500)
-      } else {
-        setFeedback("incorrect")
-        setTimeout(() => {
-          setFeedback("")
-          setupLetters(currentWord.correct)
-        }, 1500)
-      }
-    }, 300)
-  }
-}, [selectedLetters])
+          setLetterBuildProgress(prev => {
+            const updated = { ...prev, score: prev.score + 1 }
+            
+            // Check if score reaches 10 and maze not unlocked yet
+            if (updated.score === 10 && !prev.mazeUnlocked) {
+              updated.mazeUnlocked = true
+              setShowUnlockModal(true)
+              
+              // Update user state so GameMenu knows immediately
+              if (typeof setUser === "function") {
+                setUser(prevUser => ({
+                  ...prevUser,
+                  progress: {
+                    ...prevUser.progress,
+                    letterBuild: updated
+                  }
+                }))
+              }
+            }
+            
+            setTimeout(() => nextWordOrLevel(updated), 1500)
+            return updated
+          })
+        } else {
+          setFeedback("incorrect")
+          setTimeout(() => {
+            setFeedback("")
+            setupLetters(currentWord.correct)
+          }, 1500)
+        }
+      }, 300)
+    }
+  }, [selectedLetters])
 
   // ---------------- NEXT WORD / NEXT LEVEL ----------------
-  const nextWordOrLevel = () => {
+  const nextWordOrLevel = async (progress = letterBuildProgress) => {
+    const currentLevelWords = words[progress.level] || []
+    let newProgress = { ...progress }
+
     // Next word inside same level
-    if (levelIndex + 1 < words[level].length) {
-      const nextIndex = levelIndex + 1
-      setLevelIndex(nextIndex)
-      setupLetters(words[level][nextIndex].correct)
-      saveToSupabase({ levelIndex: nextIndex })
+    if (progress.levelIndex + 1 < currentLevelWords.length) {
+      newProgress.levelIndex += 1
+      
+      // Calculate stars AFTER updating position
+      const totalWords = words.flat().length
+      const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1
+      const progressPercent = (currentPosition / totalWords) * 100
+      
+      await checkAndAwardStars(newProgress, progressPercent)
+      
+      setLetterBuildProgress(newProgress)
+      setupLetters(words[newProgress.level][newProgress.levelIndex].correct)
       setFeedback("")
       return
     }
 
     // Next level
-    if (level + 1 < words.length) {
-      const nextLevel = level + 1
-      setLevel(nextLevel)
-      setLevelIndex(0)
-      setupLetters(words[nextLevel][0].correct)
-      saveToSupabase({ level: nextLevel, levelIndex: 0 })
+    if (progress.level + 1 < words.length) {
+      newProgress.level += 1
+      newProgress.levelIndex = 0
+      
+      // Calculate stars AFTER updating to new level
+      const totalWords = words.flat().length
+      const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1
+      const progressPercent = (currentPosition / totalWords) * 100
+      
+      await checkAndAwardStars(newProgress, progressPercent)
+      
+      setLetterBuildProgress(newProgress)
+      setupLetters(words[newProgress.level][0].correct)
       setFeedback("level_complete")
       return
     }
 
-    // Victory
+    // Victory - ensure all stars are awarded
+    newProgress.rewardsEarned = [true, true, true]
+    await checkAndAwardStars(newProgress, 100)
+    setLetterBuildProgress(newProgress)
     setFeedback("victory")
-    saveToSupabase({ completed: true })
+  }
+
+  // Helper function to check and award stars
+  const checkAndAwardStars = async (newProgress, progressPercent) => {
+    const starsEarned = calculateStars(progressPercent)
+    
+    const rewardsEarned = newProgress.rewardsEarned || [false, false, false]
+    let rewardsAdded = 0
+    
+    for (let i = 0; i < starsEarned; i++) {
+      if (!rewardsEarned[i]) {
+        rewardsEarned[i] = true
+        rewardsAdded += 1
+      }
+    }
+    
+    newProgress.rewardsEarned = rewardsEarned
+    
+    await updateProgress(user.id, { letterBuild: newProgress })
+
+    if (rewardsAdded > 0) {
+      await addReward(user.id, rewardsAdded)
+      setUser(prev => ({
+        ...prev,
+        rewards: (prev.rewards || 0) + rewardsAdded,
+        progress: { ...prev.progress, letterBuild: newProgress }
+      }))
+    }
   }
 
   // ---------------- PAUSE ----------------
-  const togglePause = () => {
-    if (!paused) saveToSupabase()
-    setPaused(!paused)
+  const togglePause = async () => {
+    setPaused(prev => !prev)
+    if (!paused) await saveToSupabase()
   }
 
   // ---------------- RESET ----------------
   const resetScore = async () => {
-    setScore(0)
-    setLevel(0)
-    setLevelIndex(0)
+    const newProgress = {
+      score: 0,
+      level: 0,
+      levelIndex: 0,
+      mazeUnlocked,
+      rewardsEarned: [false, false, false]
+    }
+    
+    setLetterBuildProgress(newProgress)
     setFeedback("")
     setPaused(false)
     setShowResetModal(false)
@@ -329,15 +381,7 @@ if (newScore === 10 && !mazeUnlocked) {
       setupLetters(words[0][0].correct)
     }
     
-    // Save reset progress to DB
-    await updateProgress(user.id, {
-      letterBuild: {
-        score: 0,
-        level: 0,
-        levelIndex: 0,
-        mazeUnlocked
-      }
-    })
+    await saveToSupabase(newProgress)
   }
 
   if (loading) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
@@ -352,9 +396,10 @@ if (newScore === 10 && !mazeUnlocked) {
         gameName="Woord Doolhof"
         gameEmoji="🧩"
         gameRoute="/maze"
-        onClose={() => {
+        onClose={async () => {
           setShowUnlockModal(false)
           setFeedback("")
+          await saveToSupabase()
         }}
       />
     )
@@ -371,7 +416,7 @@ if (newScore === 10 && !mazeUnlocked) {
   if (feedback === "victory")
     return (
       <VictoryScreen
-        startNewGame={() => window.location.reload()}
+        onRestart={resetScore}
         score={score}
         words={words}
         fontClass={fontClass}
@@ -379,60 +424,63 @@ if (newScore === 10 && !mazeUnlocked) {
       />
     )
 
-return (
-  <div className={`min-h-screen bg-cyan-50 p-4 sm:p-6 md:p-8 ${fontClass} ${sizeMap[fontSize]} relative`}>
-    {/* Simple Background Decoration */}
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-10 right-10 w-40 h-40 bg-cyan-200 rounded-full opacity-30" />
-      <div className="absolute bottom-20 left-20 w-48 h-48 bg-blue-200 rounded-full opacity-25" />
-    </div>
+  // Calculate current progress for display
+  const totalWords = words.flat().length
+  const currentPosition = level * WORDS_PER_LEVEL + levelIndex + 1
+  const displayProgress = (currentPosition / totalWords) * 100
 
-    <div className="relative max-w-5xl mx-auto">
-      <HeaderBar
-        score={score}
-        total={words.flat().length}
-        paused={paused}
-        onPauseToggle={togglePause}
-        onHome={() => {
-          saveToSupabase()
-          navigate("/menu")
-        }}
-        onReset={() => setShowResetModal(true)}
-      />
-
-      <ProgressBar
-        progress={((levelIndex + 1 + level * WORDS_PER_LEVEL) / words.flat().length) * 100}
-      />
-
-      <div className="bg-white rounded-3xl border-3 border-blue-200 shadow-lg p-6 md:p-10 lg:p-12">
-        {paused ? (
-          <PauseOverlay />
-        ) : (
-          <GameArea
-            currentWord={currentWord}
-            selectedLetters={selectedLetters}
-            currentLetters={currentLetters}
-            handleLetterClick={handleLetterClick}
-            handleUndo={handleUndo}
-            handleDragStart={handleDragStart}
-            handleDragOver={handleDragOver}
-            handleDropOnSelected={handleDropOnSelected}
-            handleDropOnAvailable={handleDropOnAvailable}
-            playWord={playWord}
-          />
-        )}
+  return (
+    <div className={`min-h-screen bg-cyan-50 p-4 sm:p-6 md:p-8 ${fontClass} ${sizeMap[fontSize]} relative`}>
+      {/* Simple Background Decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 right-10 w-40 h-40 bg-cyan-200 rounded-full opacity-30" />
+        <div className="absolute bottom-20 left-20 w-48 h-48 bg-blue-200 rounded-full opacity-25" />
       </div>
 
-      <FeedbackModal type={feedback === "correct" ? "correct" : feedback === "incorrect" ? "incorrect" : ""} />
+      <div className="relative max-w-5xl mx-auto">
+        <HeaderBar
+          score={currentPosition - 1} // Show completed words
+          total={totalWords}
+          paused={paused}
+          rewardsEarned={rewardsEarned}
+          onPauseToggle={togglePause}
+          onHome={async () => {
+            await saveToSupabase()
+            navigate("/menu")
+          }}
+          onReset={() => setShowResetModal(true)}
+        />
+
+        <ProgressBar progress={displayProgress} />
+
+        <div className="bg-white rounded-3xl border-3 border-blue-200 shadow-lg p-6 md:p-10 lg:p-12">
+          {paused ? (
+            <PauseOverlay />
+          ) : (
+            <GameArea
+              currentWord={currentWord}
+              selectedLetters={selectedLetters}
+              currentLetters={currentLetters}
+              handleLetterClick={handleLetterClick}
+              handleUndo={handleUndo}
+              handleDragStart={handleDragStart}
+              handleDragOver={handleDragOver}
+              handleDropOnSelected={handleDropOnSelected}
+              handleDropOnAvailable={handleDropOnAvailable}
+              playWord={playWord}
+            />
+          )}
+        </div>
+
+        <FeedbackModal type={feedback === "correct" ? "correct" : feedback === "incorrect" ? "incorrect" : ""} />
+      </div>
+
+      {showResetModal && (
+        <ResetConfirmationModal
+          onCancel={() => setShowResetModal(false)}
+          onConfirm={resetScore}
+        />
+      )}
     </div>
-
-    {showResetModal && (
-      <ResetConfirmationModal
-        onCancel={() => setShowResetModal(false)}
-        onConfirm={resetScore}
-      />
-    )}
-  </div>
-)
-
+  )
 }

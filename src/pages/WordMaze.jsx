@@ -9,8 +9,9 @@ import LoadingScreen from "../components/LoadingScreen";
 import VictoryScreen from "../components/VictoryScreen";
 import ResetConfirmationModal from "../components/ResetConfirmationModal";
 import wordData from "../data/words.json";
-import { updateProgress } from "../supabaseFunctions.js";
+import { updateProgress, addReward } from "../supabaseFunctions.js";
 import { supabase } from "../supaBaseClient";
+import { calculateStars } from "../utils/progressStars";
 import { emojiHints } from "../data/emojiHints";
 
 // --- Helpers ---
@@ -34,14 +35,19 @@ export default function WordMaze({ user, setUser }) {
   const navigate = useNavigate();
 
   const [words, setWords] = useState([]);
-  const [mazeProgress, setMazeProgress] = useState({ level: 0, levelIndex: 0, score: 0 });
+  const [mazeProgress, setMazeProgress] = useState({
+    level: 0,
+    levelIndex: 0,
+    score: 0,
+    rewardsEarned: [false, false, false]
+  });
   const [currentLetterIndex, setCurrentLetterIndex] = useState(1);
   const [feedback, setFeedback] = useState("");
   const [paused, setPaused] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const { level, levelIndex, score } = mazeProgress;
+  const { level, levelIndex, score, rewardsEarned } = mazeProgress;
   const currentWord = (words[level] || [])[levelIndex];
   const currentEmojiHint = emojiHints[currentWord?.correct] || "❓";
 
@@ -49,11 +55,13 @@ export default function WordMaze({ user, setUser }) {
   useEffect(() => {
     const loadProgress = async () => {
       if (!user) return;
+
       const { data, error } = await supabase
         .from("users")
         .select("*")
         .eq("id", user.id)
         .single();
+
       if (error) return console.error(error);
 
       const progress = data.progress?.wordMaze || {};
@@ -67,9 +75,9 @@ export default function WordMaze({ user, setUser }) {
         level: progress.level || 0,
         levelIndex: progress.levelIndex || 0,
         score: progress.score || 0,
+        rewardsEarned: progress.rewardsEarned || [false, false, false]
       });
       setCurrentLetterIndex(1);
-
       setLoaded(true);
     };
     loadProgress();
@@ -79,39 +87,40 @@ export default function WordMaze({ user, setUser }) {
   const saveProgress = async (progressData = mazeProgress) => {
     if (!user) return;
     const updated = await updateProgress(user.id, { wordMaze: progressData });
-    if (updated) user.progress = updated.progress;
+    if (updated) {
+      user.progress = updated.progress;
+      setUser(prev => ({ ...prev, progress: updated.progress }));
+    }
   };
 
   // --- Reset handler ---
   const resetMaze = async () => {
-    const newProgress = { level: 0, levelIndex: 0, score: 0 };
+    const newProgress = { level: 0, levelIndex: 0, score: 0, rewardsEarned: [false, false, false] };
     setMazeProgress(newProgress);
     setCurrentLetterIndex(1);
     setFeedback("");
     setPaused(false);
     setShowResetModal(false);
-
     await saveProgress(newProgress);
-
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-    if (data) setUser(data);
   };
 
   const togglePause = () => setPaused(prev => !prev);
   const goHome = async () => { await saveProgress(); navigate("/menu"); };
 
+  // --- Letter handling ---
   const handleLetterClick = (letter) => {
     if (paused) return;
+
     const targetLetter = currentWord.correct[currentLetterIndex];
     if (letter === targetLetter) {
       if (currentLetterIndex + 1 === currentWord.correct.length) {
-        setMazeProgress(prev => ({ ...prev, score: prev.score + 1 }));
+        // Word complete
+        setMazeProgress(prev => {
+          const updated = { ...prev, score: prev.score + 1 };
+          nextWordOrLevel(updated);
+          return updated;
+        });
         setFeedback("correct");
-        setTimeout(nextWordOrLevel, 1000);
       } else {
         setCurrentLetterIndex(prev => prev + 1);
       }
@@ -121,19 +130,60 @@ export default function WordMaze({ user, setUser }) {
     }
   };
 
-  const nextWordOrLevel = async () => {
+  // --- Next word / next level with reward calculation ---
+  const nextWordOrLevel = async (progress = mazeProgress) => {
     setCurrentLetterIndex(1);
     setFeedback("");
+
     const currentLevelWords = words[level] || [];
+    let newProgress = { ...progress };
+
+    // Next word in level
     if (levelIndex + 1 < currentLevelWords.length) {
-      setMazeProgress(prev => ({ ...prev, levelIndex: prev.levelIndex + 1 }));
-      await saveProgress();
+      newProgress.levelIndex += 1;
+
+    // Next level
     } else if (level + 1 < words.length) {
-      setMazeProgress(prev => ({ ...prev, level: prev.level + 1, levelIndex: 0 }));
-      await saveProgress();
+      newProgress.level += 1;
+      newProgress.levelIndex = 0;
+
+    // Victory
     } else {
+      newProgress.rewardsEarned = [true, true, true];
       setFeedback("victory");
-      await saveProgress();
+    }
+
+    // --- Calculate stars and award rewards ---
+    const totalWords = words.flat().length;
+    const currentPosition = newProgress.level * WORDS_PER_LEVEL + newProgress.levelIndex + 1;
+    const progressPercent = (currentPosition / totalWords) * 100;
+
+    await checkAndAwardStars(newProgress, progressPercent, totalWords);
+    setMazeProgress(newProgress);
+  };
+
+  const checkAndAwardStars = async (progressData, progressPercent, totalWords) => {
+    const starsEarned = calculateStars(progressPercent);
+    const rewards = progressData.rewardsEarned || [false, false, false];
+    let rewardsAdded = 0;
+
+    for (let i = 0; i < starsEarned; i++) {
+      if (!rewards[i]) {
+        rewards[i] = true;
+        rewardsAdded += 1;
+      }
+    }
+
+    progressData.rewardsEarned = rewards;
+    await updateProgress(user.id, { wordMaze: progressData });
+
+    if (rewardsAdded > 0) {
+      await addReward(user.id, rewardsAdded);
+      setUser(prev => ({
+        ...prev,
+        rewards: (prev.rewards || 0) + rewardsAdded,
+        progress: { ...prev.progress, wordMaze: progressData }
+      }));
     }
   };
 
@@ -142,9 +192,12 @@ export default function WordMaze({ user, setUser }) {
 
   const options = currentWord ? generateMazeOptions(currentWord.correct) : [];
 
+  const displayProgress = words.length
+    ? ((levelIndex + 1 + level * WORDS_PER_LEVEL) / words.flat().length) * 100
+    : 0;
+
   return (
     <div className={`min-h-screen bg-purple-50 p-4 md:p-6 ${fontClass} ${sizeMap[fontSize || "medium"]} relative`}>
-      {/* Simple Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-10 left-10 w-40 h-40 bg-purple-200 rounded-full opacity-30" />
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-pink-200 rounded-full opacity-25" />
@@ -155,29 +208,28 @@ export default function WordMaze({ user, setUser }) {
           score={score}
           total={words.flat().length}
           paused={paused}
+          rewardsEarned={rewardsEarned}
           onPauseToggle={togglePause}
           onHome={goHome}
           onReset={() => setShowResetModal(true)}
         />
-        <ProgressBar progress={((levelIndex + 1 + level * WORDS_PER_LEVEL) / words.flat().length) * 100} />
+        <ProgressBar progress={displayProgress} />
 
         <div className="bg-white rounded-3xl border-3 border-purple-200 shadow-lg p-6 md:p-10">
           {paused ? <PauseOverlay /> : (
             <div className="text-center">
-              {/* Word Progress Display */}
               <div className="mb-8 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-2xl p-6 shadow-sm">
                 <div className="text-3xl md:text-5xl font-black tracking-wider text-purple-700 mb-4">
                   {currentWord?.correct.split("").map((l, i) => 
                     i === 0 ? l : i < currentLetterIndex ? l : "_"
                   ).join(" ")}
                 </div>
-                <div className="text-5xl md:text-6xl mb-2">{currentEmojiHint}</div>
+                <div className="text-5xl md:text-6xl mb-2">{emojiHints[currentWord?.correct] || "❓"}</div>
                 <p className="text-sm md:text-base text-gray-600 font-medium">
                   Klik op de juiste letter!
                 </p>
               </div>
-              
-              {/* Letter Options Grid */}
+
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
                 {(options[currentLetterIndex] || []).map((letter, idx) => (
                   <button
@@ -196,12 +248,12 @@ export default function WordMaze({ user, setUser }) {
         <FeedbackModal type={feedback === "correct" ? "correct" : feedback === "incorrect" ? "incorrect" : ""} />
       </div>
 
-      {showResetModal && (
+      {showResetModal &&
         <ResetConfirmationModal
           onCancel={() => setShowResetModal(false)}
           onConfirm={resetMaze}
         />
-      )}
+      }
     </div>
   );
 }
