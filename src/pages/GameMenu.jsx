@@ -1,17 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSettings } from "../context/SettingsContext";
 import GameCard from "../components/GameCard";
+import { getUser } from "../utils/user.js";
 
 export default function GameMenu({ user }) {
   const { fontType, fontSize } = useSettings();
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
   const sizeMap = { small: "text-base", medium: "text-lg", large: "text-xl" };
 
-  const letterBuildUnlocked = user?.progress?.wordMatch?.letterBuildUnlocked || false;
-  const mazeUnlocked = user?.progress?.letterBuild?.mazeUnlocked || false;
-  const finalUnlocked =
-  user?.progress?.wordMaze?.finalWordBuilderUnlocked || false
+  // NEW: state for latest progress
+  const [progress, setProgress] = useState(user?.progress || {});
+
+  // NEW: fetch latest progress from Supabase on mount
+  useEffect(() => {
+    async function loadProgress() {
+      if (!user?.id) return;
+      const latestUser = await getUser(user.id);
+      if (latestUser?.progress) setProgress(latestUser.progress);
+    }
+    loadProgress();
+  }, [user]);
+
+  const letterBuildUnlocked = progress?.wordMatch?.letterBuildUnlocked || false;
+  const mazeUnlocked = progress?.letterBuild?.mazeUnlocked || false;
+  const finalUnlocked = progress?.wordMaze?.finalWordBuilderUnlocked || false;
   const wordMazeUnlocked = mazeUnlocked;
 
   return (
@@ -65,17 +78,16 @@ export default function GameMenu({ user }) {
             bgColor="bg-purple-100"
             borderColor="border-purple-400"
           />
-<GameCard
-  icon="🏆"
-  title="Finale Woorden Bouw"
-  desc="Bouw woorden onder tijdsdruk en word een echte kampioen!"
-  active={finalUnlocked}
-  to={finalUnlocked ? "/finalwordbuilder" : null}
-  unlockMsg="Scoor 10 punten in Woorden Doolhof"
-  bgColor="bg-pink-100"
-  borderColor="border-pink-400"
-/>
-
+          <GameCard
+            icon="🏆"
+            title="Finale Woorden Bouw"
+            desc="Bouw woorden onder tijdsdruk en word een echte kampioen!"
+            active={finalUnlocked}
+            to={finalUnlocked ? "/finalwordbuilder" : null}
+            unlockMsg="Scoor 10 punten in Woorden Doolhof"
+            bgColor="bg-pink-100"
+            borderColor="border-pink-400"
+          />
         </div>
 
         {/* Navigation Buttons */}

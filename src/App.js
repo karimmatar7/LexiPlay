@@ -10,6 +10,7 @@ import FinalWordBuilder from "./pages/FinalWordBuilder";
 import Reward from "./pages/Reward";
 import Settings from "./pages/Settings";
 import AuthPage from './pages/Auth';
+import ProtectedRoute from "./components/ProtectedRoute"; // <-- import it
 import { supabase } from './supaBaseClient';
 import "./index.css";
 
@@ -17,7 +18,6 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch fresh user from DB
   const fetchUser = useCallback(async () => {
     setLoading(true);
     const session = (await supabase.auth.getSession()).data.session;
@@ -27,30 +27,10 @@ function App() {
         .select("*")
         .eq("id", session.user.id)
         .single();
-      if (!error && data) {
-        setUser(data);
-      }
+      if (!error && data) setUser(data);
     } else {
-      // No session, check if there's a user stored locally (for guest mode)
       const savedUser = localStorage.getItem("lexiplay_user");
-      if (savedUser) {
-        const parsed = JSON.parse(savedUser);
-        // If it's a guest or if we have a user ID, fetch fresh data from DB
-        if (parsed.id === "guest") {
-          setUser(parsed);
-        } else {
-          // For logged-in users, always fetch from DB
-          const { data, error } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", parsed.id)
-            .single();
-          if (!error && data) {
-            setUser(data);
-            localStorage.setItem("lexiplay_user", JSON.stringify(data));
-          }
-        }
-      }
+      if (savedUser) setUser(JSON.parse(savedUser));
     }
     setLoading(false);
   }, []);
@@ -71,15 +51,37 @@ function App() {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/menu" /> : <AuthPage onLogin={setUser} />} />
           <Route path="/menu" element={user ? <GameMenu user={user} fetchUser={fetchUser} /> : <Navigate to="/" />} />
- <Route path="/game" element={
-  user ? <WordMatch user={user} setUser={setUser} fetchUser={fetchUser} /> : <Navigate to="/" />
-} />
-<Route path="/letterbuild" element={
-  user ? <LetterBuild user={user} setUser={setUser} /> : <Navigate to="/" />
-} />
+          <Route path="/game" element={user ? <WordMatch user={user} setUser={setUser} fetchUser={fetchUser} /> : <Navigate to="/" />} />
 
-          <Route path="/wordmaze" element={user ? <WordMaze user={user} setUser={setUser} /> : <Navigate to="/" />} />
-          <Route path="/finalwordbuilder" element={user ? <FinalWordBuilder user={user} setUser={setUser} /> : <Navigate to="/" />} />
+          {/* Protected routes */}
+    <Route
+  path="/letterbuild"
+  element={
+    <ProtectedRoute user={user} requiredUnlock="letterBuild">
+      <LetterBuild user={user} setUser={setUser} />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/wordmaze"
+  element={
+    <ProtectedRoute user={user} requiredUnlock="maze">
+      <WordMaze user={user} setUser={setUser} />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/finalwordbuilder"
+  element={
+    <ProtectedRoute user={user} requiredUnlock="finalWord">
+      <FinalWordBuilder user={user} setUser={setUser} />
+    </ProtectedRoute>
+  }
+/>
+
+
           <Route path="/reward" element={user ? <Reward user={user} /> : <Navigate to="/" />} />
           <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/" />} />
         </Routes>
