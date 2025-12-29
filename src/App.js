@@ -6,6 +6,7 @@ import GameMenu from "./pages/GameMenu";
 import WordMatch from "./pages/WordMatch";
 import LetterBuild from "./pages/LetterBuild";
 import WordMaze from "./pages/WordMaze";
+import FinalWordBuilder from "./pages/FinalWordBuilder";
 import Reward from "./pages/Reward";
 import Settings from "./pages/Settings";
 import AuthPage from './pages/Auth';
@@ -78,8 +79,9 @@ function App() {
 } />
 
           <Route path="/wordmaze" element={user ? <WordMaze user={user} setUser={setUser} /> : <Navigate to="/" />} />
+          <Route path="/finalwordbuilder" element={user ? <FinalWordBuilder user={user} setUser={setUser} /> : <Navigate to="/" />} />
           <Route path="/reward" element={user ? <Reward user={user} /> : <Navigate to="/" />} />
-          <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} fetchUser={fetchUser} /> : <Navigate to="/" />} />
+          <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/" />} />
         </Routes>
       </Router>
     </SettingsProvider>

@@ -10,6 +10,8 @@ export default function GameMenu({ user }) {
 
   const letterBuildUnlocked = user?.progress?.wordMatch?.letterBuildUnlocked || false;
   const mazeUnlocked = user?.progress?.letterBuild?.mazeUnlocked || false;
+  const finalUnlocked =
+  user?.progress?.wordMaze?.finalWordBuilderUnlocked || false
   const wordMazeUnlocked = mazeUnlocked;
 
   return (
@@ -63,15 +65,17 @@ export default function GameMenu({ user }) {
             bgColor="bg-purple-100"
             borderColor="border-purple-400"
           />
-          <GameCard
-            icon="✨"
-            title="Mysterie Spel"
-            desc="Een verrassend nieuw spel komt binnenkort!"
-            active={false}
-            unlockMsg="We werken hard aan nieuwe avonturen!"
-            bgColor="bg-pink-100"
-            borderColor="border-pink-400"
-          />
+<GameCard
+  icon="🏆"
+  title="Finale Woorden Bouw"
+  desc="Bouw woorden onder tijdsdruk en word een echte kampioen!"
+  active={finalUnlocked}
+  to={finalUnlocked ? "/finalwordbuilder" : null}
+  unlockMsg="Scoor 10 punten in Woorden Doolhof"
+  bgColor="bg-pink-100"
+  borderColor="border-pink-400"
+/>
+
         </div>
 
         {/* Navigation Buttons */}
