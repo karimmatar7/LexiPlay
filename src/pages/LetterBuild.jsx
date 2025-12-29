@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect } from "react"
 import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
 import GameContainer from "../components/GameContainer"
@@ -11,6 +11,7 @@ import UnlockModal from "../components/UnlockModal"
 import wordData from "../data/words.json"
 import { updateProgress, getUser, addReward } from "../supabaseFunctions.js"
 import { calculateStars } from "../utils/progressStars"
+import { useLetterDrag } from "../hooks/useLetterDrag"
 
 function GameArea({
   currentWord,
@@ -18,13 +19,7 @@ function GameArea({
   currentLetters,
   handleLetterClick,
   handleUndo,
-  handleDragStart,
-  handleDragOver,
-  handleDropOnSelected,
-  handleDropOnAvailable,
-  handleTouchStart,
-  handleTouchMove,
-  handleTouchEnd,
+  dragHandlers,
   soundOn,
   paused
 }) {
@@ -54,12 +49,11 @@ function GameArea({
         className="px-8 py-4 text-xl md:text-2xl"
       />
 
-      {/* Selected Letters Drop Zone */}
       <div
         data-drop-zone="selected"
         className="min-h-[100px] w-full flex items-center justify-center gap-3 bg-gradient-to-br from-indigo-50 to-blue-50 border-3 border-indigo-400 border-dashed rounded-2xl px-6 py-4 shadow-sm transition-colors duration-200"
-        onDragOver={handleDragOver}
-        onDrop={handleDropOnSelected}
+        onDragOver={dragHandlers.handleDragOver}
+        onDrop={dragHandlers.handleDropOnSelected}
         style={{ touchAction: 'none' }}
       >
         {selectedLetters.length === 0 ? (
@@ -73,10 +67,10 @@ function GameArea({
               data-selected-letter
               data-index={i}
               draggable
-              onDragStart={(e) => handleDragStart(e, letter, i, "selected")}
-              onTouchStart={(e) => handleTouchStart(e, letter, i, "selected")}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={(e) => handleTouchEnd(e, "selected")}
+              onDragStart={(e) => dragHandlers.handleDragStart(e, letter, i, "selected")}
+              onTouchStart={(e) => dragHandlers.handleTouchStart(e, letter, i, "selected")}
+              onTouchMove={dragHandlers.handleTouchMove}
+              onTouchEnd={dragHandlers.handleTouchEnd}
               onClick={() => handleUndo(letter, i)}
               className="cursor-pointer bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-3xl md:text-4xl rounded-xl px-6 py-4 shadow-md border-b-4 border-purple-700 hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-110 active:scale-95"
               style={{ touchAction: 'none' }}
@@ -87,12 +81,11 @@ function GameArea({
         )}
       </div>
 
-      {/* Available Letters */}
       <div
         data-drop-zone="available"
         className="flex flex-wrap justify-center gap-3 md:gap-4 mt-6 p-6 bg-white rounded-2xl shadow-md border-3 border-gray-200 transition-colors duration-200"
-        onDragOver={handleDragOver}
-        onDrop={handleDropOnAvailable}
+        onDragOver={dragHandlers.handleDragOver}
+        onDrop={dragHandlers.handleDropOnAvailable}
         style={{ touchAction: 'none' }}
       >
         {currentLetters.map((letter, i) =>
@@ -102,10 +95,10 @@ function GameArea({
               data-available-letter
               data-index={i}
               draggable
-              onDragStart={(e) => handleDragStart(e, letter, i, "available")}
-              onTouchStart={(e) => handleTouchStart(e, letter, i, "available")}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={(e) => handleTouchEnd(e, "available")}
+              onDragStart={(e) => dragHandlers.handleDragStart(e, letter, i, "available")}
+              onTouchStart={(e) => dragHandlers.handleTouchStart(e, letter, i, "available")}
+              onTouchMove={dragHandlers.handleTouchMove}
+              onTouchEnd={dragHandlers.handleTouchEnd}
               onClick={() => handleLetterClick(letter, i)}
               className="cursor-pointer bg-gradient-to-br from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-black text-3xl md:text-4xl rounded-xl px-6 py-4 shadow-md border-b-4 border-pink-600 transition-all duration-200 transform hover:scale-110 active:scale-95"
               style={{ touchAction: 'none' }}
@@ -145,11 +138,9 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const [showUnlockModal, setShowUnlockModal] = useState(false)
   const [starEarned, setStarEarned] = useState(false)
 
-  const [dragged, setDragged] = useState({ letter: null, index: null, area: null })
-  const draggedRef = useRef({ letter: null, index: null, area: null })
-  const dragCloneRef = useRef(null)
-
   const { level, levelIndex, score, mazeUnlocked, rewardsEarned } = letterBuildProgress
+
+  const dragHook = useLetterDrag()
 
   useEffect(() => {
     async function load() {
@@ -201,12 +192,6 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   const currentWord = (words[level] || [])[levelIndex]
 
-  const playWord = (word) => {
-    if (!soundOn || paused || !word) return
-    const audio = new Audio(`/sounds/${word}.mp3`)
-    audio.play().catch(err => console.error("Audio play error:", err))
-  }
-
   const handleLetterClick = (letter, index) => {
     if (selectedLetters.length < currentWord.correct.length) {
       setSelectedLetters([...selectedLetters, letter])
@@ -228,237 +213,25 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     })
   }
 
-  // Helper function to reorder array
-  const reorderArray = (list, startIndex, endIndex) => {
-    const result = Array.from(list)
-    const [removed] = result.splice(startIndex, 1)
-    result.splice(endIndex, 0, removed)
-    return result
-  }
-
-  // Desktop drag handlers
-  const handleDragStart = (e, letter, index, area) => {
-    setDragged({ letter, index, area })
-    draggedRef.current = { letter, index, area }
-    if (e.dataTransfer) {
-      e.dataTransfer.effectAllowed = "move"
-    }
-  }
-
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = "move"
-    }
-  }
-
-  const handleDropOnSelected = (e) => {
-    e.preventDefault()
-    const dragInfo = draggedRef.current
-
-    // Reorder within selected letters (selected to selected)
-    if (dragInfo.area === "selected") {
-      let insertIndex = selectedLetters.length - 1
-
-      if (e.clientX) {
-        const selectedContainer = document.querySelector('[data-drop-zone="selected"]')
-        if (selectedContainer) {
-          const letterElements = Array.from(selectedContainer.querySelectorAll('[data-selected-letter]'))
-          
-          for (let i = 0; i < letterElements.length; i++) {
-            const rect = letterElements[i].getBoundingClientRect()
-            const midX = rect.left + rect.width / 2
-            
-            if (e.clientX < midX) {
-              insertIndex = i
-              break
-            }
-          }
-        }
-      }
-
-      if (insertIndex !== dragInfo.index) {
-        setSelectedLetters(prev => reorderArray(prev, dragInfo.index, insertIndex))
+const dragHandlers = {
+  handleDragStart: dragHook.handleDragStart,
+  handleDragOver: dragHook.handleDragOver,
+  handleDropOnSelected: (e) => dragHook.handleDropOnSelected(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length),
+  handleDropOnAvailable: (e) => dragHook.handleDropOnAvailable(e, setSelectedLetters, setCurrentLetters),
+  handleTouchStart: dragHook.handleTouchStart,
+  handleTouchMove: dragHook.handleTouchMove,
+  handleTouchEnd: (e) => {
+    const onClickCallback = (letter, index, area) => {
+      if (area === 'available') {
+        handleLetterClick(letter, index)
+      } else if (area === 'selected') {
+        handleUndo(letter, index)
       }
     }
-    // Add from available to selected
-    else if (dragInfo.area === "available" && selectedLetters.length < currentWord.correct.length) {
-      let insertIndex = selectedLetters.length
-
-      if (e.clientX) {
-        const selectedContainer = document.querySelector('[data-drop-zone="selected"]')
-        if (selectedContainer) {
-          const letterElements = Array.from(selectedContainer.querySelectorAll('[data-selected-letter]'))
-          
-          for (let i = 0; i < letterElements.length; i++) {
-            const rect = letterElements[i].getBoundingClientRect()
-            const midX = rect.left + rect.width / 2
-            
-            if (e.clientX < midX) {
-              insertIndex = i
-              break
-            }
-          }
-        }
-      }
-
-      setSelectedLetters(prev => {
-        const newArr = [...prev]
-        newArr.splice(insertIndex, 0, dragInfo.letter)
-        return newArr
-      })
-
-      setCurrentLetters((c) => {
-        const arr = [...c]
-        arr[dragInfo.index] = null
-        return arr
-      })
-    }
-
-    setDragged({ letter: null, index: null, area: null })
+    dragHook.handleTouchEnd(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length, onClickCallback)
   }
+}
 
-  const handleDropOnAvailable = (e) => {
-    e.preventDefault()
-    const dragInfo = draggedRef.current
-
-    if (dragInfo.area === "selected") {
-      setSelectedLetters((s) => s.filter((_, i) => i !== dragInfo.index))
-      setCurrentLetters((c) => {
-        const arr = [...c]
-        const empty = arr.indexOf(null)
-        arr[empty === -1 ? arr.length : empty] = dragInfo.letter
-        return arr
-      })
-    }
-
-    setDragged({ letter: null, index: null, area: null })
-  }
-
-  // Mobile touch handlers with visual feedback
-  const handleTouchStart = (e, letter, index, area) => {
-    e.preventDefault()
-    setDragged({ letter, index, area })
-    draggedRef.current = { letter, index, area }
-    
-    const target = e.currentTarget
-    const rect = target.getBoundingClientRect()
-    
-    // Create floating clone for visual feedback
-    const clone = target.cloneNode(true)
-    clone.classList.add('dragging-element')
-    clone.style.left = `${rect.left}px`
-    clone.style.top = `${rect.top}px`
-    clone.style.width = `${rect.width}px`
-    clone.style.height = `${rect.height}px`
-    document.body.appendChild(clone)
-    dragCloneRef.current = clone
-    
-    // Make original semi-transparent
-    target.style.opacity = "0.3"
-  }
-
-  const handleTouchMove = (e) => {
-    e.preventDefault()
-    const touch = e.touches[0]
-    
-    // Move the clone with finger
-    if (dragCloneRef.current) {
-      dragCloneRef.current.style.left = `${touch.clientX - 50}px`
-      dragCloneRef.current.style.top = `${touch.clientY - 50}px`
-    }
-    
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY)
-    if (elementBelow) {
-      const dropZone = elementBelow.closest('[data-drop-zone]')
-      
-      document.querySelectorAll('[data-drop-zone]').forEach(zone => {
-        zone.style.borderColor = ''
-        zone.style.backgroundColor = ''
-      })
-      
-      if (dropZone) {
-        dropZone.style.borderColor = '#8b5cf6'
-        dropZone.style.backgroundColor = '#ede9fe'
-      }
-    }
-  }
-
-  const handleTouchEnd = (e, targetArea) => {
-    e.preventDefault()
-    const touch = e.changedTouches[0]
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY)
-    
-    // Remove clone and reset opacity
-    if (dragCloneRef.current) {
-      dragCloneRef.current.remove()
-      dragCloneRef.current = null
-    }
-    e.currentTarget.style.opacity = "1"
-    
-    document.querySelectorAll('[data-drop-zone]').forEach(zone => {
-      zone.style.borderColor = ''
-      zone.style.backgroundColor = ''
-    })
-
-    const dragInfo = draggedRef.current
-
-    if (elementBelow) {
-      const dropZone = elementBelow.closest('[data-drop-zone]')
-      const dropArea = dropZone?.getAttribute('data-drop-zone')
-      
-      if (dropArea === 'selected') {
-        let insertIndex = selectedLetters.length
-        
-        const selectedContainer = document.querySelector('[data-drop-zone="selected"]')
-        if (selectedContainer) {
-          const letterElements = Array.from(selectedContainer.querySelectorAll('[data-selected-letter]'))
-          
-          for (let i = 0; i < letterElements.length; i++) {
-            const rect = letterElements[i].getBoundingClientRect()
-            const midX = rect.left + rect.width / 2
-            
-            if (touch.clientX < midX) {
-              insertIndex = i
-              break
-            }
-          }
-        }
-        
-        // Reorder within selected (selected to selected)
-        if (dragInfo.area === 'selected') {
-          if (insertIndex !== dragInfo.index) {
-            setSelectedLetters(prev => reorderArray(prev, dragInfo.index, insertIndex))
-          }
-        }
-        // Add from available to selected
-        else if (dragInfo.area === 'available' && selectedLetters.length < currentWord.correct.length) {
-          setSelectedLetters(prev => {
-            const newArr = [...prev]
-            newArr.splice(insertIndex, 0, dragInfo.letter)
-            return newArr
-          })
-          
-          setCurrentLetters((c) => {
-            const arr = [...c]
-            arr[dragInfo.index] = null
-            return arr
-          })
-        }
-      } else if (dropArea === 'available' && dragInfo.area === 'selected') {
-        setSelectedLetters((s) => s.filter((_, i) => i !== dragInfo.index))
-        setCurrentLetters((c) => {
-          const arr = [...c]
-          const empty = arr.indexOf(null)
-          arr[empty === -1 ? arr.length : empty] = dragInfo.letter
-          return arr
-        })
-      }
-    }
-    
-    setDragged({ letter: null, index: null, area: null })
-    draggedRef.current = { letter: null, index: null, area: null }
-  }
 
   useEffect(() => {
     if (!currentWord) return
@@ -467,7 +240,6 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
       setTimeout(async () => {
         if (selectedLetters.join("") === currentWord.correct) {
           setFeedback("correct")
-          playWord(currentWord.correct)
 
           setLetterBuildProgress(prev => {
             const updated = { ...prev, score: prev.score + 1 }
@@ -664,13 +436,7 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
           currentLetters={currentLetters}
           handleLetterClick={handleLetterClick}
           handleUndo={handleUndo}
-          handleDragStart={handleDragStart}
-          handleDragOver={handleDragOver}
-          handleDropOnSelected={handleDropOnSelected}
-          handleDropOnAvailable={handleDropOnAvailable}
-          handleTouchStart={handleTouchStart}
-          handleTouchMove={handleTouchMove}
-          handleTouchEnd={handleTouchEnd}
+          dragHandlers={dragHandlers}
           soundOn={soundOn}
           paused={paused}
         />
