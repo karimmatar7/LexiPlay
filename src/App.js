@@ -13,10 +13,14 @@ import AuthPage from './pages/Auth';
 import ProtectedRoute from "./components/ProtectedRoute"; // <-- import it
 import { supabase } from './supaBaseClient';
 import "./index.css";
+import ParentalControlPage from "./pages/ParentalControlPage";
+import ParentRoute from "./components/ParentRoute";
+import ParentalUnlockPage from "./pages/ParentalUnlockPage";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [parentUnlocked, setParentUnlocked] = useState(false);
 
   const fetchUser = useCallback(async () => {
     setLoading(true);
@@ -51,9 +55,16 @@ function App() {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/menu" /> : <AuthPage onLogin={setUser} />} />
           <Route path="/menu" element={user ? <GameMenu user={user} fetchUser={fetchUser} /> : <Navigate to="/" />} />
-          <Route path="/game" element={user ? <WordMatch user={user} setUser={setUser} fetchUser={fetchUser} /> : <Navigate to="/" />} />
+<Route
+  path="/game"
+  element={
+    <ProtectedRoute user={user} requiredUnlock="any">
+      <WordMatch user={user} setUser={setUser} fetchUser={fetchUser} />
+    </ProtectedRoute>
+  }
+/>
 
-          {/* Protected routes */}
+
     <Route
   path="/letterbuild"
   element={
@@ -84,6 +95,20 @@ function App() {
 
           <Route path="/reward" element={user ? <Reward user={user} /> : <Navigate to="/" />} />
           <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/" />} />
+
+<Route
+  path="/parental-control"
+  element={
+    <ParentRoute unlocked={parentUnlocked}>
+      <ParentalControlPage user={user} fetchUser={fetchUser} />
+    </ParentRoute>
+  }
+/>
+<Route
+  path="/unlock-parental"
+  element={<ParentalUnlockPage user={user} setUnlocked={setParentUnlocked} />}
+/>
+
         </Routes>
       </Router>
     </SettingsProvider>

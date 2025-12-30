@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSettings } from "../context/SettingsContext";
 import { useNavigate } from "react-router-dom";
 import GameContainer from "../components/GameContainer";
@@ -12,6 +12,7 @@ import wordData from "../data/words.json";
 import { updateProgress, addReward } from "../supabaseFunctions.js";
 import { supabase } from "../supaBaseClient";
 import { calculateStars } from "../utils/progressStars";
+import usePlaytimeTracker from "../hooks/usePlaytimeTracker";
 
 // --- Helpers ---
 const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
@@ -32,6 +33,8 @@ const generateOptions = (correctWord, allWords) => {
 
 // --- Main Component ---
 export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
+  usePlaytimeTracker(user);
+  
   const { fontType, fontSize, soundOn } = useSettings();
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
   const sizeMap = { small: "text-base md:text-lg", medium: "text-lg md:text-xl", large: "text-xl md:text-2xl" };

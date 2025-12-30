@@ -4,7 +4,7 @@ export async function getUser(userId) {
   try {
     const { data, error } = await supabase
       .from("users")
-      .select("id, progress")
+      .select("id, progress, settings, parental_control") // <- add parental_control
       .eq("id", userId)
       .single()
 
@@ -115,3 +115,30 @@ export const addReward = async (userId, stars = 3) => {
   return updated.rewards;
 };
 
+export async function updateParentalControl(userId, newControl) {
+  try {
+    const { data: user, error: fetchError } = await supabase
+      .from("users")
+      .select("parental_control")
+      .eq("id", userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const mergedControl = { ...(user.parental_control || {}), ...newControl };
+
+    const { data, error: updateError } = await supabase
+      .from("users")
+      .update({ parental_control: mergedControl })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    return data; // returns full user object with updated parental_control
+  } catch (err) {
+    console.error("Error updating parental control:", err);
+    return null;
+  }
+}

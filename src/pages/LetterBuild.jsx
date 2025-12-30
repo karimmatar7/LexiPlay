@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
 import GameContainer from "../components/GameContainer"
@@ -12,6 +12,8 @@ import wordData from "../data/words.json"
 import { updateProgress, getUser, addReward } from "../supabaseFunctions.js"
 import { calculateStars } from "../utils/progressStars"
 import { useLetterDrag } from "../hooks/useLetterDrag"
+import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
+
 
 function GameArea({
   currentWord,
@@ -115,6 +117,8 @@ function GameArea({
 }
 
 export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
+  usePlaytimeTracker(user)
+
   const { fontType, fontSize, soundOn } = useSettings()
   const navigate = useNavigate()
 
@@ -142,6 +146,23 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   const dragHook = useLetterDrag()
 
+  const dragHandlers = {
+    handleDragStart: dragHook.handleDragStart,
+    handleDragOver: dragHook.handleDragOver,
+    handleDropOnSelected: (e) => dragHook.handleDropOnSelected(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length),
+    handleDropOnAvailable: (e) => dragHook.handleDropOnAvailable(e, setSelectedLetters, setCurrentLetters),
+    handleTouchStart: dragHook.handleTouchStart,
+    handleTouchMove: dragHook.handleTouchMove,
+    handleTouchEnd: (e) => {
+      const onClickCallback = (letter, index, area) => {
+        if (area === 'available') handleLetterClick(letter, index)
+        else if (area === 'selected') handleUndo(letter, index)
+      }
+      dragHook.handleTouchEnd(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length, onClickCallback)
+    }
+  }
+
+  // --- Load words + progress ---
   useEffect(() => {
     async function load() {
       const userData = await getUser(user.id)
@@ -176,13 +197,7 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const saveToSupabase = async (progressData = letterBuildProgress) => {
     if (!user) return
     const updated = await updateProgress(user.id, { letterBuild: progressData })
-    if (updated) {
-      user.progress = updated.progress
-      setUser(prev => ({
-        ...prev,
-        progress: updated.progress
-      }))
-    }
+    if (updated) setUser(prev => ({ ...prev, progress: updated.progress }))
   }
 
   const setupLetters = (word) => {
@@ -213,52 +228,22 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     })
   }
 
-const dragHandlers = {
-  handleDragStart: dragHook.handleDragStart,
-  handleDragOver: dragHook.handleDragOver,
-  handleDropOnSelected: (e) => dragHook.handleDropOnSelected(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length),
-  handleDropOnAvailable: (e) => dragHook.handleDropOnAvailable(e, setSelectedLetters, setCurrentLetters),
-  handleTouchStart: dragHook.handleTouchStart,
-  handleTouchMove: dragHook.handleTouchMove,
-  handleTouchEnd: (e) => {
-    const onClickCallback = (letter, index, area) => {
-      if (area === 'available') {
-        handleLetterClick(letter, index)
-      } else if (area === 'selected') {
-        handleUndo(letter, index)
-      }
-    }
-    dragHook.handleTouchEnd(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length, onClickCallback)
-  }
-}
-
-
   useEffect(() => {
     if (!currentWord) return
-
     if (selectedLetters.length === currentWord.correct.length) {
       setTimeout(async () => {
         if (selectedLetters.join("") === currentWord.correct) {
           setFeedback("correct")
-
           setLetterBuildProgress(prev => {
             const updated = { ...prev, score: prev.score + 1 }
-           
             if (updated.score === 10 && !prev.mazeUnlocked) {
               updated.mazeUnlocked = true
               setShowUnlockModal(true)
-             
-              if (typeof setUser === "function") {
-                setUser(prevUser => ({
-                  ...prevUser,
-                  progress: {
-                    ...prevUser.progress,
-                    letterBuild: updated
-                  }
-                }))
-              }
+              setUser(prevUser => ({
+                ...prevUser,
+                progress: { ...prevUser.progress, letterBuild: updated }
+              }))
             }
-           
             setTimeout(() => nextWordOrLevel(updated), 1500)
             return updated
           })
@@ -277,9 +262,8 @@ const dragHandlers = {
     const currentLevelWords = words[progress.level] || []
     let newProgress = { ...progress }
 
-    if (progress.levelIndex + 1 < currentLevelWords.length) {
-      newProgress.levelIndex += 1
-    } else if (progress.level + 1 < words.length) {
+    if (progress.levelIndex + 1 < currentLevelWords.length) newProgress.levelIndex += 1
+    else if (progress.level + 1 < words.length) {
       newProgress.level += 1
       newProgress.levelIndex = 0
     } else {
@@ -292,34 +276,26 @@ const dragHandlers = {
     const totalWords = words.flat().length
     const currentPosition = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1
     const progressPercent = Math.min((currentPosition / totalWords) * 100, 100)
-    
+
     await checkAndAwardStars(newProgress, progressPercent)
-    
     setLetterBuildProgress(newProgress)
-    
-    if (newProgress.rewardsEarned.some((r, i) => !progress.rewardsEarned[i] && r)) {
-      setFeedback("")
-    } else {
-      setupLetters(words[newProgress.level][newProgress.levelIndex].correct)
-      setFeedback("")
-    }
+    setupLetters(words[newProgress.level][newProgress.levelIndex].correct)
+    setFeedback("")
   }
 
   const checkAndAwardStars = async (newProgress, progressPercent) => {
     const starsEarned = calculateStars(progressPercent)
-   
     const rewards = newProgress.rewardsEarned || [false, false, false]
     let rewardsAdded = 0
-   
+
     for (let i = 0; i < starsEarned; i++) {
       if (!rewards[i]) {
         rewards[i] = true
         rewardsAdded += 1
       }
     }
-   
+
     newProgress.rewardsEarned = rewards
-   
     await updateProgress(user.id, { letterBuild: newProgress })
 
     if (rewardsAdded > 0) {
@@ -353,17 +329,12 @@ const dragHandlers = {
       mazeUnlocked,
       rewardsEarned: [false, false, false]
     }
-   
     setLetterBuildProgress(newProgress)
     setFeedback("")
     setPaused(false)
     setShowResetModal(false)
     setStarEarned(false)
-   
-    if (words.length > 0 && words[0].length > 0) {
-      setupLetters(words[0][0].correct)
-    }
-   
+    if (words.length > 0 && words[0].length > 0) setupLetters(words[0][0].correct)
     await saveToSupabase(newProgress)
   }
 
@@ -424,10 +395,7 @@ const dragHandlers = {
         progress={displayProgress}
         feedback={feedback}
         onPauseToggle={togglePause}
-        onHome={async () => {
-          await saveToSupabase()
-          navigate("/menu")
-        }}
+        onHome={async () => { await saveToSupabase(); navigate("/menu", { replace: true }) }}
         onReset={() => setShowResetModal(true)}
       >
         <GameArea

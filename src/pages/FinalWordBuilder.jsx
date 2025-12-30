@@ -15,6 +15,7 @@ import { gameAnimations } from "../styles/GameAnimations"
 import { useGameAudio } from "../hooks/useGameAudio"
 import { useGameProgress } from "../hooks/useGameProgress"
 import { useGameTimer } from "../hooks/useGameTimer"
+import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
 
 const TOTAL_WORDS = 20
 const GAME_TIME = 400
@@ -24,6 +25,8 @@ const WARNING_TIME = 30
 const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5)
 
 export default function FinalWordBuilder({ user, setUser }) {
+  usePlaytimeTracker(user)
+  
   const { fontType, fontSize, soundOn } = useSettings()
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans"
   const sizeMap = { small: "text-base", medium: "text-lg", large: "text-xl" }
@@ -181,7 +184,7 @@ export default function FinalWordBuilder({ user, setUser }) {
 
   const goHome = async () => {
     await saveProgress()
-    navigate("/menu")
+    navigate("/menu", { replace: true })
   }
 
   if (!loaded) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />

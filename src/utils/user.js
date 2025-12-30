@@ -42,20 +42,28 @@ export async function createUser(name, pin) {
       soundOn: true,
     };
 
-    const { data, error } = await supabase
-      .from('users')
-      .insert([
-        {
-          name,
-          pin: hashedPin,
-          recovery_code: hashedRecovery,
-          rewards: 0,
-          progress: defaultProgress,
-          settings: defaultSettings,
-        },
-      ])
-      .select()
-      .single();
+    const defaultParentalControl = {
+  enabled: false,        // parents can enable/disable it
+  dailyLimitMinutes: 60, // default limit (can be adjusted)
+  playtimeToday: 0,
+  lastPlayedDate: null,
+};
+
+const { data, error } = await supabase
+  .from('users')
+  .insert([
+    {
+      name,
+      pin: hashedPin,
+      recovery_code: hashedRecovery,
+      rewards: 0,
+      progress: defaultProgress,
+      settings: defaultSettings,
+      parental_control: defaultParentalControl, // <- add this
+    },
+  ])
+  .select()
+  .single();
 
     if (error) throw error;
     // return plain recovery code so you can show it to the kid
@@ -231,6 +239,37 @@ export async function updateSettings(userId, newSettings) {
     return data;
   } catch (err) {
     console.error('Error updating settings:', err);
+    return null;
+  }
+}
+
+
+export async function updateParentalControl(userId, newControl) {
+  try {
+    const { data: user, error: fetchError } = await supabase
+      .from('users')
+      .select('parental_control')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const mergedControl = {
+      ...(user.parental_control || {}),
+      ...newControl,
+    };
+
+    const { data, error } = await supabase
+      .from('users')
+      .update({ parental_control: mergedControl })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error('Error updating parental control:', err);
     return null;
   }
 }
