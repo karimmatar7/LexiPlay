@@ -124,25 +124,34 @@ export default function ParentalControlPage({ user, fetchUser }) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-green-700 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            <span className="text-2xl">💾</span>
-            <span>{saving ? "Opslaan..." : "Opslaan"}</span>
-          </button>
+{/* Action Buttons */}
+<div className="flex flex-col sm:flex-row items-stretch justify-center gap-4">
+  <button
+    onClick={handleSave}
+    disabled={saving}
+    className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-green-700 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+  >
+    <span className="text-2xl">💾</span>
+    <span>{saving ? "Opslaan..." : "Opslaan"}</span>
+  </button>
 
-          <button
-            onClick={() => navigate("/menu")}
-            className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-gray-400 hover:bg-gray-500 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-gray-600 transform hover:scale-105 transition-all duration-200"
-          >
-            <span className="text-2xl">🏠</span>
-            <span>Terug naar Menu</span>
-          </button>
-        </div>
+  <button
+    onClick={() => navigate("/menu")}
+    className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-gray-400 hover:bg-gray-500 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-gray-600 transform hover:scale-105 transition-all duration-200"
+  >
+    <span className="text-2xl">🏠</span>
+    <span>Terug naar Menu</span>
+  </button>
+
+  <button
+    onClick={() => navigate(`/parent-dashboard/${user.id}`)}
+    className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
+  >
+    <span className="text-2xl">📊</span>
+    <span>Bekijk Dashboard</span>
+  </button>
+</div>
+
       </div>
 
       {/* Notification Modal */}

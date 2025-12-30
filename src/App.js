@@ -16,28 +16,34 @@ import "./index.css";
 import ParentalControlPage from "./pages/ParentalControlPage";
 import ParentRoute from "./components/ParentRoute";
 import ParentalUnlockPage from "./pages/ParentalUnlockPage";
+import ParentDashboard from "./pages/ParentDashboard";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [parentUnlocked, setParentUnlocked] = useState(false);
 
-  const fetchUser = useCallback(async () => {
-    setLoading(true);
-    const session = (await supabase.auth.getSession()).data.session;
-    if (session?.user) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
-      if (!error && data) setUser(data);
-    } else {
-      const savedUser = localStorage.getItem("lexiplay_user");
-      if (savedUser) setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
+const fetchUser = useCallback(async () => {
+  setLoading(true);
+  const session = (await supabase.auth.getSession()).data.session;
+  let latestUser = null;
+
+  if (session?.user) {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", session.user.id)
+      .single();
+    if (!error && data) latestUser = data;
+  } else {
+    const savedUser = localStorage.getItem("lexiplay_user");
+    if (savedUser) latestUser = JSON.parse(savedUser);
+  }
+
+  if (latestUser) setUser(latestUser); // <-- update state here
+  setLoading(false);
+}, []);
+
 
   useEffect(() => {
     fetchUser();
@@ -107,6 +113,15 @@ function App() {
 <Route
   path="/unlock-parental"
   element={<ParentalUnlockPage user={user} setUnlocked={setParentUnlocked} />}
+/>
+
+<Route
+  path="/parent-dashboard/:childId"
+  element={
+    <ParentRoute unlocked={parentUnlocked}>
+      <ParentDashboard />
+    </ParentRoute>
+  }
 />
 
         </Routes>

@@ -142,3 +142,46 @@ export async function updateParentalControl(userId, newControl) {
     return null;
   }
 }
+
+
+export async function addPlaytime(userId, minutesPlayed) {
+  try {
+    const { data: user, error: fetchError } = await supabase
+      .from("users")
+      .select("playtimeHistory, totalPlaytime")
+      .eq("id", userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const playtimeHistory = { ...(user.playtimeHistory || {}) };
+    playtimeHistory[today] = parseFloat(((playtimeHistory[today] || 0) + minutesPlayed).toFixed(2));
+
+    const totalPlaytime = parseFloat(((user.totalPlaytime || 0) + minutesPlayed).toFixed(2));
+
+    console.log("Updating playtimeHistory:", playtimeHistory);
+    console.log("Updating totalPlaytime:", totalPlaytime);
+
+    const { data, error } = await supabase
+      .from("users")
+      .update({
+        playtimeHistory,
+        totalPlaytime: totalPlaytime // make sure this is number
+      })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    console.log("Updated user:", data);
+
+    return data;
+  } catch (err) {
+    console.error("Error adding playtime:", err);
+    return null;
+  }
+}
+
+
