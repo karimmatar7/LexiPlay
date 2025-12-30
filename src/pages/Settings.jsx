@@ -73,33 +73,34 @@ export default function Settings({ user, setUser }) {
           </SettingCard>
 
           {/* Sound Toggle */}
-          <SettingCard 
-            icon="🔊" 
-            title="Geluid" 
-            description="Zet geluidseffecten aan of uit"
-          >
-            <div className="mt-4 flex items-center justify-between">
-              <span className="text-lg font-semibold">Geluidseffecten</span>
-              <button
-                onClick={() => setSoundOn(!soundOn)}
-                className={`relative w-24 h-12 rounded-full shadow-inner transition-all duration-300 border-2 flex items-center`}
-                aria-label="Toggle sound"
-              >
-                <div
-                  className={`absolute top-1 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center transition-all duration-300 ${
-                    soundOn ? "right-1" : "left-1"
-                  }`}
-                >
-                  {soundOn ? "🔊" : "🔇"}
-                </div>
-                <div
-                  className={`absolute inset-0 rounded-full transition-colors duration-300 ${
-                    soundOn ? "bg-green-400 border-green-600" : "bg-gray-300 border-gray-400"
-                  } border-2`}
-                />
-              </button>
-            </div>
-          </SettingCard>
+   {/* Sound Toggle */}
+<SettingCard 
+  icon="🔊" 
+  title="Geluid" 
+  description="Zet geluidseffecten aan of uit"
+>
+  <div className="mt-4 flex items-center justify-between">
+    <span className="text-lg font-semibold">Geluidseffecten</span>
+    <label className="relative inline-block w-24 h-12 cursor-pointer">
+      <input 
+        type="checkbox" 
+        checked={soundOn} 
+        onChange={() => setSoundOn(!soundOn)} 
+        className="sr-only" 
+      />
+      <div className={`w-24 h-12 rounded-full transition-colors duration-300 border-2 flex items-center ${
+        soundOn ? "bg-green-400 border-green-600" : "bg-gray-300 border-gray-400"
+      }`}>
+        <div className={`absolute top-1 w-10 h-10 bg-white rounded-full shadow-md transition-all duration-300 ${
+          soundOn ? "right-1" : "left-1"
+        } flex items-center justify-center`}>
+          {soundOn ? "🔊" : "🔇"}
+        </div>
+      </div>
+    </label>
+  </div>
+</SettingCard>
+
         </div>
 
         {/* Navigation buttons side by side */}
