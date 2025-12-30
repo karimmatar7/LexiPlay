@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { updateSettings } from "../supabaseFunctions.js";
+import { updateSettings, getUser } from "../utils/user.js";
 
 const SettingsContext = createContext();
 
@@ -11,19 +11,26 @@ export function SettingsProvider({ children, user, setUser }) {
   const [fontType, setFontType] = useState("normal");
   const [fontSize, setFontSize] = useState("medium");
   const [soundOn, setSoundOn] = useState(true);
-  const [animationSpeed, setAnimationSpeed] = useState("normal"); // new
-  const [theme, setTheme] = useState("light"); // new
+  const [animationSpeed, setAnimationSpeed] = useState("normal");
+  const [theme, setTheme] = useState("light");
 
-  // Load settings from user object when available
+  // Load latest settings from DB whenever user changes
   useEffect(() => {
-    if (!user) return;
-    const s = user.settings || {};
-    setFontType(s.fontType || "normal");
-    setFontSize(s.fontSize || "medium");
-    setSoundOn(s.soundOn ?? true);
-    setAnimationSpeed(s.animationSpeed || "normal");
-    setTheme(s.theme || "light");
-  }, [user]);
+    if (!user?.id) return;
+
+    async function loadSettings() {
+      const latestUser = await getUser(user.id);
+      const s = latestUser?.settings || {};
+      setFontType(s.fontType || "normal");
+      setFontSize(s.fontSize || "medium");
+      setSoundOn(s.soundOn ?? true);
+      setAnimationSpeed(s.animationSpeed || "normal");
+      setTheme(s.theme || "light");
+      // Update user object in parent
+      if (setUser) setUser(latestUser);
+    }
+    loadSettings();
+  }, [user?.id]);
 
   // Apply CSS variables
   useEffect(() => {
@@ -41,7 +48,6 @@ export function SettingsProvider({ children, user, setUser }) {
       fontType === "dyslexic" ? "'OpenDyslexic', sans-serif" : "sans-serif"
     );
 
-    // Animation speed
     root.style.setProperty(
       "--animation-duration",
       animationSpeed === "slow" ? "14s" :
@@ -49,16 +55,15 @@ export function SettingsProvider({ children, user, setUser }) {
       "7s"
     );
 
-    // Theme
     root.setAttribute("data-theme", theme);
   }, [fontSize, fontType, animationSpeed, theme]);
 
-  // Save settings to DB
+  // Save settings to DB and update user
   const saveSettingsToDB = async (newSettings) => {
-    if (!user) return;
-    const updatedSettings = await updateSettings(user.id, newSettings);
-    if (updatedSettings && setUser) {
-      setUser(prev => ({ ...prev, settings: updatedSettings.settings }));
+    if (!user?.id) return;
+    const updatedUser = await updateSettings(user.id, newSettings);
+    if (updatedUser && setUser) {
+      setUser(prev => ({ ...prev, settings: updatedUser.settings || newSettings }));
     }
   };
 

@@ -72,8 +72,7 @@ export default function Settings({ user, setUser }) {
             </div>
           </SettingCard>
 
-          {/* Sound Toggle */}
-   {/* Sound Toggle */}
+{/* Sound Toggle */}
 <SettingCard 
   icon="🔊" 
   title="Geluid" 
