@@ -1,0 +1,297 @@
+{
+  "auth": {
+    "welcome": "Welkom bij LexiPlay!",
+    "subtitle": "Log in om je avontuur te beginnen",
+    "nameLabel": "Naam",
+    "namePlaceholder": "Typ je naam hier...",
+    "pinLabel": "PIN Code",
+    "pinPlaceholder": "Typ je PIN hier...",
+    "login": "Login",
+    "register": "Registreer",
+    "guest": "Verder gaan als gast",
+    "forgotPin": "PIN vergeten?",
+    "errors": {
+      "fillFields": "Vul beide velden in",
+      "loginFailed": "Gebruiker niet gevonden of fout PIN",
+      "registerFailed": "Registratie mislukt of naam al in gebruik",
+      "resetFillFields": "Vul alle velden in",
+      "resetFailed": "Onjuiste recovery code of naam"
+    }
+  },
+  "modals": {
+    "recoveryCode": {
+      "title": "✨ Je recovery code!",
+      "instructions": "Bewaar deze code goed! Je hebt hem nodig om je PIN te resetten.",
+      "copy": "📋 Kopiëren",
+      "copied": "✅ Gekopieerd!",
+      "understood": "✅ Begrepen, ga naar LexiPlay",
+      "warning": "⚠️ Schrijf deze code op of maak een screenshot!"
+    },
+    "resetPin": {
+      "title": "Reset je PIN",
+      "name": "Naam",
+      "recoveryCode": "Recovery code",
+      "newPin": "Nieuwe PIN",
+      "resetButton": "🔑 Reset PIN",
+      "closeButton": "Sluiten"
+    },
+    "success": {
+      "title": "PIN succesvol gereset!",
+      "subtitle": "Log opnieuw in met je nieuwe PIN.",
+      "button": "Begrepen"
+    }
+  },
+  "gameMenu": {
+    "title": "Spelletjes Menu",
+    "subtitle": "Welk avontuur kies jij vandaag, {{name}}?",
+    "settings": "Instellingen",
+    "parentalControl": "Ouderlijk Toezicht",
+    "timeLeft": "Resterende tijd",
+    "limitReachedMessage": "Je dagelijkse speeltijdlimiet is bereikt!",
+    "returnTime": "Kom terug om",
+    "unlockButton": "Nu ontgrendelen"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "subtitle": "Pas LexiPlay aan naar jouw wensen",
+    "fontType": {
+      "title": "Lettertype",
+      "description": "Kies het lettertype dat het makkelijkst leest",
+      "normal": "Normaal",
+      "dyslexic": "OpenDyslexic"
+    },
+    "fontSize": {
+      "title": "Lettergrootte",
+      "description": "Pas de grootte van de letters aan",
+      "small": "Klein",
+      "medium": "Medium",
+      "large": "Groot"
+    },
+    "sound": {
+      "title": "Geluid",
+      "description": "Zet geluidseffecten aan of uit",
+      "label": "Geluidseffecten"
+    },
+    "buttons": {
+      "toGames": "Naar Spellen",
+      "logout": "Uitloggen"
+    },
+      "language": {
+    "title": "Taal",
+    "description": "Kies je voorkeurstaal"
+  }
+  },
+  "game": {
+    "available": "Beschikbaar",
+    "play_now": "Speel nu!",
+    "locked": "Vergrendeld"
+  },
+
+  "gameCards": {
+  "wordMatch": {
+    "title": "Woord Match",
+    "desc": "Match woorden met geluiden en maak de juiste combinaties!",
+    "unlockMsg": "Scoor 7 punten in Woord Match"
+  },
+  "letterBuild": {
+    "title": "Letter Bouw",
+    "desc": "Bouw woorden letter voor letter en wordt een spelling-kampioen!",
+    "unlockMsg": "Scoor 10 punten in Letter Bouw"
+  },
+  "wordMaze": {
+    "title": "Woorden Doolhof",
+    "desc": "Vind je weg door het doolhof door de juiste letters te kiezen!",
+    "unlockMsg": "Scoor 10 punten in Letter Bouw"
+  },
+  "finalWordBuilder": {
+    "title": "Finale Woorden Bouw",
+    "desc": "Bouw woorden onder tijdsdruk en word een echte kampioen!",
+    "unlockMsg": "Scoor 10 punten in Woorden Doolhof"
+  },
+  "limitReached": "Dagelijkse limiet bereikt"
+},
+"parentalUnlock": {
+  "setPinTitle": "Stel PIN in",
+  "setPinSubtitle": "Maak een nieuwe PIN van minimaal 4 cijfers",
+  "enterPinTitle": "Ouderlijk Toegang",
+  "enterPinSubtitle": "Voer je PIN in om toegang te krijgen",
+  "pinLabelNew": "Nieuwe PIN",
+  "pinLabelEnter": "Voer PIN in",
+  "buttonSetPin": "PIN Instellen",
+  "buttonUnlock": "Ontgrendel",
+  "backToMenu": "Terug naar Menu",
+  "errorShortPin": "PIN moet minstens 4 cijfers zijn",
+  "errorWrongPin": "Fout PIN, probeer opnieuw!",
+  "successPinSet": "PIN ingesteld! Voer het opnieuw in om toegang te krijgen."
+},
+"parentalControl": {
+  "title": "Ouderlijk Toezicht",
+  "subtitle": "Beheer de speeltijd van je kind",
+  "enableTitle": "Toezicht Inschakelen",
+  "enableDesc": "Activeer ouderlijk toezicht om speeltijd te beperken",
+  "enabled": "Ingeschakeld",
+  "disabled": "Uitgeschakeld",
+  "dailyLimitTitle": "Dagelijkse Speeltijd",
+  "dailyLimitDesc": "Stel een limiet in voor het aantal minuten per dag",
+  "save": "Opslaan",
+  "saving": "Opslaan...",
+  "backToMenu": "Terug naar Menu",
+  "viewDashboard": "Bekijk Dashboard",
+  "successSave": "Instellingen opgeslagen!"
+},
+
+  "timeLeft": {
+    "label": "Tijd over"
+  },
+  
+  "parentDashboard": {
+    "loading": "Gegevens laden...",
+    "back": "Terug",
+    "dashboardSubtitle": "Voortgang Dashboard",
+    "totalPlaytime": "Totale Speeltijd",
+    "rewards": "Beloningen",
+    "levelsCompleted": "Voltooide Levels",
+    "dailyPlaytime": "Dagelijkse Speeltijd",
+    "dailyPlaytimeDesc": "Overzicht van activiteit per dag (in minuten)",
+    "daysTracked": "{{count}} dagen getrackt",
+    "noPlaytime": "Nog geen speeltijd geregistreerd",
+    "startPlaying": "Data verschijnt zodra {{name}} begint te spelen",
+    "gameProgress": "Voortgang per Spel",
+    "level": "Level",
+    "score": "Score",
+    "noProgress": "Nog geen spelvoortgang",
+      "notes": {
+      "greatJob": "Geweldig gedaan!",
+      "keepPracticing": "Blijf oefenen!"
+    }
+  },
+  "progressBar": {
+    "completed": "voltooid",
+    "finished": "🎉 Klaar!",
+    "keepGoing": "Blijf doorgaan! 💪"
+},
+  "audioButton": {
+    "playWord": "Speel het woord af"
+  },
+
+
+  "pauseOverlay": {
+    "paused": "Gepauzeerd",
+    "clickToContinue": "Klik op ▶️ om verder te gaan"
+  },
+  "resetModal": {
+  "title": "Score resetten?",
+  "description": "Je score wordt teruggezet naar 0. Ontgrendelde spellen blijven beschikbaar.",
+  "cancel": "Annuleren",
+  "confirm": "Reset"
+},
+"notificationModal": {
+  "ok": "Oké"
+},
+"loadingScreen": {
+  "loading": "Laden",
+  "startNewGame": "🎮 Nieuw spel starten"
+},
+"wordDisplay": {
+  "instruction": "MAAK HET WOORD"
+},
+"parentalControlModal": {
+  "limitReached": "Dagelijkse limiet bereikt!",
+  "message": "Je hebt vandaag je maximale speeltijd bereikt.",
+  "returnAtToday": "Kom vandaag terug 🎉",
+  "returnAtTomorrow": "Kom morgen terug 🌙",
+  "okButton": "Begrepen"
+},
+"gameOverModal": {
+  "timeUp": "Tijd is op!",
+  "tooManyMistakes": "Te veel fouten!",
+  "wordsCompleted": "Je hebt {{currentIndex}} van de {{totalWords}} woorden voltooid!",
+  "mistakesTime": "Fouten: {{mistakes}}/{{maxMistakes}}",
+  "mistakesExceeded": "Je hebt {{maxMistakes}} fouten gemaakt",
+  "retry": "Probeer opnieuw",
+  "home": "Ga naar Home"
+},
+"gameArea": {
+  "dragHere": "👆 Sleep letters hierheen"
+},
+"gameStats": {
+  "time": "TIJD",
+  "mistakes": "FOUTEN"
+},
+"unlockModal": {
+  "unlocked": "{{game}} Ontgrendeld!",
+  "congrats": "Geweldig gedaan! Je hebt een nieuw spel ontgrendeld 🎯",
+  "playGame": "Speel {{game}}",
+  "stayHere": "Blijf hier spelen"
+},
+"gameCards": {
+  "letterBuild": {
+    "title": "Letter Bouw",
+    "desc": "Bouw woorden letter voor letter en wordt een spelling-kampioen!",
+    "unlockMsg": "Scoor 10 punten in Letter Bouw"
+  },
+    "wordMatch": {
+    "title": "Woord Match",
+    "desc": "Match woorden met geluiden en maak de juiste combinaties!"
+  },
+  "wordMaze": {
+    "title": "Woorden Doolhof",
+    "desc": "Vind je weg door het doolhof door de juiste letters te kiezen!",
+    "unlockMsg": "Scoor 10 punten in Letter Bouw"
+  },
+  "finalWordBuilder": {
+    "title": "Finale Woorden Bouw",
+    "desc": "Bouw woorden onder tijdsdruk en word een echte kampioen!",
+    "unlockMsg": "Scoor 10 punten in Woorden Doolhof"
+  }
+},
+"victoryScreen": {
+  "title": "Alle woorden voltooid!",
+  "subtitle": "Je bent een echte ster! ⭐",
+  "correctAnswers": "Goede antwoorden!",
+  "retry": "Opnieuw spelen",
+  "home": "Terug naar menu"
+},
+"levelCompleteScreen": {
+  "title": "Niveau voltooid!",
+  "subtitle": "Super gedaan! 🌟",
+  "nextMessage": "Klaar voor het volgende avontuur? 🚀",
+  "nextLevel": "Volgend niveau"
+},
+"feedbackModal": {
+  "correct": {
+    "title": "Goed gedaan!",
+    "text": "Perfect! 🌟"
+  },
+  "incorrect": {
+    "title": "Probeer opnieuw!",
+    "text": "Je kunt het! 💪"
+  }
+},
+"header": {
+  "score": "Score"
+},
+ "mazeGame": {
+    "clickLetter": "Klik op de juiste letter!",
+    "dragLetters": "👆 Sleep de letters hierheen",
+    "correct": "Goed gedaan! 🌟",
+    "incorrect": "Probeer opnieuw! 💪",
+    "victory": "🎉 Je hebt alle woorden voltooid!",
+    "nextLevel": "Volgende level",
+    "levelComplete": "Level voltooid! 🌟",
+    "resetTitle": "Score resetten?",
+    "resetDesc": "Je score wordt teruggezet naar 0. Ontgrendelde spellen blijven beschikbaar.",
+    "resetCancel": "Annuleren",
+    "resetConfirm": "Opnieuw",
+    "finalWordBuilder": "Finale Woorden Bouw"
+  },
+    "letterBuild": {
+    "dragLettersHere": "Sleep de letters hierheen"
+  },
+    "finalWordBuilder": {
+    "word": "Woord"
+  }
+
+}
+
+

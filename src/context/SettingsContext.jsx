@@ -13,24 +13,33 @@ export function SettingsProvider({ children, user, setUser }) {
   const [soundOn, setSoundOn] = useState(true);
   const [animationSpeed, setAnimationSpeed] = useState("normal");
   const [theme, setTheme] = useState("light");
+  const [language, setLanguage] = useState("en");
+
+  const updateLanguage = async (newLang) => {
+  setLanguage(newLang);
+  if (!user?.id) return;
+  await updateSettings(user.id, { language: newLang });
+};
 
   // Load latest settings from DB whenever user changes
-  useEffect(() => {
-    if (!user?.id) return;
+useEffect(() => {
+  if (!user?.id) return;
 
-    async function loadSettings() {
-      const latestUser = await getUser(user.id);
-      const s = latestUser?.settings || {};
-      setFontType(s.fontType || "normal");
-      setFontSize(s.fontSize || "medium");
-      setSoundOn(s.soundOn ?? true);
-      setAnimationSpeed(s.animationSpeed || "normal");
-      setTheme(s.theme || "light");
-      // Update user object in parent
-      if (setUser) setUser(latestUser);
-    }
-    loadSettings();
-  }, [user?.id]);
+  async function loadSettings() {
+    const latestUser = await getUser(user.id);
+    const s = latestUser?.settings || {};
+    
+    setFontType(s.fontType || "normal");
+    setFontSize(s.fontSize || "medium");
+    setSoundOn(s.soundOn ?? true);
+    setAnimationSpeed(s.animationSpeed || "normal");
+    setTheme(s.theme || "light");
+    setLanguage(s.language || "en"); // <-- language loaded here
+
+    if (setUser) setUser(latestUser);
+  }
+  loadSettings();
+}, [user?.id]);
 
   // Apply CSS variables
   useEffect(() => {
@@ -80,6 +89,7 @@ export function SettingsProvider({ children, user, setUser }) {
       soundOn, setSoundOn: updateSound,
       animationSpeed, setAnimationSpeed: updateAnimationSpeed,
       theme, setTheme: updateTheme,
+      language, setLanguage: updateLanguage
     }}>
       {children}
     </SettingsContext.Provider>

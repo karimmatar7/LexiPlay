@@ -1,55 +1,57 @@
-import React, { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { updateSettings, getUser } from "../utils/user.js"
-import NotificationModal from "../components/NotificationModal"
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { updateSettings, getUser } from "../utils/user.js";
+import NotificationModal from "../components/NotificationModal";
+import { useTranslation } from "react-i18next";
 
 export default function ParentalUnlockPage({ user, setUnlocked }) {
-  const [pin, setPin] = useState("")
-  const [existingPin, setExistingPin] = useState(null)
-  const [showModal, setShowModal] = useState(false)
-  const [modalConfig, setModalConfig] = useState({ message: "", type: "error" })
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const [pin, setPin] = useState("");
+  const [existingPin, setExistingPin] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ message: "", type: "error" });
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchPin() {
-      if (!user?.id) return
-      const latestUser = await getUser(user.id)
-      const pinFromSettings = latestUser?.settings?.parentalPin || null
-      setExistingPin(pinFromSettings)
+      if (!user?.id) return;
+      const latestUser = await getUser(user.id);
+      const pinFromSettings = latestUser?.settings?.parentalPin || null;
+      setExistingPin(pinFromSettings);
     }
-    fetchPin()
-  }, [user])
+    fetchPin();
+  }, [user]);
 
   const handleUnlock = async () => {
     if (!existingPin) {
       if (pin.length < 4) {
-        setModalConfig({ message: "PIN moet minstens 4 cijfers zijn", type: "error" })
-        setShowModal(true)
-        return
+        setModalConfig({ message: t("parentalUnlock.errorShortPin"), type: "error" });
+        setShowModal(true);
+        return;
       }
-      await updateSettings(user.id, { parentalPin: pin })
-      setExistingPin(pin)
-      setPin("")
-      setModalConfig({ message: "PIN ingesteld! Voer het opnieuw in om toegang te krijgen.", type: "success" })
-      setShowModal(true)
-      return
+      await updateSettings(user.id, { parentalPin: pin });
+      setExistingPin(pin);
+      setPin("");
+      setModalConfig({ message: t("parentalUnlock.successPinSet"), type: "success" });
+      setShowModal(true);
+      return;
     }
 
     if (pin === existingPin) {
-      if (setUnlocked) setUnlocked(true)
-      navigate("/parental-control")
+      if (setUnlocked) setUnlocked(true);
+      navigate("/parental-control");
     } else {
-      setModalConfig({ message: "Fout PIN, probeer opnieuw!", type: "error" })
-      setShowModal(true)
-      setPin("")
+      setModalConfig({ message: t("parentalUnlock.errorWrongPin"), type: "error" });
+      setShowModal(true);
+      setPin("");
     }
-  }
+  };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleUnlock()
+    if (e.key === "Enter") {
+      handleUnlock();
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-indigo-50 p-6 md:p-8 relative">
@@ -63,11 +65,11 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
           <div className="inline-block mb-6 bg-white rounded-3xl p-8 shadow-sm border-4 border-indigo-300">
             <span className="text-7xl">🔐</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-4 text-indigo-700" style={{ letterSpacing: '-0.02em' }}>
-            {existingPin ? "Ouderlijk Toegang" : "Stel PIN in"}
+          <h1 className="text-5xl md:text-6xl font-black mb-4 text-indigo-700" style={{ letterSpacing: "-0.02em" }}>
+            {existingPin ? t("parentalUnlock.enterPinTitle") : t("parentalUnlock.setPinTitle")}
           </h1>
           <p className="text-xl text-gray-700 font-medium">
-            {existingPin ? "Voer je PIN in om toegang te krijgen" : "Maak een nieuwe PIN van minimaal 4 cijfers"}
+            {existingPin ? t("parentalUnlock.enterPinSubtitle") : t("parentalUnlock.setPinSubtitle")}
           </p>
         </div>
 
@@ -77,7 +79,7 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
             <div className="flex items-center gap-4">
               <div className="flex-1">
                 <label className="block text-lg font-bold text-gray-800 mb-3">
-                  {existingPin ? "Voer PIN in" : "Nieuwe PIN"}
+                  {existingPin ? t("parentalUnlock.pinLabelEnter") : t("parentalUnlock.pinLabelNew")}
                 </label>
                 <input
                   type="password"
@@ -101,7 +103,7 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
             className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-purple-600 hover:bg-purple-700 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-purple-800 transform hover:scale-105 transition-all duration-200"
           >
             <span className="text-2xl">{existingPin ? "🔓" : "✨"}</span>
-            <span>{existingPin ? "Ontgrendel" : "PIN Instellen"}</span>
+            <span>{existingPin ? t("parentalUnlock.buttonUnlock") : t("parentalUnlock.buttonSetPin")}</span>
           </button>
 
           <button
@@ -110,7 +112,7 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
             className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-gray-400 hover:bg-gray-500 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-gray-600 transform hover:scale-105 transition-all duration-200"
           >
             <span className="text-2xl">🏠</span>
-            <span>Terug naar Menu</span>
+            <span>{t("parentalUnlock.backToMenu")}</span>
           </button>
         </div>
       </div>
@@ -123,5 +125,5 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
         type={modalConfig.type}
       />
     </div>
-  )
+  );
 }

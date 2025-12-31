@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSettings } from "../context/SettingsContext";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import GameContainer from "../components/GameContainer";
 import AudioButton from "../components/AudioButton";
 import LoadingScreen from "../components/LoadingScreen";
@@ -14,28 +15,75 @@ import { supabase } from "../supaBaseClient";
 import { calculateStars } from "../utils/progressStars";
 import usePlaytimeTracker from "../hooks/usePlaytimeTracker";
 
+
 // --- Helpers ---
 const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
 
-const generateOptions = (correctWord, allWords) => {
+
+const generateOptions = (correctWord, allWords, currentLanguage) => {
   const targetLength = correctWord.length;
+  
+  // Get all words in current language
+  const wordsInLanguage = allWords.map(w => currentLanguage === "en" ? w.en : w.correct);
+  
   const distractors = shuffleArray(
-    allWords.map(w => w.correct).filter(w => w !== correctWord && Math.abs(w.length - targetLength) <= 1)
+    wordsInLanguage.filter(w => w !== correctWord && Math.abs(w.length - targetLength) <= 1)
   ).slice(0, 3);
 
   while (distractors.length < 3) {
-    const random = allWords[Math.floor(Math.random() * allWords.length)].correct;
+    const randomIndex = Math.floor(Math.random() * allWords.length);
+    const random = currentLanguage === "en" ? allWords[randomIndex].en : allWords[randomIndex].correct;
     if (random !== correctWord && !distractors.includes(random)) distractors.push(random);
   }
 
   return shuffleArray([correctWord, ...distractors]);
 };
 
+
+// --- Word Options Component ---
+const WordOptions = ({ currentWord, answered, soundOn, paused, handleAnswer, t }) => {
+  if (!currentWord) return null;
+  const options = currentWord.options;
+
+  return (
+    <>
+      <div className="mb-8 md:mb-12">
+        <AudioButton
+          word={currentWord.displayWord}
+          soundOn={soundOn}
+          paused={paused}
+          label={t("wordMatch.playWord")}
+          className="w-full text-2xl md:text-3xl py-6 md:py-8"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+        {options.map((opt, i) => (
+          <button
+            key={i}
+            disabled={answered}
+            onClick={() => handleAnswer(opt)}
+            className={`py-6 md:py-8 px-4 rounded-2xl font-bold text-xl md:text-2xl transition-all duration-200 ${
+              answered
+                ? "opacity-50 cursor-not-allowed bg-gray-200 border-3 border-gray-400"
+                : "bg-gradient-to-br from-purple-50 to-pink-50 border-3 border-purple-400 hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-100 hover:to-pink-100 shadow-md hover:shadow-lg transform hover:scale-105"
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+};
+
+
+// --- Main Component ---
 // --- Main Component ---
 export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
   usePlaytimeTracker(user);
   
   const { fontType, fontSize, soundOn } = useSettings();
+  const { t, i18n } = useTranslation();
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
   const sizeMap = { small: "text-base md:text-lg", medium: "text-lg md:text-xl", large: "text-xl md:text-2xl" };
   const navigate = useNavigate();
@@ -57,6 +105,20 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
   const [starEarned, setStarEarned] = useState(false);
 
   const { level, levelIndex, rewardsEarned } = progress;
+
+  // Helper to get localized word
+  const getLocalizedWord = (wordObj) => {
+    if (!wordObj) return "";
+    return i18n.language === "en" ? wordObj.en : wordObj.correct;
+  };
+
+  // Get current word with display word and options
+  const currentWordData = (levels[level] || [])[levelIndex];
+  const currentWord = currentWordData ? {
+    ...currentWordData,
+    displayWord: getLocalizedWord(currentWordData),
+    options: generateOptions(getLocalizedWord(currentWordData), wordData, i18n.language)
+  } : null;
 
   // --- Load progress ---
   useEffect(() => {
@@ -94,7 +156,7 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
     };
 
     loadProgress();
-  }, [user, wordsPerLevel]);
+  }, [user, wordsPerLevel, i18n.language]);
 
   // --- Save progress ---
   const saveProgress = async (newProgress = progress) => {
@@ -133,13 +195,11 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
     navigate("/menu");
   };
 
-  const currentWord = (levels[level] || [])[levelIndex];
-
   const handleAnswer = (opt) => {
-    if (answered || paused) return;
+    if (answered || paused || !currentWord) return;
     setAnswered(true);
 
-    if (opt === currentWord.correct) {
+    if (opt === currentWord.displayWord) {
       setFeedback("correct");
       setProgress(prev => {
         const updated = { ...prev, score: prev.score + 1 };
@@ -164,10 +224,21 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
       if (updatedProgress.level === 1 && !updatedProgress.letterBuildUnlocked) {
         updatedProgress.letterBuildUnlocked = true;
         setShowUnlockModal(true);
+
+          setUser(prev => ({
+    ...prev,
+    progress: { ...prev.progress, wordMatch: updatedProgress }
+  }));
+
+    await saveProgress(updatedProgress);
+
       }
     } else {
       updatedProgress.rewardsEarned = [true, true, true];
+      setProgress(updatedProgress);
       setFeedback("victory");
+      await updateProgress(user.id, { wordMatch: updatedProgress });
+      return;
     }
 
     const totalWords = levels.flat().length;
@@ -222,7 +293,7 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
       <UnlockModal
         fontClass={fontClass}
         sizeClass={sizeMap[fontSize || "medium"]}
-        gameName="Letter Bouw"
+        gameName={t("gameCards.letterBuild.title")}
         gameEmoji="🔤"
         gameRoute="/letterbuild"
         onClose={async () => {
@@ -237,8 +308,12 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
   if (starEarned)
     return <LevelCompleteScreen fontClass={fontClass} sizeMap={sizeMap} nextLevel={goToNextLevel} />;
 
+  // CHECK VICTORY BEFORE RENDERING GAME CONTAINER
   if (feedback === "victory")
     return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={progress.score} words={levels} onRestart={resetScore} />;
+
+  // Only render game if currentWord exists
+  if (!currentWord) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
 
   const totalWords = levels.flat().length;
   const currentPosition = level * wordsPerLevel + levelIndex + 1;
@@ -266,7 +341,8 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
           answered={answered} 
           soundOn={soundOn}
           paused={paused}
-          handleAnswer={handleAnswer} 
+          handleAnswer={handleAnswer}
+          t={t}
         />
       </GameContainer>
 
@@ -274,38 +350,3 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
     </>
   );
 }
-
-const WordOptions = ({ currentWord, answered, soundOn, paused, handleAnswer }) => {
-  if (!currentWord) return null;
-  const options = generateOptions(currentWord.correct, wordData);
-
-  return (
-    <>
-      <div className="mb-8 md:mb-12">
-        <AudioButton
-          word={currentWord.sound}
-          soundOn={soundOn}
-          paused={paused}
-          label="Speel het woord af"
-          className="w-full text-2xl md:text-3xl py-6 md:py-8"
-        />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-        {options.map((opt, i) => (
-          <button
-            key={i}
-            disabled={answered}
-            onClick={() => handleAnswer(opt)}
-            className={`py-6 md:py-8 px-4 rounded-2xl font-bold text-xl md:text-2xl transition-all duration-200 ${
-              answered
-                ? "opacity-50 cursor-not-allowed bg-gray-200 border-3 border-gray-400"
-                : "bg-gradient-to-br from-purple-50 to-pink-50 border-3 border-purple-400 hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-100 hover:to-pink-100 shadow-md hover:shadow-lg transform hover:scale-105"
-            }`}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-    </>
-  );
-};

@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import Button from "./Button";
+import { useTranslation } from "react-i18next";
 
 export default function VictoryScreen({ gameType, startNewGame, score, words, fontClass, sizeMap, onRestart }) {
+  const { t } = useTranslation();
+
   // Play success sound when component mounts
   useEffect(() => {
     const audio = new Audio(`${process.env.PUBLIC_URL}/sounds/success.mp3`);
@@ -11,6 +14,7 @@ export default function VictoryScreen({ gameType, startNewGame, score, words, fo
 
   const handleRestart = () => {
     if (startNewGame && gameType) startNewGame(gameType);
+    if (onRestart) onRestart();
   };
 
   return (
@@ -27,33 +31,33 @@ export default function VictoryScreen({ gameType, startNewGame, score, words, fo
         </div>
 
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text mb-4">
-          Alle woorden voltooid!
+          {t("victoryScreen.title")}
         </h2>
 
         <p className="text-lg md:text-2xl text-gray-700 mb-6 font-medium">
-          Je bent een echte ster!⭐
+          {t("victoryScreen.subtitle")}
         </p>
 
         <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 md:p-8 mb-8 border-4 border-amber-200">
           <p className="text-5xl md:text-6xl font-black text-transparent bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text mb-2">
             {score}/{words.flat().length}
           </p>
-          <p className="text-lg md:text-xl text-gray-600 font-semibold">Goede antwoorden!</p>
+          <p className="text-lg md:text-xl text-gray-600 font-semibold">{t("victoryScreen.correctAnswers")}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <button
-            onClick={onRestart}
+            onClick={handleRestart}
             className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-4 md:py-5 rounded-2xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
           >
-            <span className="text-2xl">🔄</span> Opnieuw spelen
+            <span className="text-2xl">🔄</span> {t("victoryScreen.retry")}
           </button>
 
           <Button
             to="/menu"
             className="inline-flex items-center justify-center gap-3 bg-white text-gray-700 px-8 py-4 md:py-5 rounded-2xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all border-2 border-gray-200"
           >
-            <span className="text-2xl">🏠</span> Terug naar menu
+            <span className="text-2xl">🏠</span> {t("victoryScreen.home")}
           </Button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../supaBaseClient";
 import { updateParentalControl } from "../supabaseFunctions";
+import { useTranslation } from "react-i18next";
 
 export function useParentalControl(user) {
   const [timeLeft, setTimeLeft] = useState(null);
@@ -11,23 +12,20 @@ export function useParentalControl(user) {
   const timerRef = useRef(null);
   const modalShownRef = useRef(false);
 
-const calculateReturnMessage = (lastPlayedDate) => {
-  if (!lastPlayedDate) return "";
+const { t } = useTranslation();
 
+const calculateReturnKey = (lastPlayedDate) => {
   const now = new Date();
-  const today = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate()
-  );
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // If no lastPlayedDate, they can play today
+  if (!lastPlayedDate) return "returnAtToday";
 
   const played = new Date(lastPlayedDate + "T00:00:00");
   const nextDay = new Date(played);
   nextDay.setDate(played.getDate() + 1);
 
-  return today >= nextDay
-    ? "Je kan vandaag weer spelen 🎉"
-    : "Je kan morgen weer spelen 🌙";
+  return today >= nextDay ? "returnAtToday" : "returnAtTomorrow";
 };
 
 
@@ -88,7 +86,8 @@ const calculateReturnMessage = (lastPlayedDate) => {
           });
         }
 
-setReturnTime(calculateReturnMessage(pc.lastPlayedDate));
+setReturnTime(calculateReturnKey(pc.lastPlayedDate));
+
 
         if (!modalShownRef.current) {
           modalShownRef.current = true;
@@ -110,7 +109,7 @@ setReturnTime(calculateReturnMessage(pc.lastPlayedDate));
             });
 
             setLimitReached(true);
-            setReturnTime(calculateReturnMessage(ts));
+            setReturnTime(calculateReturnKey(ts));
             setShowLimitModal(true);
             return 0;
           }

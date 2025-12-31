@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
 import { useParentalControl } from "../hooks/useParentalControl";
 import GameMenuHeader from "../components/GameMenuHeader";
@@ -9,6 +10,7 @@ import ParentalControlModal from "../components/ParentalControlModal";
 import { getUser } from "../utils/user.js";
 
 export default function GameMenu({ user }) {
+  const { t } = useTranslation();
   const { fontType, fontSize } = useSettings();
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
   const sizeMap = { small: "text-base", medium: "text-lg", large: "text-xl" };
@@ -72,10 +74,9 @@ export default function GameMenu({ user }) {
       <div className="absolute bottom-12 right-12 w-40 h-40 bg-yellow-200 rounded-full opacity-25" />
 
       <div className="relative max-w-6xl mx-auto space-y-12">
-<GameMenuHeader fontClass={fontClass} sizeMap={sizeMap} fontSize={fontSize} name={user?.name}>
-  <TimeLeftDisplay timeLeft={timeLeft} limitReached={limitReached} formatTime={formatTime} />
-</GameMenuHeader>
-
+        <GameMenuHeader fontClass={fontClass} sizeMap={sizeMap} fontSize={fontSize} name={user?.name}>
+          <TimeLeftDisplay timeLeft={timeLeft} limitReached={limitReached} formatTime={formatTime} />
+        </GameMenuHeader>
 
         <GamesGrid
           displayWordMatch={displayWordMatch}
@@ -87,9 +88,12 @@ export default function GameMenu({ user }) {
 
         {/* Navigation Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link to="/settings" className="group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200">
+          <Link 
+            to="/settings" 
+            className="group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
+          >
             <span className="text-2xl">⚙️</span>
-            <span>Instellingen</span>
+            <span>{t("gameMenu.settings")}</span>
           </Link>
         </div>
       </div>
@@ -98,7 +102,7 @@ export default function GameMenu({ user }) {
       <button 
         onClick={() => navigate("/unlock-parental")} 
         className="fixed bottom-6 right-6 bg-purple-600 text-white p-4 rounded-full shadow-lg border-2 border-purple-400 hover:bg-purple-700 hover:scale-110 transition-transform duration-200 z-50" 
-        title="Ouderlijk Toezicht"
+        title={t("gameMenu.parentalControl")}
       >
         👨‍👩‍👧
       </button>

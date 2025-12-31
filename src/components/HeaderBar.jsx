@@ -1,5 +1,6 @@
 import React from "react"
 import { calculateStars } from "../utils/progressStars"
+import { useTranslation } from "react-i18next";
 
 export default function HeaderBar({
   score,
@@ -12,6 +13,7 @@ export default function HeaderBar({
 }) {
   const progressPercent = total > 0 ? (score / total) * 100 : 0;
   const stars = calculateStars(progressPercent);
+  const { t } = useTranslation();
 
   return (
     <div className="mb-6">
@@ -23,7 +25,7 @@ export default function HeaderBar({
               <span className="text-2xl md:text-3xl">🏠</span>
             </button>
             <div className="flex flex-col">
-              <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wide">Score</p>
+              <p className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wide">{t("header.score")}</p>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-3xl md:text-4xl font-black text-pink-600">{score}</span>
                 <span className="text-lg md:text-xl text-gray-400 font-bold">/ {total}</span>

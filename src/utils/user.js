@@ -1,4 +1,5 @@
 // src/utils/user.js
+import { lastDayOfDecade } from 'date-fns';
 import { supabase } from '../supaBaseClient.js';
 import { sha256 } from 'js-sha256';
 
@@ -40,6 +41,7 @@ export async function createUser(name, pin) {
       fontType: 'normal',
       fontSize: 'medium',
       soundOn: true,
+      language: 'en',
     };
 
     const defaultParentalControl = {

@@ -1,5 +1,6 @@
-import React from "react"
-import { useNavigate } from "react-router-dom"
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function UnlockModal({ 
   fontClass, 
@@ -9,7 +10,8 @@ export default function UnlockModal({
   gameRoute = "/letterbuild",
   onClose 
 }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className={`min-h-screen flex justify-center items-center bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100 ${fontClass} ${sizeClass} p-4 relative overflow-hidden`}>
@@ -27,10 +29,10 @@ export default function UnlockModal({
         </div>
         
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text mb-4">
-          {gameName} Ontgrendeld!
+          {t("unlockModal.unlocked", { game: gameName })}
         </h2>
         <p className="text-lg md:text-2xl text-gray-700 font-medium mb-6">
-          Geweldig gedaan! Je hebt een nieuw spel ontgrendeld 🎯
+          {t("unlockModal.congrats")}
         </p>
 
         <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -39,7 +41,7 @@ export default function UnlockModal({
             className="group inline-flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 py-5 rounded-2xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
           >
             <span className="text-2xl">{gameEmoji}</span>
-            <span>Speel {gameName}</span>
+            <span>{t("unlockModal.playGame", { game: gameName })}</span>
             <span className="group-hover:translate-x-1 transition-transform">→</span>
           </button>
 
@@ -48,7 +50,7 @@ export default function UnlockModal({
             className="inline-flex items-center justify-center gap-3 bg-white text-gray-700 px-8 py-5 rounded-2xl text-lg md:text-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all border-2 border-gray-200"
           >
             <span className="text-2xl">▶️</span>
-            <span>Blijf hier spelen</span>
+            <span>{t("unlockModal.stayHere")}</span>
           </button>
         </div>
       </div>

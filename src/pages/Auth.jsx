@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createUser, loginUser, resetPin } from "../utils/user.js";
 import RecoveryCodeModal from "../components/RecoveryCodeModal";
 import ResetPinModal from "../components/ResetPinModal";
 import SuccessModal from "../components/SuccessModal";
+import { useTranslation } from "react-i18next";
+import { useSettings } from "../context/SettingsContext.jsx";
 
 export default function AuthPage({ onLogin }) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
@@ -23,13 +27,43 @@ export default function AuthPage({ onLogin }) {
   const [newPin, setNewPin] = useState("");
   const [resetError, setResetError] = useState("");
 
+const { language, setLanguage } = useSettings();
+
+  // -----------------------------
+  // Persist language preference from user (if logged in)
+  // -----------------------------
+  useEffect(() => {
+    const storedUser = localStorage.getItem("lexiplay_user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        if (user.language) {
+          i18n.changeLanguage(user.language);
+          setLanguage(user.language);
+        }
+      } catch {}
+    }
+  }, []);
+
+  // -----------------------------
+  // Toggle language
+  // -----------------------------
+const toggleLanguage = () => {
+  const newLang = language === "en" ? "nl" : "en";
+  setLanguage(newLang); // saves to Supabase automatically
+  i18n.changeLanguage(newLang);
+};
+
   // -----------------------------
   // Login
   // -----------------------------
   const handleLogin = async () => {
-    if (!name || !pin) return setError("Vul beide velden in");
+    if (!name || !pin) return setError(t("auth.errors.fillFields"));
     const user = await loginUser(name, pin);
-    if (!user) return setError("Gebruiker niet gevonden of fout PIN");
+    if (!user) return setError(t("auth.errors.loginFailed"));
+
+    // Save user language preference
+    user.language = language;
     localStorage.setItem("lexiplay_user", JSON.stringify(user));
     onLogin(user);
     navigate("/menu");
@@ -39,10 +73,10 @@ export default function AuthPage({ onLogin }) {
   // Register
   // -----------------------------
   const handleRegister = async () => {
-    if (!name || !pin) return setError("Vul beide velden in");
+    if (!name || !pin) return setError(t("auth.errors.fillFields"));
 
     const res = await createUser(name, pin);
-    if (!res) return setError("Registratie mislukt of naam al in gebruik");
+    if (!res) return setError(t("auth.errors.registerFailed"));
 
     setPendingUser(res.user);
     setPlainRecoveryCode(res.recoveryCode);
@@ -53,7 +87,7 @@ export default function AuthPage({ onLogin }) {
   // Guest
   // -----------------------------
   const handleGuest = () => {
-    const guest = { id: "guest", name: "Gast", rewards: 0, progress: {} };
+    const guest = { id: "guest", name: t("auth.guest"), rewards: 0, progress: {}, language };
     localStorage.setItem("lexiplay_user", JSON.stringify(guest));
     onLogin(guest);
     navigate("/menu");
@@ -69,13 +103,14 @@ export default function AuthPage({ onLogin }) {
   };
 
   // -----------------------------
-  // Close recovery modal and login
+  // Close recovery modal
   // -----------------------------
   const closeRecoveryModal = () => {
     setShowRecoveryModal(false);
     setCopied(false);
-    
+
     if (pendingUser) {
+      pendingUser.language = language;
       localStorage.setItem("lexiplay_user", JSON.stringify(pendingUser));
       onLogin(pendingUser);
       navigate("/menu");
@@ -87,15 +122,15 @@ export default function AuthPage({ onLogin }) {
   // -----------------------------
   const handleResetPin = async () => {
     if (!resetName || !recoveryInput || !newPin) {
-      setResetError("Vul alle velden in");
+      setResetError(t("auth.errors.fillFields"));
       return;
     }
     const res = await resetPin(resetName, recoveryInput, newPin);
     if (!res) {
-      setResetError("Onjuiste recovery code of naam");
+      setResetError(t("auth.errors.loginFailed"));
       return;
     }
-    
+
     setShowResetModal(false);
     setResetName("");
     setRecoveryInput("");
@@ -114,6 +149,17 @@ export default function AuthPage({ onLogin }) {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 p-4 relative overflow-hidden">
+
+      {/* Responsive language toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <button
+          onClick={toggleLanguage}
+          className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-xl font-bold shadow-md text-sm sm:text-base"
+        >
+          {language === "en" ? "NL" : "EN"}
+        </button>
+      </div>
+
       {/* Decorative blobs */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-yellow-300 rounded-full opacity-40" />
       <div className="absolute bottom-20 right-10 w-40 h-40 bg-green-300 rounded-full opacity-30" />
@@ -127,28 +173,28 @@ export default function AuthPage({ onLogin }) {
             <img src="/fox.png" alt="LexiPlay Logo" className="w-24 h-24 md:w-28 md:h-28 mx-auto" />
           </div>
           <h1 className="text-4xl font-black text-purple-700" style={{ letterSpacing: "-0.02em" }}>
-            Welkom bij LexiPlay!
+            {t("auth.welcome")}
           </h1>
-          <p className="text-base text-gray-600 font-medium">Log in om je avontuur te beginnen</p>
+          <p className="text-base text-gray-600 font-medium">{t("auth.subtitle")}</p>
         </div>
 
         {/* Input Fields */}
         <div className="flex flex-col gap-5">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">👤 Naam</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">👤 {t("auth.nameLabel")}</label>
             <input
               type="text"
-              placeholder="Typ je naam hier..."
+              placeholder={t("auth.namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-gray-50"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">🔒 PIN Code</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">🔒 {t("auth.pinLabel")}</label>
             <input
               type="password"
-              placeholder="Typ je PIN hier..."
+              placeholder={t("auth.pinPlaceholder")}
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               maxLength="10"
@@ -163,13 +209,13 @@ export default function AuthPage({ onLogin }) {
             onClick={handleLogin}
             className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white py-4 px-6 rounded-xl text-lg font-bold shadow-md border-b-4 border-indigo-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           >
-            🔑 Login
+            🔑 {t("auth.login")}
           </button>
           <button
             onClick={handleRegister}
             className="flex-1 bg-green-500 hover:bg-green-600 text-white py-4 px-6 rounded-xl text-lg font-bold shadow-md border-b-4 border-green-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200"
           >
-            ✨ Registreer
+            ✨ {t("auth.register")}
           </button>
         </div>
 
@@ -178,7 +224,7 @@ export default function AuthPage({ onLogin }) {
           onClick={() => setShowResetModal(true)}
           className="mt-2 w-full text-sm text-purple-700 underline hover:text-purple-900"
         >
-          🔑 PIN vergeten?
+          🔑 {t("auth.forgotPin")}
         </button>
 
         {/* Guest */}
@@ -186,7 +232,7 @@ export default function AuthPage({ onLogin }) {
           onClick={handleGuest}
           className="w-full bg-white hover:bg-purple-50 text-purple-600 py-4 px-6 rounded-xl text-lg font-bold border-2 border-purple-400 hover:border-purple-500 shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-200"
         >
-          🎮 Verder gaan als gast
+          🎮 {t("auth.guest")}
         </button>
 
         {/* Error */}

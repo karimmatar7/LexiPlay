@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import GameContainer from "../components/GameContainer"
 import AudioButton from "../components/AudioButton"
 import LoadingScreen from "../components/LoadingScreen"
@@ -23,7 +24,8 @@ function GameArea({
   handleUndo,
   dragHandlers,
   soundOn,
-  paused
+  paused,
+  t
 }) {
   return (
     <div className="flex flex-col items-center gap-8">
@@ -44,10 +46,10 @@ function GameArea({
       `}</style>
       
       <AudioButton
-        word={currentWord.correct}
+        word={currentWord.displayWord}
         soundOn={soundOn}
         paused={paused}
-        label="Luister"
+        label={t("letterBuild.listen")}
         className="px-8 py-4 text-xl md:text-2xl"
       />
 
@@ -60,7 +62,7 @@ function GameArea({
       >
         {selectedLetters.length === 0 ? (
           <p className="text-gray-400 italic font-medium text-lg">
-            👆 Sleep letters hierheen
+            {t("letterBuild.dragLettersHere")}
           </p>
         ) : (
           selectedLetters.map((letter, i) => (
@@ -117,6 +119,7 @@ function GameArea({
 }
 
 export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
+  const { t, i18n } = useTranslation()
   usePlaytimeTracker(user)
 
   const { fontType, fontSize, soundOn } = useSettings()
@@ -146,10 +149,23 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   const dragHook = useLetterDrag()
 
+  // Helper to get localized word
+  const getLocalizedWord = (wordObj) => {
+    if (!wordObj) return ""
+    return i18n.language === "en" ? wordObj.en : wordObj.correct
+  }
+
+  // Get current word with display word
+  const currentWordData = (words[level] || [])[levelIndex]
+  const currentWord = currentWordData ? {
+    ...currentWordData,
+    displayWord: getLocalizedWord(currentWordData)
+  } : null
+
   const dragHandlers = {
     handleDragStart: dragHook.handleDragStart,
     handleDragOver: dragHook.handleDragOver,
-    handleDropOnSelected: (e) => dragHook.handleDropOnSelected(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length),
+    handleDropOnSelected: (e) => dragHook.handleDropOnSelected(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord?.displayWord.length || 0),
     handleDropOnAvailable: (e) => dragHook.handleDropOnAvailable(e, setSelectedLetters, setCurrentLetters),
     handleTouchStart: dragHook.handleTouchStart,
     handleTouchMove: dragHook.handleTouchMove,
@@ -158,7 +174,7 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
         if (area === 'available') handleLetterClick(letter, index)
         else if (area === 'selected') handleUndo(letter, index)
       }
-      dragHook.handleTouchEnd(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord.correct.length, onClickCallback)
+      dragHook.handleTouchEnd(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord?.displayWord.length || 0, onClickCallback)
     }
   }
 
@@ -183,16 +199,17 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
         rewardsEarned: saved?.rewardsEarned || [false, false, false]
       })
 
-      const restoredWord = saved
-        ? levels[saved.level || 0][saved.levelIndex || 0].correct
-        : levels[0][0].correct
+      const restoredWordObj = saved
+        ? levels[saved.level || 0][saved.levelIndex || 0]
+        : levels[0][0]
 
+      const restoredWord = i18n.language === "en" ? restoredWordObj.en : restoredWordObj.correct
       setupLetters(restoredWord)
       setLoading(false)
     }
 
     load()
-  }, [user, wordsPerLevel])
+  }, [user, wordsPerLevel, i18n.language])
 
   const saveToSupabase = async (progressData = letterBuildProgress) => {
     if (!user) return
@@ -205,10 +222,8 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     setSelectedLetters([])
   }
 
-  const currentWord = (words[level] || [])[levelIndex]
-
   const handleLetterClick = (letter, index) => {
-    if (selectedLetters.length < currentWord.correct.length) {
+    if (selectedLetters.length < currentWord.displayWord.length) {
       setSelectedLetters([...selectedLetters, letter])
       setCurrentLetters((c) => {
         const arr = [...c]
@@ -230,9 +245,9 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   useEffect(() => {
     if (!currentWord) return
-    if (selectedLetters.length === currentWord.correct.length) {
+    if (selectedLetters.length === currentWord.displayWord.length) {
       setTimeout(async () => {
-        if (selectedLetters.join("") === currentWord.correct) {
+        if (selectedLetters.join("") === currentWord.displayWord) {
           setFeedback("correct")
           setLetterBuildProgress(prev => {
             const updated = { ...prev, score: prev.score + 1 }
@@ -251,12 +266,12 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
           setFeedback("incorrect")
           setTimeout(() => {
             setFeedback("")
-            setupLetters(currentWord.correct)
+            setupLetters(currentWord.displayWord)
           }, 1500)
         }
       }, 300)
     }
-  }, [selectedLetters])
+  }, [selectedLetters, currentWord?.displayWord])
 
   const nextWordOrLevel = async (progress = letterBuildProgress) => {
     const currentLevelWords = words[progress.level] || []
@@ -279,7 +294,10 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
     await checkAndAwardStars(newProgress, progressPercent)
     setLetterBuildProgress(newProgress)
-    setupLetters(words[newProgress.level][newProgress.levelIndex].correct)
+    
+    const nextWordObj = words[newProgress.level][newProgress.levelIndex]
+    const nextWord = i18n.language === "en" ? nextWordObj.en : nextWordObj.correct
+    setupLetters(nextWord)
     setFeedback("")
   }
 
@@ -311,7 +329,9 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   const goToNextLevel = async () => {
     setStarEarned(false)
-    setupLetters(words[letterBuildProgress.level][letterBuildProgress.levelIndex].correct)
+    const nextWordObj = words[letterBuildProgress.level][letterBuildProgress.levelIndex]
+    const nextWord = i18n.language === "en" ? nextWordObj.en : nextWordObj.correct
+    setupLetters(nextWord)
     setFeedback("")
     await saveToSupabase()
   }
@@ -334,7 +354,12 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     setPaused(false)
     setShowResetModal(false)
     setStarEarned(false)
-    if (words.length > 0 && words[0].length > 0) setupLetters(words[0][0].correct)
+    
+    if (words.length > 0 && words[0].length > 0) {
+      const firstWordObj = words[0][0]
+      const firstWord = i18n.language === "en" ? firstWordObj.en : firstWordObj.correct
+      setupLetters(firstWord)
+    }
     await saveToSupabase(newProgress)
   }
 
@@ -346,7 +371,7 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
       <UnlockModal
         fontClass={fontClass}
         sizeClass={sizeMap[fontSize || "medium"]}
-        gameName="Woorden Doolhof"
+        gameName={t("gameCards.wordMaze.title")}
         gameEmoji="🧩"
         gameRoute="/wordmaze"
         onClose={async () => {
@@ -407,6 +432,7 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
           dragHandlers={dragHandlers}
           soundOn={soundOn}
           paused={paused}
+          t={t}
         />
       </GameContainer>
 

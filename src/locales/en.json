@@ -1,0 +1,290 @@
+{
+  "auth": {
+    "welcome": "Welcome to LexiPlay!",
+    "subtitle": "Log in to start your adventure",
+    "nameLabel": "Name",
+    "namePlaceholder": "Type your name here...",
+    "pinLabel": "PIN Code",
+    "pinPlaceholder": "Type your PIN here...",
+    "login": "Login",
+    "register": "Register",
+    "guest": "Continue as guest",
+    "forgotPin": "Forgot PIN?",
+    "errors": {
+      "fillFields": "Please fill in both fields",
+      "loginFailed": "User not found or incorrect PIN",
+      "registerFailed": "Registration failed or name already taken",
+      "resetFillFields": "Please fill in all fields",
+      "resetFailed": "Incorrect recovery code or name"
+    }
+  },
+  "modals": {
+    "recoveryCode": {
+      "title": "✨ Your recovery code!",
+      "instructions": "Keep this code safe! You’ll need it to reset your PIN.",
+      "copy": "📋 Copy",
+      "copied": "✅ Copied!",
+      "understood": "✅ Got it, go to LexiPlay",
+      "warning": "⚠️ Write down this code or take a screenshot!"
+    },
+    "resetPin": {
+      "title": "Reset your PIN",
+      "name": "Name",
+      "recoveryCode": "Recovery code",
+      "newPin": "New PIN",
+      "resetButton": "🔑 Reset PIN",
+      "closeButton": "Close"
+    },
+    "success": {
+      "title": "PIN successfully reset!",
+      "subtitle": "Log in again with your new PIN.",
+      "button": "Got it"
+    }
+  },
+  "gameMenu": {
+    "title": "Game Menu",
+    "subtitle": "Which adventure will you choose today, {{name}}?",
+    "settings": "Settings",
+    "parentalControl": "Parental Control",
+    "timeLeft": "Time left",
+    "limitReachedMessage": "Your daily playtime limit has been reached!",
+    "returnTime": "Come back at",
+    "unlockButton": "Unlock Now"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize LexiPlay to your preferences",
+    "fontType": {
+      "title": "Font Type",
+      "description": "Choose the font that is easiest to read",
+      "normal": "Normal",
+      "dyslexic": "OpenDyslexic"
+    },
+    "fontSize": {
+      "title": "Font Size",
+      "description": "Adjust the size of the letters",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "sound": {
+      "title": "Sound",
+      "description": "Turn sound effects on or off",
+      "label": "Sound Effects"
+    },
+    "buttons": {
+      "toGames": "Go to Games",
+      "logout": "Logout"
+    },
+      "language": {
+    "title": "Language",
+    "description": "Choose your preferred language"
+  }
+  },
+  "game": {
+    "available": "Available",
+    "play_now": "Play now!",
+    "locked": "Locked"
+  },
+  "gameCards": {
+  "wordMatch": {
+    "title": "Word Match",
+    "desc": "Match words with sounds and create the correct combinations!",
+    "unlockMsg": "Score 7 points in Word Match"
+  },
+  "letterBuild": {
+    "title": "Letter Build",
+    "desc": "Build words letter by letter and become a spelling champion!",
+    "unlockMsg": "Score 10 points in Letter Build"
+  },
+  "wordMaze": {
+    "title": "Word Maze",
+    "desc": "Find your way through the maze by choosing the correct letters!",
+    "unlockMsg": "Score 10 points in Letter Build"
+  },
+  "finalWordBuilder": {
+    "title": "Final Word Builder",
+    "desc": "Build words under time pressure and become a real champion!",
+    "unlockMsg": "Score 10 points in Word Maze"
+  },
+  "limitReached": "Daily limit reached"
+},
+"parentalUnlock": {
+  "setPinTitle": "Set a PIN",
+  "setPinSubtitle": "Create a new PIN with at least 4 digits",
+  "enterPinTitle": "Parental Access",
+  "enterPinSubtitle": "Enter your PIN to access",
+  "pinLabelNew": "New PIN",
+  "pinLabelEnter": "Enter PIN",
+  "buttonSetPin": "Set PIN",
+  "buttonUnlock": "Unlock",
+  "backToMenu": "Back to Menu",
+  "errorShortPin": "PIN must be at least 4 digits",
+  "errorWrongPin": "Incorrect PIN, try again!",
+  "successPinSet": "PIN set! Enter it again to gain access."
+},
+"parentalControl": {
+  "title": "Parental Control",
+  "subtitle": "Manage your child’s playtime",
+  "enableTitle": "Enable Control",
+  "enableDesc": "Turn on parental control to limit playtime",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "dailyLimitTitle": "Daily Playtime",
+  "dailyLimitDesc": "Set a limit for the number of minutes per day",
+  "save": "Save",
+  "saving": "Saving...",
+  "backToMenu": "Back to Menu",
+  "viewDashboard": "View Dashboard",
+  "successSave": "Settings saved!"
+},
+  "timeLeft": {
+    "label": "Time left"
+  },
+  "parentDashboard": {
+    "loading": "Loading data...",
+    "back": "Back",
+    "dashboardSubtitle": "Progress Dashboard",
+    "totalPlaytime": "Total Playtime",
+    "rewards": "Rewards",
+    "levelsCompleted": "Levels Completed",
+    "dailyPlaytime": "Daily Playtime",
+    "dailyPlaytimeDesc": "Overview of activity per day (minutes)",
+    "daysTracked": "{{count}} days tracked",
+    "noPlaytime": "No playtime recorded yet",
+    "startPlaying": "{{name}} will appear here once they start playing",
+    "gameProgress": "Progress per Game",
+    "level": "Level",
+    "score": "Score",
+    "noProgress": "No game progress yet",
+    "notes": {
+      "greatJob": "Great job!",
+      "keepPracticing": "Keep practicing!"
+    }
+  },
+  "progressBar": {
+    "completed": "completed",
+    "finished": "🎉 Finished!",
+    "keepGoing": "Keep going! 💪"
+  },
+  "audioButton": {
+    "playWord": "Play the word"
+},
+
+  "pauseOverlay": {
+    "paused": "Paused",
+    "clickToContinue": "Click ▶️ to continue"
+  },
+  "resetModal": {
+  "title": "Reset score?",
+  "description": "Your score will be reset to 0. Unlocked games will remain available.",
+  "cancel": "Cancel",
+  "confirm": "Reset"
+},
+"notificationModal": {
+  "ok": "Ok"
+},
+"loadingScreen": {
+  "loading": "Loading",
+  "startNewGame": "🎮 Start New Game"
+},
+"wordDisplay": {
+  "instruction": "MAKE THE WORD"
+},
+"parentalControlModal": {
+  "limitReached": "Daily limit reached!",
+  "message": "You’ve reached your maximum playtime today.",
+  "returnAtToday": "Come back today 🎉",
+  "returnAtTomorrow": "Come back tomorrow 🌙",
+  "okButton": "Got it"
+},
+"gameOverModal": {
+  "timeUp": "Time's up!",
+  "tooManyMistakes": "Too many mistakes!",
+  "wordsCompleted": "You completed {{currentIndex}} out of {{totalWords}} words!",
+  "mistakesTime": "Mistakes: {{mistakes}}/{{maxMistakes}}",
+  "mistakesExceeded": "You made {{maxMistakes}} mistakes",
+  "retry": "Try Again",
+  "home": "Go Home"
+},
+"gameArea": {
+  "dragHere": "👆 Drag letters here"
+},
+"gameStats": {
+  "time": "TIME",
+  "mistakes": "MISTAKES"
+},
+"unlockModal": {
+  "unlocked": "{{game}} Unlocked!",
+  "congrats": "Well done! You’ve unlocked a new game 🎯",
+  "playGame": "Play {{game}}",
+  "stayHere": "Stay here and keep playing"
+},
+"gameCards": {
+  "letterBuild": {
+    "title": "Letter Build",
+    "desc": "Build words letter by letter and become a spelling champion!",
+    "unlockMsg": "Score 10 points in Letter Build"
+  },
+  "wordMatch": {
+    "title": "Word Match",
+    "desc": "Match words with sounds and create the correct combinations!"
+  },
+  "wordMaze": {
+    "title": "Word Maze",
+    "desc": "Find your way through the maze by choosing the correct letters!",
+    "unlockMsg": "Score 10 points in Letter Build"
+  },
+  "finalWordBuilder": {
+    "title": "Final Word Builder",
+    "desc": "Build words under time pressure and become a real champion!",
+    "unlockMsg": "Score 10 points in Word Maze"
+  }
+},
+"victoryScreen": {
+  "title": "All words completed!",
+  "subtitle": "You are a true star! ⭐",
+  "correctAnswers": "Correct answers!",
+  "retry": "Play Again",
+  "home": "Back to Menu"
+},
+"levelCompleteScreen": {
+  "title": "Level Complete!",
+  "subtitle": "Well done! 🌟",
+  "nextMessage": "Ready for the next adventure? 🚀",
+  "nextLevel": "Next Level"
+},
+"feedbackModal": {
+  "correct": {
+    "title": "Well done!",
+    "text": "Perfect! 🌟"
+  },
+  "incorrect": {
+    "title": "Try again!",
+    "text": "You can do it! 💪"
+  }
+},
+"header": {
+  "score": "Score"
+},
+  "mazeGame": {
+    "clickLetter": "Click on the correct letter!",
+    "dragLetters": "👆 Drag letters here",
+    "correct": "Well done! 🌟",
+    "incorrect": "Try again! 💪",
+    "victory": "🎉 You completed all words!",
+    "nextLevel": "Next Level",
+    "levelComplete": "Level Complete! 🌟",
+    "resetTitle": "Reset score?",
+    "resetDesc": "Your score will be reset to 0. Unlocked games will remain available.",
+    "resetCancel": "Cancel",
+    "resetConfirm": "Reset"
+  },
+  "letterBuild": {
+    "dragLettersHere": "Drag letters here"
+  },
+  "finalWordBuilder": {
+    "word": "Word"
+  }
+}
+

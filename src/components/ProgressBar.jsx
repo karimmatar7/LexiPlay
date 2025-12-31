@@ -1,6 +1,9 @@
-import React from "react"
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 export default function ProgressBar({ progress }) {
+  const { t } = useTranslation();
+
   return (
     <div className="mb-8 md:mb-10">
       <div className="bg-white border-3 border-gray-200 rounded-full h-5 sm:h-6 shadow-sm overflow-hidden">
@@ -12,16 +15,16 @@ export default function ProgressBar({ progress }) {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20" />
         </div>
       </div>
-      
+
       {/* Progress Percentage Text */}
       <div className="flex justify-between items-center mt-2 px-1">
         <span className="text-xs md:text-sm text-gray-600 font-bold">
-          {Math.round(progress)}% voltooid
+          {Math.round(progress)}% {t("progressBar.completed")}
         </span>
         <span className="text-xs md:text-sm text-gray-500 font-medium">
-          {progress === 100 ? "🎉 Klaar!" : "Blijf doorgaan! 💪"}
+          {progress === 100 ? t("progressBar.finished") : t("progressBar.keepGoing")}
         </span>
       </div>
     </div>
-  )
+  );
 }

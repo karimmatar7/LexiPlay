@@ -1,3 +1,4 @@
+import "./i18n"; 
 import React, { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { SettingsProvider } from "./context/SettingsContext";
@@ -17,8 +18,10 @@ import ParentalControlPage from "./pages/ParentalControlPage";
 import ParentRoute from "./components/ParentRoute";
 import ParentalUnlockPage from "./pages/ParentalUnlockPage";
 import ParentDashboard from "./pages/ParentDashboard";
+import { useTranslation } from "react-i18next";
 
 function App() {
+    const { t, i18n } = useTranslation(); 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [parentUnlocked, setParentUnlocked] = useState(false);
@@ -28,21 +31,28 @@ const fetchUser = useCallback(async () => {
   const session = (await supabase.auth.getSession()).data.session;
   let latestUser = null;
 
-  if (session?.user) {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", session.user.id)
-      .single();
-    if (!error && data) latestUser = data;
-  } else {
-    const savedUser = localStorage.getItem("lexiplay_user");
-    if (savedUser) latestUser = JSON.parse(savedUser);
-  }
+    if (session?.user) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+      if (!error && data) latestUser = data;
+    } else {
+      const savedUser = localStorage.getItem("lexiplay_user");
+      if (savedUser) latestUser = JSON.parse(savedUser);
+    }
 
-  if (latestUser) setUser(latestUser); // <-- update state here
-  setLoading(false);
-}, []);
+    if (latestUser) {
+      setUser(latestUser);
+
+      // 🔹 Set i18n language from user settings
+      if (latestUser.settings?.language) {
+        i18n.changeLanguage(latestUser.settings.language);
+      }
+    }
+    setLoading(false);
+  }, [i18n]);
 
 
   useEffect(() => {

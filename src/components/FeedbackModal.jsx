@@ -1,28 +1,30 @@
-import React from "react"
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 export default function FeedbackModal({ type }) {
-  if (!type) return null
+  const { t } = useTranslation();
+  if (!type) return null;
 
   const data = {
     correct: {
       emoji: "🎉",
-      title: "Goed gedaan!",
-      text: "Perfect! 🌟",
+      title: t("feedbackModal.correct.title"),
+      text: t("feedbackModal.correct.text"),
       bgColor: "bg-green-100",
       borderColor: "border-green-400",
       titleColor: "text-green-700",
     },
     incorrect: {
       emoji: "🦊",
-      title: "Probeer opnieuw!",
-      text: "Je kunt het! 💪",
+      title: t("feedbackModal.incorrect.title"),
+      text: t("feedbackModal.incorrect.text"),
       bgColor: "bg-orange-100",
       borderColor: "border-orange-400",
       titleColor: "text-orange-700",
     },
-  }
+  };
 
-  const { emoji, title, text, bgColor, borderColor, titleColor } = data[type] || {}
+  const { emoji, title, text, bgColor, borderColor, titleColor } = data[type] || {};
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 p-4">
@@ -43,5 +45,5 @@ export default function FeedbackModal({ type }) {
         </p>
       </div>
     </div>
-  )
+  );
 }

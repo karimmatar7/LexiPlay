@@ -1,11 +1,17 @@
-import React from "react"
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 export default function WordDisplay({ selected, totalLetters, shakeWrong }) {
+  const { t } = useTranslation();
+
   return (
     <div className={`bg-white rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-purple-300 ${shakeWrong ? 'shake-anim' : ''}`}>
+      {/* Instruction */}
       <div className="text-xs md:text-sm text-gray-500 font-bold mb-3 md:mb-4 tracking-wider">
-        MAAK HET WOORD
+        {t("wordDisplay.instruction")}
       </div>
+
+      {/* Letters */}
       <div className="flex justify-center gap-2 md:gap-3 text-4xl md:text-5xl font-black min-h-[3.5rem] md:min-h-[4rem] flex-wrap">
         {selected.map((l, i) => (
           <span 
@@ -25,5 +31,5 @@ export default function WordDisplay({ selected, totalLetters, shakeWrong }) {
         ))}
       </div>
     </div>
-  )
+  );
 }

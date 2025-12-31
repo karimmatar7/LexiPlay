@@ -1,21 +1,23 @@
-import React from "react"
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 export default function NotificationModal({ show, onClose, title, message, type = "success" }) {
-  if (!show) return null
+  const { t } = useTranslation();
+  if (!show) return null;
 
   const icons = {
     success: "✅",
     error: "❌",
     info: "ℹ️",
     warning: "⚠️"
-  }
+  };
 
   const colors = {
     success: "bg-green-100 border-green-400",
     error: "bg-red-100 border-red-400",
     info: "bg-blue-100 border-blue-400",
     warning: "bg-yellow-100 border-yellow-400"
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -28,10 +30,10 @@ export default function NotificationModal({ show, onClose, title, message, type 
             onClick={onClose}
             className="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
           >
-            Oké
+            {t("notificationModal.ok")}
           </button>
         </div>
       </div>
     </div>
-  )
+  );
 }

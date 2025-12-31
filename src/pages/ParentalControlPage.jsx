@@ -1,36 +1,38 @@
-import React, { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { getUser, updateParentalControl } from "../utils/user.js"
-import NotificationModal from "../components/NotificationModal"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getUser, updateParentalControl } from "../utils/user.js";
+import NotificationModal from "../components/NotificationModal";
+import { useTranslation } from "react-i18next";
 
 export default function ParentalControlPage({ user, fetchUser }) {
-  const [enabled, setEnabled] = useState(false)
-  const [dailyLimit, setDailyLimit] = useState(60)
-  const [saving, setSaving] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const [enabled, setEnabled] = useState(false);
+  const [dailyLimit, setDailyLimit] = useState(60);
+  const [saving, setSaving] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchControl() {
-      if (!user?.id) return
-      const latestUser = await getUser(user.id)
-      const control = latestUser?.parental_control || {}
-      setEnabled(control.enabled || false)
-      setDailyLimit(control.dailyLimitMinutes || 60)
+      if (!user?.id) return;
+      const latestUser = await getUser(user.id);
+      const control = latestUser?.parental_control || {};
+      setEnabled(control.enabled || false);
+      setDailyLimit(control.dailyLimitMinutes || 60);
     }
-    fetchControl()
-  }, [user])
+    fetchControl();
+  }, [user]);
 
   const handleSave = async () => {
-    setSaving(true)
+    setSaving(true);
     await updateParentalControl(user.id, {
       enabled,
       dailyLimitMinutes: dailyLimit,
-    })
-    if (fetchUser) await fetchUser() // refresh user state
-    setSaving(false)
-    setShowModal(true)
-  }
+    });
+    if (fetchUser) await fetchUser(); // refresh user state
+    setSaving(false);
+    setShowModal(true);
+  };
 
   return (
     <div className="min-h-screen bg-purple-50 p-6 md:p-8 relative">
@@ -44,11 +46,11 @@ export default function ParentalControlPage({ user, fetchUser }) {
           <div className="inline-block mb-6 bg-white rounded-3xl p-8 shadow-sm border-4 border-purple-300">
             <span className="text-7xl">👨‍👩‍👧</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-4 text-purple-700" style={{ letterSpacing: '-0.02em' }}>
-            Ouderlijk Toezicht
+          <h1 className="text-5xl md:text-6xl font-black mb-4 text-purple-700" style={{ letterSpacing: "-0.02em" }}>
+            {t("parentalControl.title")}
           </h1>
           <p className="text-xl text-gray-700 font-medium">
-            Beheer de speeltijd van je kind
+            {t("parentalControl.subtitle")}
           </p>
         </div>
 
@@ -59,8 +61,8 @@ export default function ParentalControlPage({ user, fetchUser }) {
             <div className="flex items-start gap-4">
               <span className="text-4xl">🔒</span>
               <div className="flex-1">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Toezicht Inschakelen</h3>
-                <p className="text-gray-600 mb-4">Activeer ouderlijk toezicht om speeltijd te beperken</p>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">{t("parentalControl.enableTitle")}</h3>
+                <p className="text-gray-600 mb-4">{t("parentalControl.enableDesc")}</p>
                 <label className="flex items-center gap-4 cursor-pointer">
                   <div className="relative">
                     <input
@@ -69,16 +71,20 @@ export default function ParentalControlPage({ user, fetchUser }) {
                       onChange={(e) => setEnabled(e.target.checked)}
                       className="sr-only"
                     />
-                    <div className={`w-20 h-10 rounded-full shadow-inner transition-all duration-300 border-2 ${
-                      enabled ? 'bg-green-400 border-green-600' : 'bg-gray-300 border-gray-400'
-                    }`}>
-                      <div className={`absolute top-1 w-8 h-8 bg-white rounded-full shadow-md transition-all duration-300 ${
-                        enabled ? 'right-1' : 'left-1'
-                      }`} />
+                    <div
+                      className={`w-20 h-10 rounded-full shadow-inner transition-all duration-300 border-2 ${
+                        enabled ? "bg-green-400 border-green-600" : "bg-gray-300 border-gray-400"
+                      }`}
+                    >
+                      <div
+                        className={`absolute top-1 w-8 h-8 bg-white rounded-full shadow-md transition-all duration-300 ${
+                          enabled ? "right-1" : "left-1"
+                        }`}
+                      />
                     </div>
                   </div>
                   <span className="text-lg font-semibold text-gray-700">
-                    {enabled ? 'Ingeschakeld' : 'Uitgeschakeld'}
+                    {enabled ? t("parentalControl.enabled") : t("parentalControl.disabled")}
                   </span>
                 </label>
               </div>
@@ -90,11 +96,10 @@ export default function ParentalControlPage({ user, fetchUser }) {
             <div className="flex items-start gap-4">
               <span className="text-4xl">⏰</span>
               <div className="flex-1">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Dagelijkse Speeltijd</h3>
-                <p className="text-gray-600 mb-4">Stel een limiet in voor het aantal minuten per dag</p>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">{t("parentalControl.dailyLimitTitle")}</h3>
+                <p className="text-gray-600 mb-4">{t("parentalControl.dailyLimitDesc")}</p>
 
                 <div className="flex items-center gap-4">
-                  {/* Slider */}
                   <input
                     type="range"
                     min="0"
@@ -104,17 +109,16 @@ export default function ParentalControlPage({ user, fetchUser }) {
                     onChange={(e) => setDailyLimit(Number(e.target.value))}
                     className="flex-1 h-3 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                   />
-                  {/* Number Input */}
                   <input
                     type="number"
                     min="0"
                     max="240"
                     value={dailyLimit}
                     onChange={(e) => {
-                      let val = Number(e.target.value)
-                      if (val < 0) val = 0
-                      if (val > 240) val = 240
-                      setDailyLimit(val)
+                      let val = Number(e.target.value);
+                      if (val < 0) val = 0;
+                      if (val > 240) val = 240;
+                      setDailyLimit(val);
                     }}
                     className="bg-purple-100 border-2 border-purple-400 rounded-xl px-4 py-2 w-24 text-center text-2xl font-bold text-purple-700"
                   />
@@ -124,43 +128,42 @@ export default function ParentalControlPage({ user, fetchUser }) {
           </div>
         </div>
 
-{/* Action Buttons */}
-<div className="flex flex-col sm:flex-row items-stretch justify-center gap-4">
-  <button
-    onClick={handleSave}
-    disabled={saving}
-    className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-green-700 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-  >
-    <span className="text-2xl">💾</span>
-    <span>{saving ? "Opslaan..." : "Opslaan"}</span>
-  </button>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-stretch justify-center gap-4">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-green-700 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <span className="text-2xl">💾</span>
+            <span>{saving ? t("parentalControl.saving") : t("parentalControl.save")}</span>
+          </button>
 
-  <button
-    onClick={() => navigate("/menu")}
-    className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-gray-400 hover:bg-gray-500 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-gray-600 transform hover:scale-105 transition-all duration-200"
-  >
-    <span className="text-2xl">🏠</span>
-    <span>Terug naar Menu</span>
-  </button>
+          <button
+            onClick={() => navigate("/menu")}
+            className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-gray-400 hover:bg-gray-500 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-gray-600 transform hover:scale-105 transition-all duration-200"
+          >
+            <span className="text-2xl">🏠</span>
+            <span>{t("parentalControl.backToMenu")}</span>
+          </button>
 
-  <button
-    onClick={() => navigate(`/parent-dashboard/${user.id}`)}
-    className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
-  >
-    <span className="text-2xl">📊</span>
-    <span>Bekijk Dashboard</span>
-  </button>
-</div>
-
+          <button
+            onClick={() => navigate(`/parent-dashboard/${user.id}`)}
+            className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
+          >
+            <span className="text-2xl">📊</span>
+            <span>{t("parentalControl.viewDashboard")}</span>
+          </button>
+        </div>
       </div>
 
       {/* Notification Modal */}
       <NotificationModal
         show={showModal}
         onClose={() => setShowModal(false)}
-        message="Instellingen opgeslagen!"
+        message={t("parentalControl.successSave")}
         type="success"
       />
     </div>
-  )
+  );
 }

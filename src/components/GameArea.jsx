@@ -1,6 +1,7 @@
-import React from "react"
-import DraggableLetter from "../hooks/draggableLetter"
-import useDragTouch from "../hooks/useDragTouch"
+import React from "react";
+import DraggableLetter from "../hooks/draggableLetter";
+import useDragTouch from "../hooks/useDragTouch";
+import { useTranslation } from "react-i18next";
 
 export default function GameArea({
   currentWord,
@@ -11,7 +12,8 @@ export default function GameArea({
   setSelectedLetters,
   setCurrentLetters
 }) {
-  const dragHandlers = useDragTouch(setSelectedLetters, setCurrentLetters, currentWord)
+  const { t } = useTranslation();
+  const dragHandlers = useDragTouch(setSelectedLetters, setCurrentLetters, currentWord);
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -20,7 +22,7 @@ export default function GameArea({
         className="min-h-[100px] w-full flex justify-center gap-3 bg-indigo-50 border-dashed rounded-2xl p-4"
       >
         {selectedLetters.length === 0 ? (
-          <p className="text-gray-400 italic">👆 Sleep letters hierheen</p>
+          <p className="text-gray-400 italic">{t("gameArea.dragHere")}</p>
         ) : selectedLetters.map((l, i) => (
           <DraggableLetter
             key={`${l}-${i}`}
@@ -50,5 +52,5 @@ export default function GameArea({
         ))}
       </div>
     </div>
-  )
+  );
 }

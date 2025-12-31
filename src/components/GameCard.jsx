@@ -1,8 +1,10 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import React from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function GameCard({ icon, title, desc, active, to, unlockMsg, bgColor = "bg-white", borderColor = "border-gray-300" }) {
-  const Wrapper = active && to ? Link : "div"
+  const { t } = useTranslation();
+  const Wrapper = active && to ? Link : "div";
 
   return (
     <Wrapper
@@ -17,7 +19,7 @@ export default function GameCard({ icon, title, desc, active, to, unlockMsg, bgC
       {active && (
         <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-green-400 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm border-2 border-green-500">
           <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-          <span>Beschikbaar</span>
+          <span>{t("game.available")}</span>
         </div>
       )}
 
@@ -43,13 +45,13 @@ export default function GameCard({ icon, title, desc, active, to, unlockMsg, bgC
         {active ? (
           <div className="inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl text-base md:text-lg font-bold shadow-md border-b-4 border-indigo-700 transition-all duration-200">
             <span>▶️</span>
-            <span>Speel nu!</span>
+            <span>{t("game.play_now")}</span>
           </div>
         ) : (
           <div className="space-y-3 w-full">
             <div className="inline-flex items-center justify-center gap-2 bg-gray-300 text-gray-600 px-6 py-3 rounded-xl text-base font-bold border-2 border-gray-400">
               <span>🔒</span>
-              <span>Vergrendeld</span>
+              <span>{t("game.locked")}</span>
             </div>
             {unlockMsg && (
               <div className="bg-yellow-100 border-2 border-yellow-300 rounded-xl px-4 py-3 text-xs md:text-sm text-gray-700 leading-snug">
@@ -60,5 +62,5 @@ export default function GameCard({ icon, title, desc, active, to, unlockMsg, bgC
         )}
       </div>
     </Wrapper>
-  )
+  );
 }
