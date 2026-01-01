@@ -42,7 +42,7 @@
     }
   },
   "gameMenu": {
-    "title": "Game Menu",
+    "title": "Games Menu",
     "subtitle": "Which adventure will you choose today, {{name}}?",
     "settings": "Settings",
     "parentalControl": "Parental Control",
