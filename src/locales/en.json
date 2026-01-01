@@ -121,7 +121,13 @@
   "errorShortPin": "PIN must be at least 4 digits",
   "errorWrongPin": "Incorrect PIN, try again!",
   "successPinSet": "PIN set! Enter it again to gain access.",
-  "forgotPin": "Forgot parental PIN?"
+  "forgotPin": "Forgot parental PIN?",
+  "errorShortPin": "PIN must be at least 4 digits",
+  "errorWrongPin": "Incorrect PIN, try again!",
+  "successPinSet": "PIN set! Enter it again to gain access.",
+
+  "locked": "Too many attempts. Try again in {{minutes}} minutes.",
+  "tooManyAttempts": "Too many incorrect attempts. You are temporarily locked out."
 },
 "parentalControl": {
   "title": "Parental Control",
