@@ -96,7 +96,7 @@
   "letterBuild": {
     "title": "Letter Bouw",
     "desc": "Bouw woorden letter voor letter en wordt een spelling-kampioen!",
-    "unlockMsg": "Scoor 10 punten in Letter Bouw"
+    "unlockMsg": "Scoor 7 punten in Woord Match"
   },
   "wordMaze": {
     "title": "Woorden Doolhof",
@@ -111,18 +111,24 @@
   "limitReached": "Dagelijkse limiet bereikt"
 },
 "parentalUnlock": {
-  "setPinTitle": "Stel PIN in",
-  "setPinSubtitle": "Maak een nieuwe PIN van minimaal 4 cijfers",
+  "setPinTitle": "Stel een pincode in",
+  "setPinSubtitle": "Maak een nieuwe pincode met minstens 4 cijfers",
   "enterPinTitle": "Ouderlijk Toegang",
-  "enterPinSubtitle": "Voer je PIN in om toegang te krijgen",
-  "pinLabelNew": "Nieuwe PIN",
-  "pinLabelEnter": "Voer PIN in",
-  "buttonSetPin": "PIN Instellen",
-  "buttonUnlock": "Ontgrendel",
-  "backToMenu": "Terug naar Menu",
-  "errorShortPin": "PIN moet minstens 4 cijfers zijn",
-  "errorWrongPin": "Fout PIN, probeer opnieuw!",
-  "successPinSet": "PIN ingesteld! Voer het opnieuw in om toegang te krijgen."
+  "enterPinSubtitle": "Voer je pincode in om toegang te krijgen",
+  "pinLabelNew": "Nieuwe pincode",
+  "pinLabelEnter": "Voer pincode in",
+  "buttonSetPin": "Pincode instellen",
+  "buttonUnlock": "Ontgrendelen",
+  "backToMenu": "Terug naar menu",
+
+  "forgotPin": "Ouderlijk pincode vergeten?",
+
+  "errorShortPin": "De pincode moet minstens 4 cijfers bevatten",
+  "errorWrongPin": "Onjuiste pincode, probeer opnieuw!",
+  "successPinSet": "Pincode ingesteld! Voer hem opnieuw in om toegang te krijgen.",
+
+  "locked": "Te veel pogingen. Probeer het opnieuw over {{minutes}} minuten.",
+  "tooManyAttempts": "Te veel verkeerde pogingen. Je bent tijdelijk geblokkeerd."
 },
 "parentalControl": {
   "title": "Ouderlijk Toezicht",
@@ -223,27 +229,6 @@
   "congrats": "Geweldig gedaan! Je hebt een nieuw spel ontgrendeld 🎯",
   "playGame": "Speel {{game}}",
   "stayHere": "Blijf hier spelen"
-},
-"gameCards": {
-  "letterBuild": {
-    "title": "Letter Bouw",
-    "desc": "Bouw woorden letter voor letter en wordt een spelling-kampioen!",
-    "unlockMsg": "Scoor 10 punten in Letter Bouw"
-  },
-    "wordMatch": {
-    "title": "Woord Match",
-    "desc": "Match woorden met geluiden en maak de juiste combinaties!"
-  },
-  "wordMaze": {
-    "title": "Woorden Doolhof",
-    "desc": "Vind je weg door het doolhof door de juiste letters te kiezen!",
-    "unlockMsg": "Scoor 10 punten in Letter Bouw"
-  },
-  "finalWordBuilder": {
-    "title": "Finale Woorden Bouw",
-    "desc": "Bouw woorden onder tijdsdruk en word een echte kampioen!",
-    "unlockMsg": "Scoor 10 punten in Woorden Doolhof"
-  }
 },
 "victoryScreen": {
   "title": "Alle woorden voltooid!",

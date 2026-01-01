@@ -87,15 +87,14 @@
     "locked": "Locked"
   },
   "gameCards": {
-  "wordMatch": {
-    "title": "Word Match",
-    "desc": "Match words with sounds and create the correct combinations!",
-    "unlockMsg": "Score 7 points in Word Match"
-  },
-  "letterBuild": {
+   "letterBuild": {
     "title": "Letter Build",
     "desc": "Build words letter by letter and become a spelling champion!",
-    "unlockMsg": "Score 10 points in Letter Build"
+    "unlockMsg": "Score 7 points in Word Match"
+  },
+  "wordMatch": {
+    "title": "Word Match",
+    "desc": "Match words with sounds and create the correct combinations!"
   },
   "wordMaze": {
     "title": "Word Maze",
@@ -121,7 +120,8 @@
   "backToMenu": "Back to Menu",
   "errorShortPin": "PIN must be at least 4 digits",
   "errorWrongPin": "Incorrect PIN, try again!",
-  "successPinSet": "PIN set! Enter it again to gain access."
+  "successPinSet": "PIN set! Enter it again to gain access.",
+  "forgotPin": "Forgot parental PIN?"
 },
 "parentalControl": {
   "title": "Parental Control",
@@ -220,27 +220,6 @@
   "playGame": "Play {{game}}",
   "stayHere": "Stay here and keep playing"
 },
-"gameCards": {
-  "letterBuild": {
-    "title": "Letter Build",
-    "desc": "Build words letter by letter and become a spelling champion!",
-    "unlockMsg": "Score 10 points in Letter Build"
-  },
-  "wordMatch": {
-    "title": "Word Match",
-    "desc": "Match words with sounds and create the correct combinations!"
-  },
-  "wordMaze": {
-    "title": "Word Maze",
-    "desc": "Find your way through the maze by choosing the correct letters!",
-    "unlockMsg": "Score 10 points in Letter Build"
-  },
-  "finalWordBuilder": {
-    "title": "Final Word Builder",
-    "desc": "Build words under time pressure and become a real champion!",
-    "unlockMsg": "Score 10 points in Word Maze"
-  }
-},
 "victoryScreen": {
   "title": "All words completed!",
   "subtitle": "You are a true star! ⭐",
@@ -278,7 +257,8 @@
     "resetTitle": "Reset score?",
     "resetDesc": "Your score will be reset to 0. Unlocked games will remain available.",
     "resetCancel": "Cancel",
-    "resetConfirm": "Reset"
+    "resetConfirm": "Reset",
+    "finalWordBuilder": "Final Word Builder"
   },
   "letterBuild": {
     "dragLettersHere": "Drag letters here"
@@ -286,5 +266,7 @@
   "finalWordBuilder": {
     "word": "Word"
   }
+
+
 }
 

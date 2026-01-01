@@ -71,6 +71,20 @@ const fetchUser = useCallback(async () => {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/menu" /> : <AuthPage onLogin={setUser} />} />
           <Route path="/menu" element={user ? <GameMenu user={user} fetchUser={fetchUser} /> : <Navigate to="/" />} />
+
+          <Route
+  path="/menu"
+  element={
+    loading ? (
+      <div>Loading...</div>
+    ) : user ? (
+      <GameMenu user={user} fetchUser={fetchUser} />
+    ) : (
+      <Navigate to="/" />
+    )
+  }
+/>
+
 <Route
   path="/game"
   element={
@@ -133,6 +147,7 @@ const fetchUser = useCallback(async () => {
     </ParentRoute>
   }
 />
+
 
         </Routes>
       </Router>

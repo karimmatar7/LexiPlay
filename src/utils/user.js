@@ -1,5 +1,4 @@
 // src/utils/user.js
-import { lastDayOfDecade } from 'date-fns';
 import { supabase } from '../supaBaseClient.js';
 import { sha256 } from 'js-sha256';
 
@@ -9,10 +8,16 @@ import { sha256 } from 'js-sha256';
 function generateRecoveryCode(length = 6) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
+
   for (let i = 0; i < length; i++) {
-    const randIndex = Math.floor(window.crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1) * chars.length);
+    const randIndex = Math.floor(
+      (window.crypto.getRandomValues(new Uint32Array(1))[0] /
+        (0xffffffff + 1)) *
+        chars.length
+    );
     code += chars[randIndex];
   }
+
   return code;
 }
 
@@ -23,7 +28,6 @@ export async function createUser(name, pin) {
   try {
     const hashedPin = sha256(pin);
 
-    // Generate a 6-character recovery code
     const recoveryCode = generateRecoveryCode();
     const hashedRecovery = sha256(recoveryCode);
 
@@ -42,33 +46,35 @@ export async function createUser(name, pin) {
       fontSize: 'medium',
       soundOn: true,
       language: 'en',
+      parentalPin: null,
     };
 
     const defaultParentalControl = {
-  enabled: false,        // parents can enable/disable it
-  dailyLimitMinutes: 60, // default limit (can be adjusted)
-  playtimeToday: 0,
-  lastPlayedDate: null,
-};
+      enabled: false,
+      dailyLimitMinutes: 60,
+      playtimeToday: 0,
+      lastPlayedDate: null,
+    };
 
-const { data, error } = await supabase
-  .from('users')
-  .insert([
-    {
-      name,
-      pin: hashedPin,
-      recovery_code: hashedRecovery,
-      rewards: 0,
-      progress: defaultProgress,
-      settings: defaultSettings,
-      parental_control: defaultParentalControl, // <- add this
-    },
-  ])
-  .select()
-  .single();
+    const { data, error } = await supabase
+      .from('users')
+      .insert([
+        {
+          name,
+          pin: hashedPin,
+          recovery_code: hashedRecovery,
+          rewards: 0,
+          progress: defaultProgress,
+          settings: defaultSettings,
+          parental_control: defaultParentalControl,
+        },
+      ])
+      .select()
+      .single();
 
     if (error) throw error;
-    // return plain recovery code so you can show it to the kid
+
+    // return plain recovery code ONLY to show once
     return { user: data, recoveryCode };
   } catch (err) {
     console.error('Error creating user:', err);
@@ -88,8 +94,8 @@ export async function loginUser(name, pin) {
       .single();
 
     if (error || !data) return null;
-
     if (sha256(pin) !== data.pin) return null;
+
     return data;
   } catch (err) {
     console.error('Error logging in:', err);
@@ -124,7 +130,6 @@ export async function resetPin(name, recoveryCode, newPin) {
     const hashedRecovery = sha256(recoveryCode);
     const hashedPin = sha256(newPin);
 
-    // DON'T invalidate the recovery code - keep it for future use
     const { data, error } = await supabase
       .from('users')
       .update({ pin: hashedPin })
@@ -146,13 +151,13 @@ export async function resetPin(name, recoveryCode, newPin) {
 ========================= */
 export async function updateProgress(userId, newProgressPart) {
   try {
-    const { data: user, error: fetchError } = await supabase
+    const { data: user, error } = await supabase
       .from('users')
       .select('progress')
       .eq('id', userId)
       .single();
 
-    if (fetchError) throw fetchError;
+    if (error) throw error;
 
     const mergedProgress = { ...(user.progress || {}) };
 
@@ -167,15 +172,15 @@ export async function updateProgress(userId, newProgressPart) {
       };
     }
 
-    const { data, error } = await supabase
+    const { data: updated, error: updateError } = await supabase
       .from('users')
       .update({ progress: mergedProgress })
       .eq('id', userId)
       .select()
       .single();
 
-    if (error) throw error;
-    return data;
+    if (updateError) throw updateError;
+    return updated;
   } catch (err) {
     console.error('Error updating progress:', err);
     return null;
@@ -183,7 +188,7 @@ export async function updateProgress(userId, newProgressPart) {
 }
 
 /* =========================
-   ADD REWARD (TOTAL STARS)
+   ADD REWARD
 ========================= */
 export async function addReward(userId, stars = 1) {
   try {
@@ -217,27 +222,27 @@ export async function addReward(userId, stars = 1) {
 ========================= */
 export async function updateSettings(userId, newSettings) {
   try {
-    const { data: user, error: fetchError } = await supabase
+    const { data: user, error } = await supabase
       .from('users')
       .select('settings')
       .eq('id', userId)
       .single();
 
-    if (fetchError) throw fetchError;
+    if (error) throw error;
 
     const mergedSettings = {
       ...(user.settings || {}),
       ...newSettings,
     };
 
-    const { data, error } = await supabase
+    const { data, error: updateError } = await supabase
       .from('users')
       .update({ settings: mergedSettings })
       .eq('id', userId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (updateError) throw updateError;
     return data;
   } catch (err) {
     console.error('Error updating settings:', err);
@@ -245,33 +250,83 @@ export async function updateSettings(userId, newSettings) {
   }
 }
 
-
+/* =========================
+   UPDATE PARENTAL CONTROL
+========================= */
 export async function updateParentalControl(userId, newControl) {
   try {
-    const { data: user, error: fetchError } = await supabase
+    const { data: user, error } = await supabase
       .from('users')
       .select('parental_control')
       .eq('id', userId)
       .single();
 
-    if (fetchError) throw fetchError;
+    if (error) throw error;
 
     const mergedControl = {
       ...(user.parental_control || {}),
       ...newControl,
     };
 
-    const { data, error } = await supabase
+    const { data, error: updateError } = await supabase
       .from('users')
       .update({ parental_control: mergedControl })
       .eq('id', userId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (updateError) throw updateError;
     return data;
   } catch (err) {
     console.error('Error updating parental control:', err);
     return null;
+  }
+}
+
+/* =========================
+   RESET PARENTAL PIN (FIXED & HASHED)
+========================= */
+export async function resetParentalPinWithCode(name, recoveryCode, newPin) {
+  try {
+    // 1️⃣ Fetch user by name
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("name", name)
+      .single();
+
+    if (error || !user) return { success: false, message: "Incorrect recovery code or name" };
+
+    // 2️⃣ Hash input recovery code
+    const hashedInput = sha256(recoveryCode);
+
+    // 3️⃣ Compare with hashed recovery code stored in column
+    if (hashedInput !== user.recovery_code) {
+      return { success: false, message: "Incorrect recovery code or name" };
+    }
+
+    // 4️⃣ Hash the new PIN
+    const hashedPin = sha256(newPin);
+
+    // 5️⃣ Update user PIN (and optionally reset attempts/lock)
+    const { data: updated, error: updateError } = await supabase
+      .from("users")
+      .update({
+        pin: hashedPin,
+        parentalAttempts: 0,
+        parentalLockUntil: null,
+      })
+      .eq("id", user.id)
+      .select()
+      .single();
+
+    if (updateError) {
+      return { success: false, message: "Failed to reset PIN" };
+    }
+
+    return { success: true, user: updated };
+  } catch (err) {
+    console.error(err);
+    return { success: false, message: "Something went wrong" };
   }
 }

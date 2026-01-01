@@ -10,6 +10,7 @@ import { useSettings } from "../context/SettingsContext.jsx";
 export default function AuthPage({ onLogin }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [showPin, setShowPin] = useState(false);
 
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
@@ -44,6 +45,7 @@ const { language, setLanguage } = useSettings();
       } catch {}
     }
   }, []);
+
 
   // -----------------------------
   // Toggle language
@@ -83,15 +85,6 @@ const toggleLanguage = () => {
     setShowRecoveryModal(true);
   };
 
-  // -----------------------------
-  // Guest
-  // -----------------------------
-  const handleGuest = () => {
-    const guest = { id: "guest", name: t("auth.guest"), rewards: 0, progress: {}, language };
-    localStorage.setItem("lexiplay_user", JSON.stringify(guest));
-    onLogin(guest);
-    navigate("/menu");
-  };
 
   // -----------------------------
   // Copy recovery code
@@ -190,17 +183,38 @@ const toggleLanguage = () => {
               className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-gray-50"
             />
           </div>
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">🔒 {t("auth.pinLabel")}</label>
-            <input
-              type="password"
-              placeholder={t("auth.pinPlaceholder")}
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              maxLength="10"
-              className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-gray-50"
-            />
-          </div>
+<div className="relative">
+  <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">
+    🔒 {t("auth.pinLabel")}
+  </label>
+  <input
+    type={showPin ? "text" : "password"}
+    placeholder={t("auth.pinPlaceholder")}
+    value={pin}
+    onChange={(e) => setPin(e.target.value)}
+    maxLength="10"
+    className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200 transition-all duration-200 bg-gray-50 pr-12"
+  />
+<button
+  type="button"
+  onClick={() => setShowPin(!showPin)}
+  className="absolute right-3 top-[calc(50%+12px)] -translate-y-1/2 flex items-center text-gray-500 hover:text-gray-700"
+>
+
+    {showPin ? (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.228.223-2.403.637-3.5M9.879 9.879A3 3 0 1114.121 14.12m0 0L21 21m-7-7l-7-7" />
+      </svg>
+    ) : (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    )}
+  </button>
+</div>
+
+
         </div>
 
         {/* Action Buttons */}
@@ -228,12 +242,12 @@ const toggleLanguage = () => {
         </button>
 
         {/* Guest */}
-        <button
+        {/* <button
           onClick={handleGuest}
           className="w-full bg-white hover:bg-purple-50 text-purple-600 py-4 px-6 rounded-xl text-lg font-bold border-2 border-purple-400 hover:border-purple-500 shadow-sm hover:shadow-md transform hover:scale-105 transition-all duration-200"
         >
           🎮 {t("auth.guest")}
-        </button>
+        </button> */}
 
         {/* Error */}
         {error && (

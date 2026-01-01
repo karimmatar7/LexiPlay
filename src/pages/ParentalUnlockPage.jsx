@@ -1,123 +1,167 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { updateSettings, getUser } from "../utils/user.js";
-import NotificationModal from "../components/NotificationModal";
+import { sha256 } from "js-sha256";
 import { useTranslation } from "react-i18next";
+
+import { getUser, updateSettings } from "../utils/user.js";
+import NotificationModal from "../components/NotificationModal";
+import ResetParentalPinModal from "../components/ResetParentalPinModal.jsx";
+import EyeIcon from "@heroicons/react/24/outline/EyeIcon";
+import EyeSlashIcon from "@heroicons/react/24/outline/EyeSlashIcon";
 
 export default function ParentalUnlockPage({ user, setUnlocked }) {
   const { t } = useTranslation();
-  const [pin, setPin] = useState("");
-  const [existingPin, setExistingPin] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [modalConfig, setModalConfig] = useState({ message: "", type: "error" });
   const navigate = useNavigate();
 
+  const [pin, setPin] = useState("");
+  const [showPin, setShowPin] = useState(false);
+  const [existingPin, setExistingPin] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [lockUntil, setLockUntil] = useState(null);
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ message: "", type: "error" });
+  const [showResetModal, setShowResetModal] = useState(false);
+
+  // Fetch user data
   useEffect(() => {
-    async function fetchPin() {
+    async function fetchData() {
       if (!user?.id) return;
       const latestUser = await getUser(user.id);
-      const pinFromSettings = latestUser?.settings?.parentalPin || null;
-      setExistingPin(pinFromSettings);
+      const settings = latestUser?.settings || {};
+
+      setExistingPin(settings.parentalPin || null);
+      setAttempts(settings.parentalAttempts || 0);
+      setLockUntil(settings.parentalLockUntil || null);
     }
-    fetchPin();
+    fetchData();
   }, [user]);
 
+  const isLocked = lockUntil && Date.now() < lockUntil;
+
   const handleUnlock = async () => {
+    if (isLocked) {
+      const mins = Math.ceil((lockUntil - Date.now()) / 60000);
+      setModalConfig({ message: t("parentalUnlock.locked", { minutes: mins }), type: "error" });
+      setShowModal(true);
+      return;
+    }
+
+    if (pin.length < 4) {
+      setModalConfig({ message: t("parentalUnlock.errorShortPin"), type: "error" });
+      setShowModal(true);
+      return;
+    }
+
+    const hashedPin = sha256(pin);
+
+    // First time setup
     if (!existingPin) {
-      if (pin.length < 4) {
-        setModalConfig({ message: t("parentalUnlock.errorShortPin"), type: "error" });
-        setShowModal(true);
-        return;
-      }
-      await updateSettings(user.id, { parentalPin: pin });
-      setExistingPin(pin);
+      await updateSettings(user.id, { parentalPin: hashedPin, parentalAttempts: 0, parentalLockUntil: null });
+      setExistingPin(hashedPin);
       setPin("");
       setModalConfig({ message: t("parentalUnlock.successPinSet"), type: "success" });
       setShowModal(true);
       return;
     }
 
-    if (pin === existingPin) {
-      if (setUnlocked) setUnlocked(true);
+    // Correct PIN
+    if (hashedPin === existingPin) {
+      await updateSettings(user.id, { parentalAttempts: 0, parentalLockUntil: null });
+      setUnlocked?.(true);
       navigate("/parental-control");
-    } else {
-      setModalConfig({ message: t("parentalUnlock.errorWrongPin"), type: "error" });
-      setShowModal(true);
-      setPin("");
+      return;
     }
-  };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleUnlock();
-    }
+    // Wrong PIN
+    const newAttempts = attempts + 1;
+    let lockTime = null;
+    if (newAttempts >= 5) lockTime = Date.now() + Math.min((newAttempts - 4) * 5, 30) * 60000;
+
+    await updateSettings(user.id, { parentalAttempts: newAttempts, parentalLockUntil: lockTime });
+    setAttempts(newAttempts);
+    setLockUntil(lockTime);
+    setPin("");
+
+    setModalConfig({
+      message: lockTime ? t("parentalUnlock.tooManyAttempts") : t("parentalUnlock.errorWrongPin"),
+      type: "error",
+    });
+    setShowModal(true);
   };
 
   return (
-    <div className="min-h-screen bg-indigo-50 p-6 md:p-8 relative">
-      {/* Decorative shapes */}
-      <div className="absolute top-12 left-12 w-32 h-32 bg-purple-200 rounded-full opacity-30" />
-      <div className="absolute bottom-20 right-20 w-40 h-40 bg-pink-200 rounded-full opacity-25" />
+    <div className="min-h-screen bg-indigo-50 p-6 relative">
+      <div className="max-w-2xl mx-auto text-center">
+        <span className="text-7xl">🔐</span>
+        <h1 className="text-5xl font-black text-indigo-700 mt-4">
+          {existingPin ? t("parentalUnlock.enterPinTitle") : t("parentalUnlock.setPinTitle")}
+        </h1>
 
-      <div className="relative max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-block mb-6 bg-white rounded-3xl p-8 shadow-sm border-4 border-indigo-300">
-            <span className="text-7xl">🔐</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-4 text-indigo-700" style={{ letterSpacing: "-0.02em" }}>
-            {existingPin ? t("parentalUnlock.enterPinTitle") : t("parentalUnlock.setPinTitle")}
-          </h1>
-          <p className="text-xl text-gray-700 font-medium">
-            {existingPin ? t("parentalUnlock.enterPinSubtitle") : t("parentalUnlock.setPinSubtitle")}
-          </p>
-        </div>
+        {/* PIN Input */}
+   <div className="bg-white rounded-3xl p-6 my-6 w-full max-w-md mx-auto">
+  <label className="block text-lg font-bold mb-2">
+    {existingPin ? t("parentalUnlock.pinLabelEnter") : t("parentalUnlock.pinLabelNew")}
+  </label>
 
-        {/* PIN Input Card */}
-        <div className="bg-white rounded-3xl shadow-sm border-2 p-8 mb-10">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <label className="block text-lg font-bold text-gray-800 mb-3">
-                  {existingPin ? t("parentalUnlock.pinLabelEnter") : t("parentalUnlock.pinLabelNew")}
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="w-full px-6 py-4 text-2xl font-bold text-center tracking-widest rounded-2xl border-3 border-indigo-300 focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-200 transition-all"
-                  maxLength="6"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+  <div className="relative">
+    <input
+      type={showPin ? "text" : "password"}
+      value={pin}
+      onChange={(e) => setPin(e.target.value)}
+      className="w-full px-4 py-3 text-xl rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-purple-500 pr-12 transition-all"
+      maxLength={6}
+      disabled={isLocked}
+    />
+    <button
+      type="button"
+      onClick={() => setShowPin(!showPin)}
+      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-purple-600"
+      aria-label={showPin ? "Hide PIN" : "Show PIN"}
+    >
+      {showPin ? (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.05 10.05 0 012.347-3.569M6.21 6.21a9.966 9.966 0 0113.58 0M3 3l18 18" />
+        </svg>
+      ) : (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+      )}
+    </button>
+  </div>
+</div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            type="button"
-            onClick={handleUnlock}
-            className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-purple-600 hover:bg-purple-700 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-purple-800 transform hover:scale-105 transition-all duration-200"
-          >
-            <span className="text-2xl">{existingPin ? "🔓" : "✨"}</span>
-            <span>{existingPin ? t("parentalUnlock.buttonUnlock") : t("parentalUnlock.buttonSetPin")}</span>
+
+        {existingPin && (
+          <button onClick={() => setShowResetModal(true)} className="mb-4 text-sm text-purple-700 underline w-full">
+            🔁 {t("parentalUnlock.forgotPin")}
           </button>
+        )}
 
-          <button
-            type="button"
-            onClick={() => navigate("/menu")}
-            className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-gray-400 hover:bg-gray-500 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-gray-600 transform hover:scale-105 transition-all duration-200"
-          >
-            <span className="text-2xl">🏠</span>
-            <span>{t("parentalUnlock.backToMenu")}</span>
+        {/* Buttons */}
+        <div className="flex gap-4">
+          <button onClick={handleUnlock} disabled={isLocked} className="flex-1 bg-purple-600 text-white py-5 rounded-2xl font-bold">
+            {existingPin ? "🔓" : "✨"} {existingPin ? t("parentalUnlock.buttonUnlock") : t("parentalUnlock.buttonSetPin")}
+          </button>
+          <button onClick={() => navigate("/menu")} className="flex-1 bg-gray-400 text-white py-5 rounded-2xl font-bold">
+            🏠 {t("parentalUnlock.backToMenu")}
           </button>
         </div>
       </div>
 
-      {/* Notification Modal */}
+      {/* Reset PIN Modal */}
+      {showResetModal && (
+        <ResetParentalPinModal
+          user={user}
+          onClose={() => setShowResetModal(false)}
+          setExistingPin={setExistingPin}
+          setPin={setPin}
+        />
+      )}
+
+      {/* Notification */}
       <NotificationModal
         show={showModal}
         onClose={() => setShowModal(false)}
