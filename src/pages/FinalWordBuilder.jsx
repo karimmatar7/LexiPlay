@@ -203,13 +203,34 @@ export default function FinalWordBuilder({ user, setUser }) {
     navigate("/menu", { replace: true })
   }
 
+  const [floatingLetters, setFloatingLetters] = useState([])
+
+useEffect(() => {
+  const word = words[currentIndex]
+  if (!word) return
+
+  const displayWord = getLocalizedWord(word)
+
+  // Initialize letters
+  setFloatingLetters(shuffle(displayWord.split("")))
+
+  // Shuffle letters every 2 seconds
+  const interval = setInterval(() => {
+    setFloatingLetters(prev => shuffle(prev))
+  }, 2000) // 2 seconds
+
+  return () => clearInterval(interval) // cleanup on word change or unmount
+}, [currentIndex, words, i18n.language])
+
+
+  
+
   if (!loaded) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
   if (starEarned && !victory) return <LevelCompleteScreen nextLevel={() => setStarEarned(false)} fontClass={fontClass} sizeMap={sizeMap} />
   if (victory) return <VictoryScreen gameType="game4" score={TOTAL_WORDS - mistakes} words={words} mistakes={mistakes} maxMistakes={MAX_MISTAKES} timeLeft={timeLeft} onRestart={resetGame} fontClass={fontClass} sizeMap={sizeMap} />
   if (gameOver) return <GameOverModal gameOverReason={gameOverReason} currentIndex={currentIndex} totalWords={TOTAL_WORDS} mistakes={mistakes} maxMistakes={MAX_MISTAKES} onRestart={resetGame} onHome={goHome} />
   if (showResetModal) return <ResetConfirmationModal onConfirm={resetGame} onCancel={() => setShowResetModal(false)} cancelText={t("finalWordBuilder.cancel")} />
 
-  const floatingLetters = currentWord ? shuffle(currentWord.displayWord.split("")) : []
   const isWarningTime = timeLeft <= WARNING_TIME
 
   return (
@@ -233,9 +254,10 @@ export default function FinalWordBuilder({ user, setUser }) {
           <GameStats timeLeft={timeLeft} mistakes={mistakes} maxMistakes={MAX_MISTAKES} isWarning={isWarningTime} />
           <WordDisplay selected={selected} totalLetters={currentWord?.displayWord.length || 0} shakeWrong={shakeWrong} />
           <div className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-2xl mx-auto">
-            {floatingLetters.map((l, i) => (
-              <FloatingLetterButton key={i} letter={l} index={i} onClick={handleLetterClick} disabled={paused} />
-            ))}
+       {floatingLetters.map((l, i) => (
+  <FloatingLetterButton key={i} letter={l} index={i} onClick={handleLetterClick} disabled={paused} />
+))}
+
           </div>
           <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-white px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg border-2 border-purple-200">

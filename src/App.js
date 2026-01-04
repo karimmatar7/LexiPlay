@@ -10,6 +10,7 @@ import WordMaze from "./pages/WordMaze";
 import FinalWordBuilder from "./pages/FinalWordBuilder";
 import Reward from "./pages/Reward";
 import Settings from "./pages/Settings";
+import Support from "./pages/Support";
 import AuthPage from './pages/Auth';
 import ProtectedRoute from "./components/ProtectedRoute"; // <-- import it
 import { supabase } from './supaBaseClient';
@@ -147,6 +148,12 @@ const fetchUser = useCallback(async () => {
     </ParentRoute>
   }
 />
+
+<Route
+  path="/support"
+  element={user ? <Support /> : <Navigate to="/" />}
+/>
+
 
 
         </Routes>

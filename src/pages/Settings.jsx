@@ -160,6 +160,20 @@ const changeLanguage = async (lng) => {
             </div>
           </SettingCard>
 
+          <SettingCard
+  icon="🆘"
+  title={t("support.title")}
+  description={t("support.description")}
+>
+  <Link
+    to="/support"
+    className="mt-4 inline-flex items-center justify-center w-full bg-indigo-500 hover:bg-indigo-600 text-white py-4 rounded-2xl font-bold transition"
+  >
+    {t("support.button")}
+  </Link>
+</SettingCard>
+
+
         </div>
 
         {/* Navigation buttons side by side */}

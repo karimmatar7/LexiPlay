@@ -218,7 +218,7 @@
   "home": "Ga naar Home"
 },
 "gameArea": {
-  "dragHere": "👆 Sleep letters hierheen"
+  "dragHere": "👆 Klik of Sleep letters hierheen"
 },
 "gameStats": {
   "time": "TIJD",
@@ -275,7 +275,28 @@
   },
     "finalWordBuilder": {
     "word": "Woord"
-  }
+  },
+"support": {
+  "title": "Ondersteuning",
+  "subtitle": "Hulp nodig? Stuur ons een bericht",
+  "description": "Neem contact op als iets niet werkt",
+  "button": "Contact opnemen",
+  "subject": "Onderwerp",
+  "subjectPlaceholder": "Wat is het probleem?",
+  "message": "Bericht",
+  "messagePlaceholder": "Beschrijf hier je probleem...",
+  "send": "Bericht verzenden",
+  "sending": "Verzenden...",
+  "success": "Je bericht is verzonden! 💌",
+  "error": "Er ging iets mis. Probeer opnieuw.",
+  "back": "Terug",
+   "email": "Je e-mail",
+    "emailPlaceholder": "Voer je e-mailadres in",
+    "close": "Sluiten",
+    "successTitle": "Bericht verzonden!",
+    "successMessage": "Bedankt dat je contact met ons hebt opgenomen. We nemen snel contact met je op."
+}
+
 
 }
 

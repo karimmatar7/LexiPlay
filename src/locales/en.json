@@ -214,7 +214,7 @@
   "home": "Go Home"
 },
 "gameArea": {
-  "dragHere": "👆 Drag letters here"
+  "dragHere": "👆 Click or Drag letters here"
 },
 "gameStats": {
   "time": "TIME",
@@ -254,7 +254,7 @@
 },
   "mazeGame": {
     "clickLetter": "Click on the correct letter!",
-    "dragLetters": "👆 Drag letters here",
+    "dragLetters": "👆 Click or Drag letters here",
     "correct": "Well done! 🌟",
     "incorrect": "Try again! 💪",
     "victory": "🎉 You completed all words!",
@@ -267,11 +267,33 @@
     "finalWordBuilder": "Final Word Builder"
   },
   "letterBuild": {
-    "dragLettersHere": "Drag letters here"
+    "dragLettersHere": "👆 Click or Drag letters here"
   },
   "finalWordBuilder": {
     "word": "Word"
-  }
+  },
+"support": {
+  "title": "Support",
+  "subtitle": "Need help? Send us a message",
+  "description": "Contact us if something isn’t working",
+  "button": "Contact Support",
+  "subject": "Subject",
+  "subjectPlaceholder": "What is the problem?",
+  "message": "Message",
+  "messagePlaceholder": "Describe your issue here...",
+  "send": "Send Message",
+  "sending": "Sending...",
+  "success": "Your message has been sent! 💌",
+  "error": "Something went wrong. Please try again.",
+  "back": "Back",
+   "email": "Your Email",
+    "emailPlaceholder": "Enter your email address",
+    "close": "Close",
+    "successTitle": "Message Sent!",
+    "successMessage": "Thank you for reaching out to us. We will get back to you soon."
+}
+
+
 
 
 }
