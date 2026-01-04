@@ -26,6 +26,11 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [parentUnlocked, setParentUnlocked] = useState(false);
+  
+const savedLang = localStorage.getItem("lexiplay_user_language");
+if (savedLang) {
+  i18n.changeLanguage(savedLang);
+}
 
 const fetchUser = useCallback(async () => {
   setLoading(true);
