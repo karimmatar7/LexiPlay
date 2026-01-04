@@ -26,16 +26,12 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [parentUnlocked, setParentUnlocked] = useState(false);
-  
-const savedLang = localStorage.getItem("lexiplay_user_language");
-if (savedLang) {
-  i18n.changeLanguage(savedLang);
-}
+  const [langLoaded, setLangLoaded] = useState(false); // ✅ new
 
-const fetchUser = useCallback(async () => {
-  setLoading(true);
-  const session = (await supabase.auth.getSession()).data.session;
-  let latestUser = null;
+  const fetchUser = useCallback(async () => {
+    setLoading(true);
+    const session = (await supabase.auth.getSession()).data.session;
+    let latestUser = null;
 
     if (session?.user) {
       const { data, error } = await supabase
@@ -54,12 +50,12 @@ const fetchUser = useCallback(async () => {
 
       // 🔹 Set i18n language from user settings
       if (latestUser.settings?.language) {
-        i18n.changeLanguage(latestUser.settings.language);
+        await i18n.changeLanguage(latestUser.settings.language);
       }
     }
     setLoading(false);
+    setLangLoaded(true); // ✅ mark language as ready
   }, [i18n]);
-
 
   useEffect(() => {
     fetchUser();
@@ -69,6 +65,8 @@ const fetchUser = useCallback(async () => {
     return () => listener.subscription.unsubscribe();
   }, [fetchUser]);
 
+  // ✅ Don't render until language is ready
+  if (!langLoaded) return null;
   if (loading) return <div>Loading...</div>;
 
   return (
