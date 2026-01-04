@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import SupportForm from "../components/SupportForm";
-import SupportModal from "./../components/SupportModal";
+import SupportModal from "../components/SupportModal";
 
 export default function Support() {
   const { t } = useTranslation();
@@ -14,7 +14,6 @@ export default function Support() {
 
   const handleSubmit = async (form) => {
     setLoading(true);
-
     try {
       await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
@@ -47,17 +46,9 @@ export default function Support() {
   };
 
   return (
-    <div className="min-h-screen bg-rose-50 p-4 sm:p-6 flex items-center justify-center">
+    <div className="min-h-screen bg-rose-50 p-4 sm:p-6 flex flex-col items-center justify-center gap-6">
       <div className="bg-white w-full max-w-xl rounded-3xl p-6 sm:p-8 shadow-md border-2 relative">
-        <button
-          onClick={() => navigate("/settings")}
-          className="absolute top-4 left-4 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full font-bold text-gray-700 shadow-sm transition"
-        >
-          <span className="text-xl">⬅️</span>
-          <span>{t("support.back")}</span>
-        </button>
-
-        <div className="text-center mt-8">
+        <div className="text-center mt-4 sm:mt-8">
           <h1 className="text-3xl sm:text-4xl font-black text-rose-700 mb-3">
             {t("support.title")}
           </h1>
@@ -74,6 +65,14 @@ export default function Support() {
           />
         )}
       </div>
+
+      {/* Back button below the card */}
+      <button
+        onClick={() => navigate("/settings")}
+        className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-6 py-3 rounded-full font-bold text-gray-700 shadow-sm transition w-full max-w-xs justify-center"
+      >
+        <span>{t("support.back")}</span>
+      </button>
     </div>
   );
 }
