@@ -294,7 +294,9 @@
     "emailPlaceholder": "Voer je e-mailadres in",
     "close": "Sluiten",
     "successTitle": "Bericht verzonden!",
-    "successMessage": "Bedankt dat je contact met ons hebt opgenomen. We nemen snel contact met je op."
+    "successMessage": "Bedankt dat je contact met ons hebt opgenomen. We nemen snel contact met je op.",
+        "errorTitle": "Fout",
+    "errorMessage": "Er is een probleem opgetreden bij het verzenden van je bericht. Probeer het later opnieuw."
 }
 
 
