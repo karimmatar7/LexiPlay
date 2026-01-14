@@ -115,19 +115,17 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
   const { level, levelIndex, score, rewardsEarned, finalWordBuilderUnlocked } = mazeProgress;
 
 
-  // Helper to get localized word
-  const getLocalizedWord = (wordObj) => {
-    if (!wordObj) return "";
-    return i18n.language === "en" ? wordObj.en : wordObj.correct;
-  };
+const langKey = i18n.language === "en" ? "en" : i18n.language === "fr" ? "fr" : "correct";
+const getLocalizedWord = (wordObj) => wordObj?.[langKey] || "";
+
 
 
   // Get current word with display word
   const currentWordData = (words[level] || [])[levelIndex];
-  const currentWord = currentWordData ? {
-    ...currentWordData,
-    displayWord: getLocalizedWord(currentWordData)
-  } : null;
+ const currentWord = currentWordData ? {
+  ...currentWordData,
+  displayWord: getLocalizedWord(currentWordData)
+} : null;
 
 
   // --- Load progress ---

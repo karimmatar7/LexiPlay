@@ -22,22 +22,29 @@ const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
 
 const generateOptions = (correctWord, allWords, currentLanguage) => {
   const targetLength = correctWord.length;
-  
-  // Get all words in current language
-  const wordsInLanguage = allWords.map(w => currentLanguage === "en" ? w.en : w.correct);
-  
+
+  const wordsInLanguage = allWords.map(w =>
+    currentLanguage === "en" ? w.en :
+    currentLanguage === "fr" ? w.fr :
+    w.correct
+  );
+
   const distractors = shuffleArray(
     wordsInLanguage.filter(w => w !== correctWord && Math.abs(w.length - targetLength) <= 1)
   ).slice(0, 3);
 
   while (distractors.length < 3) {
     const randomIndex = Math.floor(Math.random() * allWords.length);
-    const random = currentLanguage === "en" ? allWords[randomIndex].en : allWords[randomIndex].correct;
+    const random = currentLanguage === "en" ? allWords[randomIndex].en :
+                   currentLanguage === "fr" ? allWords[randomIndex].fr :
+                   allWords[randomIndex].correct;
+
     if (random !== correctWord && !distractors.includes(random)) distractors.push(random);
   }
 
   return shuffleArray([correctWord, ...distractors]);
 };
+
 
 
 // --- Word Options Component ---
@@ -107,10 +114,13 @@ export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
   const { level, levelIndex, rewardsEarned } = progress;
 
   // Helper to get localized word
-  const getLocalizedWord = (wordObj) => {
-    if (!wordObj) return "";
-    return i18n.language === "en" ? wordObj.en : wordObj.correct;
-  };
+const getLocalizedWord = (wordObj) => {
+  if (!wordObj) return "";
+  if (i18n.language === "en") return wordObj.en;
+  if (i18n.language === "fr") return wordObj.fr; // <-- fix here
+  return wordObj.correct; // Dutch
+};
+
 
   // Get current word with display word and options
   const currentWordData = (levels[level] || [])[levelIndex];

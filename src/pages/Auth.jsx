@@ -33,43 +33,61 @@ const { language, setLanguage } = useSettings();
   // -----------------------------
   // Persist language preference from user (if logged in)
   // -----------------------------
-  useEffect(() => {
-    const storedUser = localStorage.getItem("lexiplay_user");
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        if (user.language) {
-          i18n.changeLanguage(user.language);
-          setLanguage(user.language);
-        }
-      } catch {}
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("lexiplay_user");
+  //   if (storedUser) {
+  //     try {
+  //       const user = JSON.parse(storedUser);
+  //       if (user.language) {
+  //         i18n.changeLanguage(user.language);
+  //         setLanguage(user.language);
+  //       }
+  //     } catch {}
+  //   }
+  // }, []);
 
 
   // -----------------------------
   // Toggle language
   // -----------------------------
 const toggleLanguage = () => {
-  const newLang = language === "en" ? "nl" : "en";
-  setLanguage(newLang); // saves to Supabase automatically
-  i18n.changeLanguage(newLang);
+  const nextLang =
+    language === "en"
+      ? "nl"
+      : language === "nl"
+      ? "fr"
+      : "en";
+
+  setLanguage(nextLang); // saves to Supabase automatically
+  i18n.changeLanguage(nextLang);
 };
+
 
   // -----------------------------
   // Login
   // -----------------------------
-  const handleLogin = async () => {
-    if (!name || !pin) return setError(t("auth.errors.fillFields"));
-    const user = await loginUser(name, pin);
-    if (!user) return setError(t("auth.errors.loginFailed"));
 
-    // Save user language preference
-    user.language = language;
-    localStorage.setItem("lexiplay_user", JSON.stringify(user));
-    onLogin(user);
-    navigate("/menu");
-  };
+const handleLogin = async () => {
+  if (!name || !pin) return setError(t("auth.errors.fillFields"));
+  const user = await loginUser(name, pin);
+  if (!user) return setError(t("auth.errors.loginFailed"));
+
+  // 🔹 Change language FIRST if user has a different language
+  if (user.settings?.language && user.settings.language !== language) {
+    await i18n.changeLanguage(user.settings.language);
+    setLanguage(user.settings.language);
+  }
+
+  // Save user to localStorage
+  localStorage.setItem("lexiplay_user", JSON.stringify(user));
+  
+  // Call onLogin to update App state
+  onLogin(user);
+  
+  // Navigate after language is set
+  navigate("/menu");
+};
+
 
   // -----------------------------
   // Register
@@ -98,17 +116,34 @@ const toggleLanguage = () => {
   // -----------------------------
   // Close recovery modal
   // -----------------------------
-  const closeRecoveryModal = () => {
-    setShowRecoveryModal(false);
-    setCopied(false);
+// -----------------------------
+// Close recovery modal
+// -----------------------------
+const closeRecoveryModal = async () => {
+  setShowRecoveryModal(false);
+  setCopied(false);
 
-    if (pendingUser) {
-      pendingUser.language = language;
-      localStorage.setItem("lexiplay_user", JSON.stringify(pendingUser));
-      onLogin(pendingUser);
-      navigate("/menu");
+  if (pendingUser) {
+    // 🔹 Change language FIRST before saving and navigating
+    if (language !== pendingUser.settings?.language) {
+      await i18n.changeLanguage(language);
     }
-  };
+    
+    // Update pending user with current language
+    const userWithLang = {
+      ...pendingUser,
+      settings: {
+        ...pendingUser.settings,
+        language: language
+      }
+    };
+    
+    localStorage.setItem("lexiplay_user", JSON.stringify(userWithLang));
+    onLogin(userWithLang);
+    navigate("/menu");
+  }
+};
+
 
   // -----------------------------
   // Reset PIN
@@ -144,14 +179,42 @@ const toggleLanguage = () => {
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 p-4 relative overflow-hidden">
 
       {/* Responsive language toggle */}
-      <div className="fixed top-4 right-4 z-50">
-        <button
-          onClick={toggleLanguage}
-          className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-xl font-bold shadow-md text-sm sm:text-base"
-        >
-          {language === "en" ? "NL" : "EN"}
-        </button>
-      </div>
+ <div className="fixed top-4 right-4 z-50">
+  <button
+    onClick={toggleLanguage}
+    className="group relative bg-white hover:bg-purple-50 border-2 border-purple-300 hover:border-purple-400 
+    px-3 py-2 sm:px-4 sm:py-2.5 rounded-full font-bold shadow-md hover:shadow-lg 
+    transition-all duration-200 transform hover:scale-105 active:scale-95
+    flex items-center gap-2 min-w-[60px] sm:min-w-[70px]"
+    aria-label={t("changeLanguage")}
+  >
+    {/* Globe icon */}
+    <svg 
+      className="w-5 h-5 text-purple-600 group-hover:text-purple-700 transition-colors" 
+      fill="none" 
+      viewBox="0 0 24 24" 
+      stroke="currentColor"
+    >
+      <path 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        strokeWidth={2} 
+        d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" 
+      />
+    </svg>
+    
+    {/* Language code */}
+    <span className="text-sm sm:text-base font-bold text-purple-700 uppercase tracking-wide">
+      {language === "en" ? "EN" : language === "nl" ? "NL" : "FR"}
+    </span>
+    
+    {/* Next language indicator (subtle) */}
+    <span className="hidden sm:inline text-xs text-purple-400 font-medium">
+      → {language === "en" ? "NL" : language === "nl" ? "FR" : "EN"}
+    </span>
+  </button>
+</div>
+
 
       {/* Decorative blobs */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-yellow-300 rounded-full opacity-40" />

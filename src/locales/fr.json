@@ -1,0 +1,292 @@
+{
+  "auth": {
+    "welcome": "Bienvenue sur LexiPlay !",
+    "subtitle": "Connecte-toi pour commencer ton aventure",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Entre ton nom ici...",
+    "pinLabel": "Code PIN",
+    "pinPlaceholder": "Entre ton code PIN ici...",
+    "login": "Connexion",
+    "register": "S’inscrire",
+    "guest": "Continuer en tant qu’invité",
+    "forgotPin": "Code PIN oublié ?",
+    "errors": {
+      "fillFields": "Veuillez remplir les deux champs",
+      "loginFailed": "Utilisateur introuvable ou code PIN incorrect",
+      "registerFailed": "Échec de l’inscription ou nom déjà utilisé",
+      "resetFillFields": "Veuillez remplir tous les champs",
+      "resetFailed": "Code de récupération ou nom incorrect"
+    }
+  },
+  "modals": {
+    "recoveryCode": {
+      "title": "✨ Ton code de récupération !",
+      "instructions": "Garde ce code en sécurité ! Tu en auras besoin pour réinitialiser ton PIN.",
+      "copy": "📋 Copier",
+      "copied": "✅ Copié !",
+      "understood": "✅ Compris, aller sur LexiPlay",
+      "warning": "⚠️ Note ce code ou fais une capture d’écran !"
+    },
+    "resetPin": {
+      "title": "Réinitialiser ton PIN",
+      "name": "Nom",
+      "recoveryCode": "Code de récupération",
+      "newPin": "Nouveau PIN",
+      "resetButton": "🔑 Réinitialiser le PIN",
+      "closeButton": "Fermer"
+    },
+    "success": {
+      "title": "PIN réinitialisé avec succès !",
+      "subtitle": "Reconnecte-toi avec ton nouveau PIN.",
+      "button": "Compris"
+    }
+  },
+  "gameMenu": {
+    "title": "Menu des jeux",
+    "subtitle": "Quelle aventure choisis-tu aujourd’hui, {{name}} ?",
+    "settings": "Paramètres",
+    "parentalControl": "Contrôle parental",
+    "timeLeft": "Temps restant",
+    "limitReachedMessage": "Ta limite quotidienne de jeu est atteinte !",
+    "returnTime": "Reviens à",
+    "unlockButton": "Débloquer maintenant"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Personnalise LexiPlay selon tes préférences",
+    "fontType": {
+      "title": "Type de police",
+      "description": "Choisis la police la plus facile à lire",
+      "normal": "Normal",
+      "dyslexic": "OpenDyslexic"
+    },
+    "fontSize": {
+      "title": "Taille de police",
+      "description": "Ajuste la taille des lettres",
+      "small": "Petit",
+      "medium": "Moyen",
+      "large": "Grand"
+    },
+    "sound": {
+      "title": "Son",
+      "description": "Activer ou désactiver les effets sonores",
+      "label": "Effets sonores"
+    },
+    "buttons": {
+      "toGames": "Aller aux jeux",
+      "logout": "Déconnexion"
+    },
+    "language": {
+      "title": "Langue",
+      "description": "Choisis ta langue préférée"
+    }
+  },
+  "game": {
+    "available": "Disponible",
+    "play_now": "Jouer maintenant !",
+    "locked": "Verrouillé"
+  },
+  "gameCards": {
+    "letterBuild": {
+      "title": "Construction de lettres",
+      "desc": "Construis des mots lettre par lettre et deviens un champion de l’orthographe !",
+      "unlockMsg": "Marque 7 points dans Word Match"
+    },
+    "wordMatch": {
+      "title": "Association de mots",
+      "desc": "Associe les mots aux sons et crée les bonnes combinaisons !"
+    },
+    "wordMaze": {
+      "title": "Labyrinthe de mots",
+      "desc": "Trouve ton chemin dans le labyrinthe en choisissant les bonnes lettres !",
+      "unlockMsg": "Marque 10 points dans Construction de lettres"
+    },
+    "finalWordBuilder": {
+      "title": "Constructeur de mots final",
+      "desc": "Construis des mots sous pression du temps et deviens un vrai champion !",
+      "unlockMsg": "Marque 10 points dans Labyrinthe de mots"
+    },
+    "limitReached": "Limite quotidienne atteinte"
+  },
+  "parentalUnlock": {
+    "setPinTitle": "Définir un PIN",
+    "setPinSubtitle": "Crée un nouveau PIN avec au moins 4 chiffres",
+    "enterPinTitle": "Accès parental",
+    "enterPinSubtitle": "Entre ton PIN pour accéder",
+    "pinLabelNew": "Nouveau PIN",
+    "pinLabelEnter": "Entrer le PIN",
+    "buttonSetPin": "Définir le PIN",
+    "buttonUnlock": "Déverrouiller",
+    "backToMenu": "Retour au menu",
+    "errorShortPin": "Le PIN doit contenir au moins 4 chiffres",
+    "errorWrongPin": "PIN incorrect, réessaie !",
+    "successPinSet": "PIN défini ! Entre-le à nouveau pour accéder.",
+    "forgotPin": "PIN parental oublié ?",
+    "locked": "Trop de tentatives. Réessaie dans {{minutes}} minutes.",
+    "tooManyAttempts": "Trop de tentatives incorrectes. Accès temporairement bloqué."
+  },
+  "parentalControl": {
+    "title": "Contrôle parental",
+    "subtitle": "Gère le temps de jeu de ton enfant",
+    "enableTitle": "Activer le contrôle",
+    "enableDesc": "Activer le contrôle parental pour limiter le temps de jeu",
+    "enabled": "Activé",
+    "disabled": "Désactivé",
+    "dailyLimitTitle": "Temps de jeu quotidien",
+    "dailyLimitDesc": "Définir une limite de minutes par jour",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "backToMenu": "Retour au menu",
+    "viewDashboard": "Voir le tableau de bord",
+    "successSave": "Paramètres enregistrés !"
+  },
+  "timeLeft": {
+    "label": "Temps restant"
+  },
+  "parentDashboard": {
+    "loading": "Chargement des données...",
+    "back": "Retour",
+    "dashboardSubtitle": "Tableau de progression",
+    "totalPlaytime": "Temps de jeu total",
+    "rewards": "Récompenses",
+    "levelsCompleted": "Niveaux complétés",
+    "dailyPlaytime": "Temps de jeu quotidien",
+    "dailyPlaytimeDesc": "Aperçu de l’activité par jour (minutes)",
+    "daysTracked": "{{count}} jours suivis",
+    "noPlaytime": "Aucun temps de jeu enregistré",
+    "startPlaying": "{{name}} apparaîtra ici une fois qu’il/elle commencera à jouer",
+    "gameProgress": "Progression par jeu",
+    "level": "Niveau",
+    "score": "Score",
+    "noProgress": "Aucune progression de jeu pour le moment",
+    "notes": {
+      "greatJob": "Excellent travail !",
+      "keepPracticing": "Continue à t’entraîner !"
+    }
+  },
+  "progressBar": {
+    "completed": "terminé",
+    "finished": "🎉 Terminé !",
+    "keepGoing": "Continue comme ça ! 💪"
+  },
+  "audioButton": {
+    "playWord": "Jouer le mot"
+  },
+  "pauseOverlay": {
+    "paused": "Pause",
+    "clickToContinue": "Clique ▶️ pour continuer"
+  },
+  "resetModal": {
+    "title": "Réinitialiser le score ?",
+    "description": "Ton score sera remis à 0. Les jeux débloqués resteront disponibles.",
+    "cancel": "Annuler",
+    "confirm": "Réinitialiser"
+  },
+  "notificationModal": {
+    "ok": "Ok"
+  },
+  "loadingScreen": {
+    "loading": "Chargement",
+    "startNewGame": "🎮 Commencer une nouvelle partie"
+  },
+  "wordDisplay": {
+    "instruction": "FORME LE MOT"
+  },
+  "parentalControlModal": {
+    "limitReached": "Limite quotidienne atteinte !",
+    "message": "Tu as atteint ton temps de jeu maximum aujourd’hui.",
+    "returnAtToday": "Reviens aujourd’hui 🎉",
+    "returnAtTomorrow": "Reviens demain 🌙",
+    "okButton": "Compris"
+  },
+  "gameOverModal": {
+    "timeUp": "Temps écoulé !",
+    "tooManyMistakes": "Trop d’erreurs !",
+    "wordsCompleted": "Tu as complété {{currentIndex}} mots sur {{totalWords}} !",
+    "mistakesTime": "Erreurs : {{mistakes}}/{{maxMistakes}}",
+    "mistakesExceeded": "Tu as fait {{maxMistakes}} erreurs",
+    "retry": "Réessayer",
+    "home": "Retour à l’accueil"
+  },
+  "gameArea": {
+    "dragHere": "👆 Clique ou fais glisser les lettres ici"
+  },
+  "gameStats": {
+    "time": "TEMPS",
+    "mistakes": "ERREURS"
+  },
+  "unlockModal": {
+    "unlocked": "{{game}} débloqué !",
+    "congrats": "Bravo ! Tu as débloqué un nouveau jeu 🎯",
+    "playGame": "Jouer à {{game}}",
+    "stayHere": "Rester ici et continuer à jouer"
+  },
+  "victoryScreen": {
+    "title": "Tous les mots sont complétés !",
+    "subtitle": "Tu es une vraie star ! ⭐",
+    "correctAnswers": "Bonnes réponses !",
+    "retry": "Rejouer",
+    "home": "Retour au menu"
+  },
+  "levelCompleteScreen": {
+    "title": "Niveau terminé !",
+    "subtitle": "Bravo ! 🌟",
+    "nextMessage": "Prêt pour la prochaine aventure ? 🚀",
+    "nextLevel": "Niveau suivant"
+  },
+  "feedbackModal": {
+    "correct": {
+      "title": "Bien joué !",
+      "text": "Parfait ! 🌟"
+    },
+    "incorrect": {
+      "title": "Réessaie !",
+      "text": "Tu peux y arriver ! 💪"
+    }
+  },
+  "header": {
+    "score": "Score"
+  },
+  "mazeGame": {
+    "clickLetter": "Clique sur la bonne lettre !",
+    "dragLetters": "👆 Clique ou fais glisser les lettres ici",
+    "correct": "Bien joué ! 🌟",
+    "incorrect": "Réessaie ! 💪",
+    "victory": "🎉 Tu as complété tous les mots !",
+    "nextLevel": "Niveau suivant",
+    "levelComplete": "Niveau terminé ! 🌟",
+    "resetTitle": "Réinitialiser le score ?",
+    "resetDesc": "Ton score sera remis à 0. Les jeux débloqués resteront disponibles.",
+    "resetCancel": "Annuler",
+    "resetConfirm": "Réinitialiser",
+    "finalWordBuilder": "Constructeur de mots final"
+  },
+  "letterBuild": {
+    "dragLettersHere": "👆 Clique ou fais glisser les lettres ici"
+  },
+  "finalWordBuilder": {
+    "word": "Mot"
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Besoin d’aide ? Envoie-nous un message",
+    "description": "Contacte-nous si quelque chose ne fonctionne pas",
+    "button": "Contacter le support",
+    "subject": "Sujet",
+    "subjectPlaceholder": "Quel est le problème ?",
+    "message": "Message",
+    "messagePlaceholder": "Décris ton problème ici...",
+    "send": "Envoyer le message",
+    "sending": "Envoi...",
+    "success": "Ton message a été envoyé ! 💌",
+    "error": "Une erreur est survenue. Veuillez réessayer.",
+    "back": "Retour",
+    "email": "Ton email",
+    "emailPlaceholder": "Entre ton adresse email",
+    "close": "Fermer",
+    "successTitle": "Message envoyé !",
+    "successMessage": "Merci de nous avoir contactés. Nous te répondrons bientôt.",
+    "errorTitle": "Erreur",
+    "errorMessage": "Un problème est survenu lors de l’envoi de ton message. Veuillez réessayer plus tard."
+  }
+}

@@ -157,6 +157,11 @@ const changeLanguage = async (lng) => {
                 onClick={() => changeLanguage("nl")} 
                 label="Nederlands" 
               />
+              <SettingButton 
+                active={user?.settings?.language === "fr"} 
+                onClick={() => changeLanguage("fr")} 
+                label="Français" 
+              />
             </div>
           </SettingCard>
 

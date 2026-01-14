@@ -127,6 +127,7 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans"
   const sizeMap = { small: "text-base md:text-lg", medium: "text-lg md:text-xl", large: "text-xl md:text-2xl" }
+  const langKey = i18n.language === "en" ? "en" : i18n.language === "fr" ? "fr" : "correct";
 
   const [words, setWords] = useState([])
   const [letterBuildProgress, setLetterBuildProgress] = useState({
@@ -150,10 +151,12 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const dragHook = useLetterDrag()
 
   // Helper to get localized word
-  const getLocalizedWord = (wordObj) => {
-    if (!wordObj) return ""
-    return i18n.language === "en" ? wordObj.en : wordObj.correct
-  }
+const getLocalizedWord = (wordObj) => {
+  if (!wordObj) return "";
+  if (i18n.language === "en") return wordObj.en;
+  if (i18n.language === "fr") return wordObj.fr; // <-- fix here
+  return wordObj.correct; // Dutch
+};
 
   // Get current word with display word
   const currentWordData = (words[level] || [])[levelIndex]
@@ -203,7 +206,9 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
         ? levels[saved.level || 0][saved.levelIndex || 0]
         : levels[0][0]
 
-      const restoredWord = i18n.language === "en" ? restoredWordObj.en : restoredWordObj.correct
+const restoredWord = restoredWordObj[langKey];
+setupLetters(restoredWord);
+
       setupLetters(restoredWord)
       setLoading(false)
     }
@@ -296,8 +301,8 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     setLetterBuildProgress(newProgress)
     
     const nextWordObj = words[newProgress.level][newProgress.levelIndex]
-    const nextWord = i18n.language === "en" ? nextWordObj.en : nextWordObj.correct
-    setupLetters(nextWord)
+    const nextWord = nextWordObj[langKey];
+setupLetters(nextWord);
     setFeedback("")
   }
 

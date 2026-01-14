@@ -207,27 +207,30 @@ const statCards = [
           </h2>
           {Object.keys(stats.progress || {}).length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(stats.progress).map(([game, data]) => (
-                <div key={game} className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl md:rounded-2xl p-4 md:p-6 border-2 border-pink-200 hover:border-pink-300 transition-all">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-base md:text-lg font-bold text-gray-800 capitalize">{game.replace(/([A-Z])/g, " $1").trim()}</h3>
-                    <span className="text-xl md:text-2xl">{data.level >= 5 ? "🏆" : data.level >= 3 ? "🥈" : "🥉"}</span>
-                  </div>
-                  <div className="space-y-2">
-                    {["level", "score"].map((k) => (
-                      <div key={k} className="flex justify-between text-xs md:text-sm">
-                        <span className="text-gray-600">{t(`parentDashboard.${k}`)}:</span>
-                        <span className="font-bold text-purple-600">{data[k] || 0}</span>
-                      </div>
-                    ))}
-                    <div className="flex gap-1 mt-2">
-                      {(data.rewardsEarned || [false, false, false]).map((earned, i) => (
-                        <span key={i} className={`text-base md:text-lg ${earned ? "opacity-100" : "opacity-20"}`}>⭐</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {Object.entries(stats.progress).map(([game, data]) => (
+  <div key={game} className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl md:rounded-2xl p-4 md:p-6 border-2 border-pink-200 hover:border-pink-300 transition-all">
+    <div className="flex items-center justify-between mb-3">
+      <h3 className="text-base md:text-lg font-bold text-gray-800 capitalize">
+        {t(`gameCards.${game}.title`)}
+      </h3>
+      <span className="text-xl md:text-2xl">{data.level >= 5 ? "🏆" : data.level >= 3 ? "🥈" : "🥉"}</span>
+    </div>
+    <div className="space-y-2">
+      {["level", "score"].map((k) => (
+        <div key={k} className="flex justify-between text-xs md:text-sm">
+          <span className="text-gray-600">{t(`parentDashboard.${k}`)}:</span>
+          <span className="font-bold text-purple-600">{data[k] || 0}</span>
+        </div>
+      ))}
+      <div className="flex gap-1 mt-2">
+        {(data.rewardsEarned || [false, false, false]).map((earned, i) => (
+          <span key={i} className={`text-base md:text-lg ${earned ? "opacity-100" : "opacity-20"}`}>⭐</span>
+        ))}
+      </div>
+    </div>
+  </div>
+))}
+
             </div>
           ) : (
             <div className="text-center py-8 md:py-12">

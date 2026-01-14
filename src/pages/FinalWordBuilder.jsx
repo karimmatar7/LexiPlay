@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -54,21 +54,74 @@ export default function FinalWordBuilder({ user, setUser }) {
     useGameProgress(user, setUser, wordData, TOTAL_WORDS, shuffle)
 
   // Helper to get localized word
-  const getLocalizedWord = (wordObj) => {
-    if (!wordObj) return ""
-    return i18n.language === "en" ? wordObj.en : wordObj.correct
+  const [floatingLetters, setFloatingLetters] = useState([])
+
+const getLocalizedWord = useCallback((wordObj) => {
+  if (!wordObj) return "";
+  
+  const lang = (i18n.language || "en").toLowerCase();
+  console.log("Language detected:", lang, "Word:", wordObj); // Debug
+  
+  // Match the exact logic from WordMatch game
+  if (lang === "en" || lang.startsWith("en")) return wordObj.en || "";
+  if (lang === "fr" || lang.startsWith("fr")) return wordObj.fr || "";
+  if (lang === "nl" || lang.startsWith("nl")) return wordObj.correct || "";
+  
+  // Default fallback
+  return wordObj.correct || wordObj.en || "";
+}, [i18n.language]);
+
+// Keep ONLY this useEffect (delete the other duplicate one at the bottom)
+useEffect(() => {
+  const word = words[currentIndex];
+  if (!word) return; // already good
+
+  const displayWord = getLocalizedWord(word);
+
+  if (!displayWord || displayWord.length === 0) {
+    console.error("No display word found for:", word, "language:", i18n.language);
+    return;
   }
 
+  setFloatingLetters(shuffle(displayWord.split("")));
+
+  const interval = setInterval(() => {
+    setFloatingLetters(prev => shuffle(prev));
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [currentIndex, words, i18n.language, getLocalizedWord]);
+
+
+
   // Initialize game state from loaded progress
-  useEffect(() => {
-    if (initialGameState && loaded) {
-      setWords(initialGameState.words)
-      setCurrentIndex(initialGameState.currentIndex)
-      setSelected(initialGameState.selected || [])
-      setMistakes(initialGameState.mistakes)
-      setTimeLeft(initialGameState.timeLeft)
+useEffect(() => {
+  if (loaded) {
+    if (initialGameState) {
+  setWords(
+    initialGameState.words.map(w => ({
+      ...wordData.find(orig => orig.sound === w.sound) || w
+    }))
+  )
+  setCurrentIndex(initialGameState.currentIndex)
+  setSelected(initialGameState.selected || [])
+  setMistakes(initialGameState.mistakes)
+  setTimeLeft(initialGameState.timeLeft)
+}
+ else {
+      // NEW: use fresh words from wordData
+      const chosenWords = shuffle(wordData).slice(0, TOTAL_WORDS);
+      setWords(chosenWords);
+      setCurrentIndex(0);
+      setSelected([]);
+      setMistakes(0);
+      setTimeLeft(GAME_TIME);
     }
-  }, [initialGameState, loaded])
+  }
+}, [initialGameState, loaded]);
+
+
+  console.log("Loaded words:", words[currentIndex])
 
   const isPlaying = loaded && !paused && !gameOver && !victory && !showResetModal && !starEarned
   const { playCuteBeep } = useGameAudio(soundOn, isPlaying)
@@ -83,16 +136,23 @@ export default function FinalWordBuilder({ user, setUser }) {
     displayWord: getLocalizedWord(currentWordData)
   } : null
 
-  const saveProgress = async () => {
-    if (!user) return
-    const progressData = {
-      ...finalProgress,
-      score: currentIndex,
-      gameState: { words, mistakes, selected, currentIndex, timeLeft }
+const saveProgress = async () => {
+  if (!user) return
+  const progressData = {
+    ...finalProgress,
+    score: currentIndex,
+    gameState: {
+      words: words.map(w => ({ ...w, fr: w.fr })), // explicitly include fr
+      mistakes,
+      selected,
+      currentIndex,
+      timeLeft
     }
-    await saveProgressToDb(progressData)
-    setFinalProgress(progressData)
   }
+  await saveProgressToDb(progressData)
+  setFinalProgress(progressData)
+}
+
 
   const handleLetterClick = (letter) => {
     if (gameOver || victory || paused || !currentWord) return
@@ -201,29 +261,7 @@ export default function FinalWordBuilder({ user, setUser }) {
   const goHome = async () => {
     await saveProgress()
     navigate("/menu", { replace: true })
-  }
-
-  const [floatingLetters, setFloatingLetters] = useState([])
-
-useEffect(() => {
-  const word = words[currentIndex]
-  if (!word) return
-
-  const displayWord = getLocalizedWord(word)
-
-  // Initialize letters
-  setFloatingLetters(shuffle(displayWord.split("")))
-
-  // Shuffle letters every 2 seconds
-  const interval = setInterval(() => {
-    setFloatingLetters(prev => shuffle(prev))
-  }, 2000) // 2 seconds
-
-  return () => clearInterval(interval) // cleanup on word change or unmount
-}, [currentIndex, words, i18n.language])
-
-
-  
+  }  
 
   if (!loaded) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
   if (starEarned && !victory) return <LevelCompleteScreen nextLevel={() => setStarEarned(false)} fontClass={fontClass} sizeMap={sizeMap} />

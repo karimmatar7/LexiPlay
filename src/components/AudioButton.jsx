@@ -10,13 +10,36 @@ export default function AudioButton({
 }) {
   const { t, i18n } = useTranslation();
 
+  const normalizeWord = (text, lang) => {
+    if (lang === "fr") {
+      // Keep accents for French
+      return text.toLowerCase().normalize("NFC").replace(/\s+/g, "_");
+    }
+    // For English and Dutch: remove accents and non-alphanumeric
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  };
+
   const playWord = (word) => {
     if (!soundOn || paused || !word) return;
-    
-    // Get current language and set prefix
-    const languagePrefix = i18n.language === "en" ? "en" : "nl";
-    const audio = new Audio(`/sounds/${languagePrefix}/${word}.mp3`);
-    audio.play().catch(err => console.error("Audio play error:", err));
+
+    const languagePrefix =
+      i18n.language === "en"
+        ? "en"
+        : i18n.language === "fr"
+        ? "fr"
+        : "nl";
+
+    const normalizedWord = normalizeWord(word, i18n.language); // <-- pass language
+    const audioPath = `/sounds/${languagePrefix}/${normalizedWord}.mp3`;
+
+    const audio = new Audio(audioPath);
+    audio.play().catch(err =>
+      console.error("Audio play error:", audioPath, err)
+    );
   };
 
   return (
