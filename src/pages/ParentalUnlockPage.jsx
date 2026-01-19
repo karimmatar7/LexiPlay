@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sha256 } from "js-sha256";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../context/SettingsContext";
 
 import { getUser, updateSettings } from "../utils/user.js";
 import NotificationModal from "../components/NotificationModal";
@@ -11,6 +12,9 @@ import EyeSlashIcon from "@heroicons/react/24/outline/EyeSlashIcon";
 
 export default function ParentalUnlockPage({ user, setUnlocked }) {
   const { t } = useTranslation();
+      const { fontType, fontSize } = useSettings(); 
+        const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
+  const sizeMap = { small: "text-base", medium: "text-lg", large: "text-xl" };
   const navigate = useNavigate();
 
   const [pin, setPin] = useState("");
@@ -91,7 +95,7 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
   };
 
   return (
-    <div className="min-h-screen bg-indigo-50 p-6 relative">
+    <div className={`min-h-screen bg-indigo-50 p-6 relative ${fontClass} ${sizeMap[fontSize]}`}>
       <div className="max-w-2xl mx-auto text-center">
         <span className="text-7xl">🔐</span>
         <h1 className="text-5xl font-black text-indigo-700 mt-4">

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getUser, updateParentalControl } from "../utils/user.js";
 import NotificationModal from "../components/NotificationModal";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../context/SettingsContext";
 
 export default function ParentalControlPage({ user, fetchUser }) {
   const { t } = useTranslation();
@@ -10,6 +11,9 @@ export default function ParentalControlPage({ user, fetchUser }) {
   const [dailyLimit, setDailyLimit] = useState(60);
   const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
+   const { fontType, fontSize } = useSettings(); 
+          const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
+    const sizeMap = { small: "text-base", medium: "text-lg", large: "text-xl" };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +39,7 @@ export default function ParentalControlPage({ user, fetchUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-purple-50 p-6 md:p-8 relative">
+    <div className={`min-h-screen bg-purple-50 p-6 md:p-8 relative ${fontClass} ${sizeMap[fontSize]}`}>
       {/* Decorative shapes */}
       <div className="absolute top-12 right-12 w-32 h-32 bg-pink-200 rounded-full opacity-30" />
       <div className="absolute bottom-20 left-20 w-40 h-40 bg-indigo-200 rounded-full opacity-25" />

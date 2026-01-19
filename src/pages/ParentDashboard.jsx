@@ -4,6 +4,7 @@ import { getChildStats } from "../utils/parent.js";
 import { format, parseISO } from "date-fns";
 import { Bar } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
+import { useSettings } from "../context/SettingsContext"; 
 
 import {
   Chart as ChartJS,
@@ -19,6 +20,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export default function ParentDashboard() {
   const { t } = useTranslation();
+    const { fontType, fontSize } = useSettings();
+  const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
+  const sizeMap = { small: "text-base", medium: "text-lg", large: "text-xl" };
   const [stats, setStats] = useState(null);
   const { childId } = useParams();
   const navigate = useNavigate();
@@ -80,7 +84,7 @@ const statCards = [
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className={`min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 ${fontClass} ${sizeMap[fontSize]}`}>
       {/* Header */}
       <div className="bg-white shadow-sm border-b-2 border-purple-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
