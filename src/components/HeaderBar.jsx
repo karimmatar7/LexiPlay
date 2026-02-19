@@ -52,13 +52,6 @@ export default function HeaderBar({
                 {paused ? "▶️" : "⏸️"}
               </span>
             </button>
-
-            <button
-              onClick={onReset}
-              className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-red-400 hover:bg-red-500 border-2 border-red-500 rounded-xl shadow-sm hover:shadow-md transform hover:scale-110 transition-all duration-200"
-            >
-              <span className="text-2xl md:text-3xl">🔄</span>
-            </button>
           </div>
 
         </div>

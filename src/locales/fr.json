@@ -50,7 +50,12 @@
     "limitReachedMessage": "Ta limite quotidienne de jeu est atteinte !",
     "returnTime": "Reviens à",
     "unlockButton": "Débloquer maintenant",
-        "yourKeys": "Tes clés"
+        "yourKeys": "Tes clés",
+    "level": "Niveau",
+      "totalXP": "XP totale",
+      "adventurer": "Aventurier",
+      "toNextLevel": "Vers le prochain niveau",
+      "levelUp": "Niveau supérieur !"
   },
   "settings": {
     "title": "Paramètres",
@@ -285,7 +290,7 @@
   },
   "finalWordBuilder": {
   "warningTitle": "Attention !",
-  "warningDesc": "Si tu perds tous tes cœurs dans ce jeu, TOUS les jeux seront bloqués — pas seulement celui-ci. Joue prudemment !",
+  "warningDesc": "Si tu perds tous tes cœurs dans ce jeu, TOUS les jeux seront bloqués, pas seulement celui-ci. Joue prudemment !",
   "warningLockAll": "0 cœurs = tous les jeux bloqués",
   "warningUnderstood": "Compris !",
   "allLockedTitle": "Tous les jeux sont bloqués !",
@@ -320,5 +325,26 @@
     "noHearts": "Aucun cœur restant !",
     "tryLater": "Réessayez dans",
     "backToMenu": "Retour au menu"
+  },
+  "streak" : {
+    "keyEarned": "Clé gagnée !"
+  },
+    "avatar": {
+    "create": "Créer",
+    "title": "Éditeur d'avatar",
+    "back": "Retour",
+    "save": "Sauvegarder",
+    "randomise": "Aléatoire",
+    "edit": "Modifier l'avatar",
+    "saved": "Avatar sauvegardé !",
+      "tabs": {
+    "bg":        "🌈 Fond",
+    "skin":      "🎨 Peau",
+    "hair":      "💇 Cheveux",
+    "eyes":      "👁️ Yeux",
+    "mouth":     "😄 Bouche",
+    "outfit":    "👕 Tenue",
+    "accessory": "✨ Extra"
+  }
   }
 }

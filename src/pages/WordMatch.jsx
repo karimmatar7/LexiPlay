@@ -5,18 +5,33 @@ import { useTranslation } from "react-i18next"
 import GameContainer from "../components/GameContainer"
 import AudioButton from "../components/AudioButton"
 import LoadingScreen from "../components/LoadingScreen"
-import VictoryScreen from "../components/VictoryScreen"
 import ResetConfirmationModal from "../components/ResetConfirmationModal"
 import NoHeartsScreen from "../components/NoHeartsScreen"
 import { HeartsDisplay } from "../components/HeartsDisplay"
 import { useHearts } from "../hooks/useHearts"
+import XPBadge from "../components/XPBadge"
+import LevelUpToast from "../components/LevelUpToast"
+import KeyStreakBar from "../components/KeyStreakBar"
 import wordData from "../data/words.json"
 import { supabase } from "../supaBaseClient"
-import { addKeys } from "../supabaseFunctions"
+import { addKeysAndXP } from "../supabaseFunctions"
 import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
 
 const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5)
 const MAX_HEARTS = 5
+const KEY_EVERY_N = 4
+
+const SIMILAR_LETTERS = {
+  a: ["e", "o", "u"], b: ["d", "p", "q"], c: ["e", "o", "g"],
+  d: ["b", "p", "q"], e: ["a", "i", "o"], f: ["t", "v", "r"],
+  g: ["q", "c", "j"], h: ["n", "m", "k"], i: ["l", "j", "e"],
+  j: ["i", "g", "y"], k: ["h", "x", "r"], l: ["i", "r", "t"],
+  m: ["n", "h", "w"], n: ["m", "u", "h"], o: ["a", "e", "u"],
+  p: ["b", "d", "q"], q: ["p", "g", "b"], r: ["n", "l", "v"],
+  s: ["z", "c", "x"], t: ["f", "l", "i"], u: ["n", "o", "v"],
+  v: ["u", "w", "r"], w: ["m", "v", "n"], x: ["k", "s", "z"],
+  y: ["j", "v", "i"], z: ["s", "x", "c"],
+}
 
 function scrambleWord(word) {
   if (word.length <= 2) return word.split("").reverse().join("")
@@ -33,18 +48,29 @@ function scrambleWord(word) {
 function generateScrambles(word) {
   const scrambles = new Set()
   let attempts = 0
-  while (scrambles.size < 3 && attempts < 50) {
-    const s = scrambleWord(word)
-    if (s !== word) scrambles.add(s)
+
+  while (scrambles.size < 2 && attempts < 30) {
+    const arr = word.split("")
+    const i = Math.floor(Math.random() * (arr.length - 1))
+    ;[arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]
+    const candidate = arr.join("")
+    if (candidate !== word) scrambles.add(candidate)
     attempts++
   }
-  while (scrambles.size < 3) {
+
+  attempts = 0
+  while (scrambles.size < 3 && attempts < 50) {
     const arr = word.split("")
-    const i = Math.floor(Math.random() * arr.length)
-    const j = (i + 1) % arr.length
-    ;[arr[i], arr[j]] = [arr[j], arr[i]]
-    scrambles.add(arr.join(""))
+    const pos = Math.floor(Math.random() * arr.length)
+    const original = arr[pos].toLowerCase()
+    const pool = SIMILAR_LETTERS[original] || "abcdefghijklmnopqrstuvwxyz".split("").filter(c => c !== original)
+    arr[pos] = pool[Math.floor(Math.random() * pool.length)]
+    const candidate = arr.join("")
+    if (candidate !== word) scrambles.add(candidate)
+    attempts++
   }
+
+  while (scrambles.size < 3) scrambles.add(scrambleWord(word))
   return [...scrambles]
 }
 
@@ -57,25 +83,32 @@ export default function WordMatch({ user, setUser }) {
 
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans"
   const sizeMap = {
-    small: "text-base md:text-lg",
+    small:  "text-base md:text-lg",
     medium: "text-lg md:text-xl",
-    large: "text-xl md:text-2xl",
+    large:  "text-xl md:text-2xl",
   }
   const sizeClass = sizeMap[fontSize || "medium"]
 
-  const [words] = useState(() => shuffleArray(wordData))
+  // ── Infinite word list: reshuffle on every loop ──────────────
+  const [words, setWords] = useState(() => shuffleArray(wordData))
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [heartsInit, setHeartsInit] = useState(null)
+
+  const [heartsInit,   setHeartsInit]   = useState(null)
   const [cooldownInit, setCooldownInit] = useState(null)
-  const [feedback, setFeedback] = useState("")
-  const [answered, setAnswered] = useState(false)
-  const [paused, setPaused] = useState(false)
-  const [loaded, setLoaded] = useState(false)
+  const [feedback,     setFeedback]     = useState("")
+  const [answered,     setAnswered]     = useState(false)
+  const [paused,       setPaused]       = useState(false)
+  const [loaded,       setLoaded]       = useState(false)
   const [showResetModal, setShowResetModal] = useState(false)
-  const [victory, setVictory] = useState(false)
+  const [justLeveledUp,  setJustLeveledUp]  = useState(false)
+  const [keyStreak,      setKeyStreak]      = useState(0)
+  const [keyJustEarned,  setKeyJustEarned]  = useState(false)
 
   const processingRef = useRef(false)
-  const keys = user?.progress?.currency?.keys || 0
+
+  const keys  = user?.progress?.currency?.keys || 0
+  const xp    = user?.progress?.xp    || 0
+  const level = user?.progress?.level || 1
 
   const getLocalizedWord = useCallback((wordObj) => {
     if (!wordObj) return ""
@@ -92,7 +125,7 @@ export default function WordMatch({ user, setUser }) {
     const scrambles = generateScrambles(correct)
     const options = shuffleArray([correct, ...scrambles])
     return { displayWord: correct, options }
-  }, [currentIndex, currentWordObj, getLocalizedWord])
+  }, [currentWordObj, getLocalizedWord])
 
   useEffect(() => {
     const load = async () => {
@@ -110,19 +143,13 @@ export default function WordMatch({ user, setUser }) {
     load()
   }, [user])
 
-  const {
-    hearts,
-    cooldownUntil,
-    heartAnimating,
-    loseHeart,
-    maxHearts,
-    heartsReady,
-  } = useHearts({
-    user,
-    gameKey: "wordMatch",
-    initialHearts: heartsInit,
-    initialCooldown: cooldownInit,
-  })
+  const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady } =
+    useHearts({
+      user,
+      gameKey: "wordMatch",
+      initialHearts: heartsInit,
+      initialCooldown: cooldownInit,
+    })
 
   const handleAnswer = useCallback(async (opt) => {
     if (processingRef.current || answered || paused || !currentWord) return
@@ -134,24 +161,33 @@ export default function WordMatch({ user, setUser }) {
     if (opt === currentWord.displayWord) {
       setFeedback("correct")
 
-      await addKeys(user.id, 1)
-      setUser((prev) => ({
-        ...prev,
-        progress: {
-          ...prev.progress,
-          currency: {
-            ...prev.progress?.currency,
-            keys: (prev.progress?.currency?.keys || 0) + 1,
-          },
-        },
-      }))
+      const newStreak = keyStreak + 1
+      const earnKey   = newStreak >= KEY_EVERY_N
+
+      const result = await addKeysAndXP(user.id, earnKey ? 1 : 0, 10)
+      if (result) {
+        setUser((prev) => ({ ...prev, progress: result.user.progress }))
+        if (result.leveledUp) {
+          setJustLeveledUp(true)
+          setTimeout(() => setJustLeveledUp(false), 3000)
+        }
+      }
+
+      if (earnKey) {
+        setKeyStreak(0)
+        setKeyJustEarned(true)
+        setTimeout(() => setKeyJustEarned(false), 1500)
+      } else {
+        setKeyStreak(newStreak)
+      }
 
       setTimeout(() => {
         setCurrentIndex((prev) => {
           const next = prev + 1
+          // ── Loop: reshuffle and restart instead of ending ────
           if (next >= words.length) {
-            setVictory(true)
-            return prev
+            setWords(shuffleArray(wordData))
+            return 0
           }
           return next
         })
@@ -162,6 +198,7 @@ export default function WordMatch({ user, setUser }) {
 
     } else {
       setFeedback("incorrect")
+      setKeyStreak(0)
       await loseHeart()
 
       setTimeout(() => {
@@ -170,36 +207,13 @@ export default function WordMatch({ user, setUser }) {
         processingRef.current = false
       }, 1200)
     }
-  }, [answered, paused, currentWord, hearts, words.length, loseHeart])
+  }, [answered, paused, currentWord, hearts, words.length, loseHeart, user.id, setUser, keyStreak, words])
 
   if (!loaded || !heartsReady)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
 
   if (hearts <= 0)
-    return (
-      <NoHeartsScreen
-        cooldownUntil={cooldownUntil}
-        fontClass={fontClass}
-        sizeClass={sizeClass}
-      />
-    )
-
-  if (victory)
-    return (
-      <VictoryScreen
-        score={words.length}
-        words={words}
-        onRestart={() => {
-          setCurrentIndex(0)
-          setVictory(false)
-          setAnswered(false)
-          setFeedback("")
-          processingRef.current = false
-        }}
-        fontClass={fontClass}
-        sizeMap={sizeMap}
-      />
-    )
+    return <NoHeartsScreen cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
 
   if (!currentWord)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
@@ -221,11 +235,9 @@ export default function WordMatch({ user, setUser }) {
         onHome={() => navigate("/menu")}
         onReset={() => setShowResetModal(true)}
       >
-        <HeartsDisplay
-          hearts={hearts}
-          heartAnimating={heartAnimating}
-          maxHearts={maxHearts}
-        />
+        <HeartsDisplay hearts={hearts} heartAnimating={heartAnimating} maxHearts={maxHearts} />
+        <XPBadge xp={xp} level={level} />
+        <KeyStreakBar keyStreak={keyStreak} keyEveryN={KEY_EVERY_N} justEarned={keyJustEarned} soundOn={soundOn} />
 
         <div className="mb-6 md:mb-12">
           <AudioButton
@@ -257,14 +269,17 @@ export default function WordMatch({ user, setUser }) {
         </div>
       </GameContainer>
 
+      <LevelUpToast level={level} show={justLeveledUp} />
+
       {showResetModal && (
         <ResetConfirmationModal
           onCancel={() => setShowResetModal(false)}
           onConfirm={() => {
+            setWords(shuffleArray(wordData))
             setCurrentIndex(0)
-            setVictory(false)
             setAnswered(false)
             setFeedback("")
+            setKeyStreak(0)
             processingRef.current = false
             setShowResetModal(false)
           }}

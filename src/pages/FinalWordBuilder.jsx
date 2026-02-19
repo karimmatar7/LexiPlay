@@ -3,32 +3,32 @@ import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import GameContainer from "../components/GameContainer"
-import VictoryScreen from "../components/VictoryScreen"
 import LoadingScreen from "../components/LoadingScreen"
-import LevelCompleteScreen from "../components/LevelCompleteScreen"
 import ResetConfirmationModal from "../components/ResetConfirmationModal"
 import WordDisplay from "../components/WordDisplay"
 import FloatingLetterButton from "../components/FloatingLetterButton"
 import { HeartsDisplay } from "../components/HeartsDisplay"
 import { useHearts } from "../hooks/useHearts"
+import XPBadge from "../components/XPBadge"
+import LevelUpToast from "../components/LevelUpToast"
+import KeyStreakBar from "../components/KeyStreakBar"
 import wordData from "../data/words.json"
 import { gameAnimations } from "../styles/GameAnimations"
 import { useGameAudio } from "../hooks/useGameAudio"
 import { useGameProgress } from "../hooks/useGameProgress"
 import { useGameTimer } from "../hooks/useGameTimer"
 import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
-import { getUser, addKeys } from "../supabaseFunctions.js"
+import { getUser, addKeysAndXP } from "../supabaseFunctions.js"
 
-const TOTAL_WORDS = 20
-const GAME_TIME = 400
+const TOTAL_WORDS  = 20
+const GAME_TIME    = 400
 const WARNING_TIME = 30
-const MAX_HEARTS = 5
+const MAX_HEARTS   = 5
+const KEY_EVERY_N  = 4
 
 const warningSeenKey = (userId) => `finalWordBuilder_warningSeen_${userId}`
 const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5)
 
-
-// --- Warning Modal ---
 function GlobalLockWarningModal({ onClose, t }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -58,7 +58,6 @@ function GlobalLockWarningModal({ onClose, t }) {
   )
 }
 
-
 export default function FinalWordBuilder({ user, setUser }) {
   usePlaytimeTracker(user)
 
@@ -68,62 +67,48 @@ export default function FinalWordBuilder({ user, setUser }) {
   const sizeMap = { small: "text-base", medium: "text-lg", large: "text-xl" }
   const navigate = useNavigate()
 
-  const [words, setWords] = useState([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [selected, setSelected] = useState([])
-  const [timeLeft, setTimeLeft] = useState(GAME_TIME)
-  const [gameOver, setGameOver] = useState(false)
+  const [words,          setWords]          = useState([])
+  const [currentIndex,   setCurrentIndex]   = useState(0)
+  const [selected,       setSelected]       = useState([])
+  const [timeLeft,       setTimeLeft]       = useState(GAME_TIME)
+  const [gameOver,       setGameOver]       = useState(false)
   const [gameOverReason, setGameOverReason] = useState(null)
-  const [victory, setVictory] = useState(false)
-  const [paused, setPaused] = useState(false)
+  const [paused,         setPaused]         = useState(false)
   const [showResetModal, setShowResetModal] = useState(false)
-  const [starEarned, setStarEarned] = useState(false)
-  const [shakeWrong, setShakeWrong] = useState(false)
-  const [floatingLetters, setFloatingLetters] = useState([])
-  const [showWarning, setShowWarning] = useState(false)
-  const [heartsInit, setHeartsInit] = useState(null)
-  const [cooldownInit, setCooldownInit] = useState(null)
+  const [shakeWrong,     setShakeWrong]     = useState(false)
+  const [floatingLetters,setFloatingLetters]= useState([])
+  const [showWarning,    setShowWarning]    = useState(false)
+  const [heartsInit,     setHeartsInit]     = useState(null)
+  const [cooldownInit,   setCooldownInit]   = useState(null)
+  const [justLeveledUp,  setJustLeveledUp]  = useState(false)
+  const [keyStreak,      setKeyStreak]      = useState(0)
+  const [keyJustEarned,  setKeyJustEarned]  = useState(false)
+
+  // ── victory state removed — loop instead ────────────────────
 
   const {
-    loaded,
-    initialGameState,
-    finalProgress,
-    setFinalProgress,
-    saveProgressToDb,
-    checkAndAwardStars,
+    loaded, initialGameState, finalProgress, setFinalProgress,
+    saveProgressToDb, checkAndAwardStars,
   } = useGameProgress(user, setUser, wordData, TOTAL_WORDS, shuffle)
 
-  const {
-    hearts,
-    cooldownUntil,
-    heartAnimating,
-    loseHeart,
-    maxHearts,
-    heartsReady,
-  } = useHearts({
-    user,
-    gameKey: "finalWordBuilder",
-    initialHearts: heartsInit,
-    initialCooldown: cooldownInit,
-  })
+  const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady } =
+    useHearts({ user, gameKey: "finalWordBuilder", initialHearts: heartsInit, initialCooldown: cooldownInit })
 
-  const keys = user?.progress?.currency?.keys || 0
+  const keys    = user?.progress?.currency?.keys || 0
+  const xp      = user?.progress?.xp    || 0
+  const xpLevel = user?.progress?.level || 1
 
-
-  // Load hearts from DB
   useEffect(() => {
     async function loadHearts() {
       if (!user?.id) return
       const userData = await getUser(user.id)
       const saved = userData?.progress?.finalWordBuilder
-      setHeartsInit(saved?.hearts ?? MAX_HEARTS)
+      setHeartsInit(saved?.hearts         ?? MAX_HEARTS)
       setCooldownInit(saved?.cooldownUntil ?? null)
     }
     loadHearts()
   }, [user?.id])
 
-
-  // First-time warning
   useEffect(() => {
     if (!user?.id) return
     const seen = localStorage.getItem(warningSeenKey(user.id))
@@ -135,18 +120,15 @@ export default function FinalWordBuilder({ user, setUser }) {
     setShowWarning(false)
   }
 
-
   const getLocalizedWord = useCallback((wordObj) => {
     if (!wordObj) return ""
     const lang = (i18n.language || "en").toLowerCase()
-    if (lang.startsWith("en")) return wordObj.en || ""
-    if (lang.startsWith("fr")) return wordObj.fr || ""
-    if (lang.startsWith("nl")) return wordObj.correct || ""
+    if (lang.startsWith("en")) return wordObj.en     || ""
+    if (lang.startsWith("fr")) return wordObj.fr     || ""
+    if (lang.startsWith("nl")) return wordObj.correct|| ""
     return wordObj.correct || wordObj.en || ""
   }, [i18n.language])
 
-
-  // Shuffle floating letters
   useEffect(() => {
     const word = words[currentIndex]
     if (!word) return
@@ -159,8 +141,6 @@ export default function FinalWordBuilder({ user, setUser }) {
     return () => clearInterval(interval)
   }, [currentIndex, words, i18n.language, getLocalizedWord])
 
-
-  // Initialize from saved progress
   useEffect(() => {
     if (!loaded) return
     if (initialGameState) {
@@ -180,17 +160,15 @@ export default function FinalWordBuilder({ user, setUser }) {
     }
   }, [initialGameState, loaded])
 
-
   const isPlaying =
-    loaded && !paused && !gameOver && !victory &&
-    !showResetModal && !starEarned && !showWarning
+    loaded && !paused && !gameOver &&
+    !showResetModal && !showWarning
 
   const { playCuteBeep } = useGameAudio(soundOn, isPlaying)
 
-  // Timer — no mistakes param needed anymore
   useGameTimer(
-    timeLeft, setTimeLeft, loaded, victory, gameOver, paused,
-    showResetModal, starEarned, setGameOver, setGameOverReason,
+    timeLeft, setTimeLeft, loaded, false /* no victory state */, gameOver,
+    paused, showResetModal, false, setGameOver, setGameOverReason,
     playCuteBeep, WARNING_TIME
   )
 
@@ -198,7 +176,6 @@ export default function FinalWordBuilder({ user, setUser }) {
   const currentWord = currentWordData
     ? { ...currentWordData, displayWord: getLocalizedWord(currentWordData) }
     : null
-
 
   const saveProgress = async () => {
     if (!user) return
@@ -216,9 +193,8 @@ export default function FinalWordBuilder({ user, setUser }) {
     setFinalProgress(progressData)
   }
 
-
   const handleLetterClick = async (letter) => {
-    if (gameOver || victory || paused || !currentWord) return
+    if (gameOver || paused || !currentWord) return
     const correctLetter = currentWord.displayWord[selected.length]
 
     if (letter === correctLetter) {
@@ -227,29 +203,36 @@ export default function FinalWordBuilder({ user, setUser }) {
       playCuteBeep(1000, 0.08)
 
       if (updated.length === currentWord.displayWord.length) {
-        // Award 1 key per correct word
-        await addKeys(user.id, 1)
-        setUser((prev) => ({
-          ...prev,
-          progress: {
-            ...prev.progress,
-            currency: {
-              ...prev.progress?.currency,
-              keys: (prev.progress?.currency?.keys || 0) + 1,
-            },
-          },
-        }))
+        const newStreak = keyStreak + 1
+        const earnKey   = newStreak >= KEY_EVERY_N
+
+        const result = await addKeysAndXP(user.id, earnKey ? 1 : 0, 10)
+        if (result) {
+          setUser((prev) => ({ ...prev, progress: result.user.progress }))
+          if (result.leveledUp) {
+            setJustLeveledUp(true)
+            setTimeout(() => setJustLeveledUp(false), 3000)
+          }
+        }
+
+        if (earnKey) {
+          setKeyStreak(0)
+          setKeyJustEarned(true)
+          setTimeout(() => setKeyJustEarned(false), 1500)
+        } else {
+          setKeyStreak(newStreak)
+        }
+
         setTimeout(() => playCuteBeep(1200, 0.15), 100)
         setTimeout(nextWord, 600)
       }
     } else {
-      // Wrong letter — shake + lose heart
       setShakeWrong(true)
       setTimeout(() => setShakeWrong(false), 500)
       playCuteBeep(300, 0.2)
+      setKeyStreak(0)
       await loseHeart()
 
-      // If hearts just hit 0, game over by hearts
       if (hearts - 1 <= 0) {
         setGameOver(true)
         setGameOverReason("hearts")
@@ -257,50 +240,35 @@ export default function FinalWordBuilder({ user, setUser }) {
     }
   }
 
-
   const nextWord = async () => {
     setSelected([])
     const newIndex = currentIndex + 1
-    if (newIndex === TOTAL_WORDS) {
-      finishGame()
+
+    if (newIndex >= TOTAL_WORDS) {
+      // ── Loop: reshuffle and restart — no VictoryScreen ───────
+      await loopGame()
     } else {
       setCurrentIndex(newIndex)
-      const shouldShowStar = await checkAndAwardStars(newIndex, { words, timeLeft })
-      if (shouldShowStar) setStarEarned(true)
+      await checkAndAwardStars(newIndex, { words, timeLeft })
     }
   }
 
-
-  const finishGame = async () => {
-    setVictory(true)
-    const permanentRewards = [...(finalProgress.permanentRewards || [false, false, false])]
-    let newStarsToAdd = 0
-    for (let i = 0; i < 3; i++) {
-      if (!permanentRewards[i]) {
-        permanentRewards[i] = true
-        newStarsToAdd += 1
-      }
-    }
+  const loopGame = async () => {
+    const freshWords = shuffle(wordData).slice(0, TOTAL_WORDS)
     const newProgress = {
       ...finalProgress,
-      score: TOTAL_WORDS,
-      rewardsEarned: [true, true, true],
-      permanentRewards,
+      score: 0,
+      rewardsEarned: [false, false, false],
       gameState: {},
     }
-    await saveProgressToDb(newProgress)
+    setWords(freshWords)
+    setCurrentIndex(0)
+    setSelected([])
+    setTimeLeft(GAME_TIME)
+    setKeyStreak(0)
     setFinalProgress(newProgress)
-    if (newStarsToAdd > 0) {
-      const { addReward } = await import("../supabaseFunctions")
-      await addReward(user.id, newStarsToAdd)
-      setUser(prev => ({
-        ...prev,
-        rewards: (prev.rewards || 0) + newStarsToAdd,
-        progress: { ...prev.progress, finalWordBuilder: newProgress },
-      }))
-    }
+    await saveProgressToDb(newProgress)
   }
-
 
   const resetGame = async () => {
     const newProgress = {
@@ -312,9 +280,8 @@ export default function FinalWordBuilder({ user, setUser }) {
     setShowResetModal(false)
     setGameOver(false)
     setGameOverReason(null)
-    setVictory(false)
     setPaused(false)
-    setStarEarned(false)
+    setKeyStreak(0)
     setWords(shuffle(wordData).slice(0, TOTAL_WORDS))
     setCurrentIndex(0)
     setSelected([])
@@ -322,7 +289,6 @@ export default function FinalWordBuilder({ user, setUser }) {
     setFinalProgress(newProgress)
     await saveProgressToDb(newProgress)
   }
-
 
   const togglePause = async () => {
     const newPaused = !paused
@@ -335,12 +301,10 @@ export default function FinalWordBuilder({ user, setUser }) {
     navigate("/menu", { replace: true })
   }
 
-
-  // --- Early returns ---
+  // ── Guards ────────────────────────────────────────────────────
   if (!loaded || !heartsReady)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
 
-  // 0 hearts → global lock screen
   if (hearts <= 0) {
     const minutesLeft = cooldownUntil
       ? Math.max(0, Math.ceil((new Date(cooldownUntil) - new Date()) / 60000))
@@ -369,28 +333,6 @@ export default function FinalWordBuilder({ user, setUser }) {
       </div>
     )
   }
-
-  if (starEarned && !victory)
-    return (
-      <LevelCompleteScreen
-        nextLevel={() => setStarEarned(false)}
-        fontClass={fontClass}
-        sizeMap={sizeMap}
-      />
-    )
-
-  if (victory)
-    return (
-      <VictoryScreen
-        gameType="game4"
-        score={TOTAL_WORDS}
-        words={words}
-        timeLeft={timeLeft}
-        onRestart={resetGame}
-        fontClass={fontClass}
-        sizeMap={sizeMap}
-      />
-    )
 
   if (gameOver)
     return (
@@ -449,7 +391,6 @@ export default function FinalWordBuilder({ user, setUser }) {
 
       {showWarning && <GlobalLockWarningModal onClose={handleCloseWarning} t={t} />}
 
-      {/* ❗ button */}
       <button
         onClick={() => setShowWarning(true)}
         className="fixed top-6 right-6 z-40 w-10 h-10 bg-red-500 hover:bg-red-600 text-white font-black text-lg rounded-full shadow-lg border-2 border-red-700 flex items-center justify-center transition-all duration-200 hover:scale-110"
@@ -472,23 +413,26 @@ export default function FinalWordBuilder({ user, setUser }) {
           onHome={goHome}
           onReset={() => setShowResetModal(true)}
         >
-          <HeartsDisplay
-            hearts={hearts}
-            heartAnimating={heartAnimating}
-            maxHearts={maxHearts}
+          <HeartsDisplay hearts={hearts} heartAnimating={heartAnimating} maxHearts={maxHearts} />
+          <XPBadge xp={xp} level={xpLevel} />
+          <KeyStreakBar
+            keyStreak={keyStreak}
+            keyEveryN={KEY_EVERY_N}
+            justEarned={keyJustEarned}
+            soundOn={soundOn}
           />
 
           <div className="text-center space-y-6 md:space-y-10">
-      <div className="flex justify-center">
-  <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold shadow-md border-2 ${
-    isWarningTime
-      ? "bg-red-100 border-red-400 text-red-600 animate-pulse"
-      : "bg-white border-sky-300 text-sky-700"
-  }`}>
-    <span className="text-xl">{isWarningTime ? "⚠️" : "⏱️"}</span>
-    <span className="text-lg tabular-nums">{timeLeft}s</span>
-  </div>
-</div>
+            <div className="flex justify-center">
+              <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold shadow-md border-2 ${
+                isWarningTime
+                  ? "bg-red-100 border-red-400 text-red-600 animate-pulse"
+                  : "bg-white border-sky-300 text-sky-700"
+              }`}>
+                <span className="text-xl">{isWarningTime ? "⚠️" : "⏱️"}</span>
+                <span className="text-lg tabular-nums">{timeLeft}s</span>
+              </div>
+            </div>
 
             <WordDisplay
               selected={selected}
@@ -520,6 +464,8 @@ export default function FinalWordBuilder({ user, setUser }) {
           </div>
         </GameContainer>
       </div>
+
+      <LevelUpToast level={xpLevel} show={justLeveledUp} />
     </div>
   )
 }

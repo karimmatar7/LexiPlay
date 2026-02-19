@@ -38,7 +38,6 @@ export default function GameContainer({
           onReset={onReset}
         />
         
-        <ProgressBar progress={progress} />
         
         <div className="bg-white rounded-3xl border-3 border-blue-200 shadow-lg p-6 md:p-10 lg:p-12">
           {paused ? <PauseOverlay /> : children}

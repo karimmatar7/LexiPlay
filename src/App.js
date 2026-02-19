@@ -20,6 +20,7 @@ import ParentRoute from "./components/ParentRoute";
 import ParentalUnlockPage from "./pages/ParentalUnlockPage";
 import ParentDashboard from "./pages/ParentDashboard";
 import { useTranslation } from "react-i18next";
+import AvatarEditor from "./pages/AvatarEditor"
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -169,6 +170,10 @@ function App() {
             path="/support"
             element={user ? <Support /> : <Navigate to="/" />}
           />
+          <Route
+  path="/avatar"
+  element={user ? <AvatarEditor user={user} setUser={setUser} /> : <Navigate to="/" />}
+/>
         </Routes>
       </Router>
     </SettingsProvider>

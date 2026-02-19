@@ -50,7 +50,12 @@
     "limitReachedMessage": "Your daily playtime limit has been reached!",
     "returnTime": "Come back at",
     "unlockButton": "Unlock Now",
-    "yourKeys": "Your Keys"
+    "yourKeys": "Your Keys",
+    "level": "Level",
+    "totalXP": "Total XP",
+    "adventurer": "Adventurer",
+    "toNextLevel": "To Next Level",
+    "levelUp": "Level Up!"
   },
   "settings": {
     "title": "Settings",
@@ -122,7 +127,7 @@
     "desc": "Build words under time pressure and become a real champion!",
     "unlockMsg": "Score 10 points in Word Maze",
       "warningTitle": "Warning!",
-  "warningDesc": "If you lose all your hearts in this game, ALL games will be locked — not just this one. Play carefully!",
+  "warningDesc": "If you lose all your hearts in this game, ALL games will be locked, not just this one. Play carefully!",
   "warningLockAll": "0 hearts = all games locked",
   "warningUnderstood": "Got it!",
   "allLockedTitle": "All games locked!",
@@ -334,7 +339,29 @@
   "noHearts": "No hearts left!",
   "tryLater": "Try again in",
   "backToMenu": "Back to menu"
-}
+},
+"streak": {
+  "keyEarned": "Key earned!"
+
+},
+  "avatar": {
+    "create": "Create",
+    "title": "Avatar Editor",
+    "back": "Back",
+    "save": "Save",
+    "randomise": "Randomise",
+    "edit": "Edit Avatar",
+    "saved": "Avatar saved!",
+      "tabs": {
+    "bg":        "🌈 BG",
+    "skin":      "🎨 Skin",
+    "hair":      "💇 Hair",
+    "eyes":      "👁️ Eyes",
+    "mouth":     "😄 Mouth",
+    "outfit":    "👕 Outfit",
+    "accessory": "✨ Extra"
+  }
+  }
 
 }
 

@@ -50,7 +50,12 @@
     "limitReachedMessage": "Je dagelijkse speeltijdlimiet is bereikt!",
     "returnTime": "Kom terug om",
     "unlockButton": "Nu ontgrendelen",
-    "yourKeys": "Jouw Sleutels"
+    "yourKeys": "Jouw Sleutels",
+    "level": "Niveau",
+    "totalXP": "Totale XP",
+    "adventurer": "Avonturier",
+    "toNextLevel": "Naar Volgend Niveau ",
+    "levelUp": "Niveau omhoog!"
   },
   "settings": {
     "title": "Instellingen",
@@ -295,7 +300,7 @@
   },
     "finalWordBuilder": {
       "warningTitle": "Let op!",
-  "warningDesc": "Als je al je hartjes verliest in dit spel, worden ALLE spellen vergrendeld — niet alleen dit spel. Speel voorzichtig!",
+  "warningDesc": "Als je al je hartjes verliest in dit spel, worden ALLE spellen vergrendeld, niet alleen dit spel. Speel voorzichtig!",
   "warningLockAll": "0 hartjes = alle spellen vergrendeld",
   "warningUnderstood": "Begrepen!",
   "allLockedTitle": "Alle spellen vergrendeld!",
@@ -329,10 +334,28 @@
   "noHearts": "Geen hartjes meer!",
   "tryLater": "Probeer later opnieuw",
   "backToMenu": "Terug naar menu"
+},
+"streak": {
+  "keyEarned": "Sleutel verdiend!"
+
+},
+"avatar": {
+    "create": "Aanmaken",
+    "title": "Avatar Editor",
+    "back": "Terug",
+    "save": "Opslaan",
+    "randomise": "Willekeurig",
+    "edit": "Bewerk Avatar",
+    "saved": "Avatar opgeslagen!",
+      "tabs": {
+    "bg":        "🌈 Achtergrond",
+    "skin":      "🎨 Huid",
+    "hair":      "💇 Haar",
+    "eyes":      "👁️ Ogen",
+    "mouth":     "😄 Mond",
+    "outfit":    "👕 Outfit",
+    "accessory": "✨ Extra"
+  }
 }
 
-
-
 }
-
-

@@ -35,6 +35,8 @@ const defaultProgress = {
   currency: {
     keys: 0
   },
+  xp: 0,
+  level: 1,
 
   wordMatch: {
     score: 0,
@@ -404,5 +406,47 @@ export async function unlockGame(userId, gameKey, keyCost) {
   } catch (err) {
     console.error("Error unlocking game:", err);
     return { success: false, message: "Something went wrong" };
+  }
+}
+
+
+/* =========================
+   ADD XP + LEVEL UP
+========================= */
+export async function addXP(userId, amount = 10) {
+  try {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("progress")
+      .eq("id", userId)
+      .single()
+
+    if (error) throw error
+
+    const progress = user.progress || {}
+    const currentXP = (progress.xp || 0) + amount
+    const currentLevel = progress.level || 1
+
+    // Every 100 XP = 1 level (10 correct answers × 10 XP each)
+    const newLevel = Math.floor(currentXP / 100) + 1
+
+    const updatedProgress = {
+      ...progress,
+      xp: currentXP,
+      level: newLevel,
+    }
+
+    const { data, error: updateError } = await supabase
+      .from("users")
+      .update({ progress: updatedProgress })
+      .eq("id", userId)
+      .select()
+      .single()
+
+    if (updateError) throw updateError
+    return { xp: currentXP, level: newLevel, leveledUp: newLevel > currentLevel, user: data }
+  } catch (err) {
+    console.error("Error adding XP:", err)
+    return null
   }
 }

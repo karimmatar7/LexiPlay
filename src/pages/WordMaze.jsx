@@ -4,22 +4,29 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import GameContainer from "../components/GameContainer";
 import LoadingScreen from "../components/LoadingScreen";
-import LevelCompleteScreen from "../components/LevelCompleteScreen";
-import VictoryScreen from "../components/VictoryScreen";
 import ResetConfirmationModal from "../components/ResetConfirmationModal";
-import UnlockModal from "../components/UnlockModal";
 import NoHeartsScreen from "../components/NoHeartsScreen";
 import { HeartsDisplay } from "../components/HeartsDisplay";
 import { useHearts } from "../hooks/useHearts";
+import XPBadge from "../components/XPBadge";
+import LevelUpToast from "../components/LevelUpToast";
 import wordData from "../data/words.json";
-import { updateProgress, addReward, addKeys, getUser } from "../supabaseFunctions.js";
+import { updateProgress, addReward, addKeysAndXP, getUser } from "../supabaseFunctions.js";
 import { calculateStars } from "../utils/progressStars";
 import { emojiHints } from "../data/emojiHints";
 import usePlaytimeTracker from "../hooks/usePlaytimeTracker";
 
 const MAX_HEARTS = 5;
-
 const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+// ── Extracted helper so both load and loop can call it ───────
+function buildLevels(wordsPerLevel) {
+  const shuffled = shuffleArray(wordData);
+  return Array.from(
+    { length: Math.ceil(shuffled.length / wordsPerLevel) },
+    (_, i) => shuffled.slice(i * wordsPerLevel, i * wordsPerLevel + wordsPerLevel)
+  );
+}
 
 const generateMazeOptions = (word) => {
   const letters = word.split("");
@@ -36,20 +43,13 @@ const getRandomRevealedIndex = (wordLength) =>
   Math.floor(Math.random() * wordLength);
 
 function MazeGameArea({
-  currentWord,
-  revealedLetterIndex,
-  currentLetterIndex,
-  options,
-  handleLetterClick,
-  t,
-  fontClass,
-  sizeClass,
+  currentWord, revealedLetterIndex, currentLetterIndex,
+  options, handleLetterClick, t, fontClass, sizeClass,
 }) {
   if (!currentWord) return null;
 
   return (
     <div className={`text-center ${fontClass} ${sizeClass}`}>
-      {/* Word + emoji card */}
       <div className="mb-8 bg-white border-2 border-sky-300 rounded-2xl p-6 shadow-md">
         <div className="text-3xl md:text-5xl font-black tracking-wider text-sky-700 mb-4">
           {currentWord.displayWord
@@ -61,18 +61,12 @@ function MazeGameArea({
                 i < currentLetterIndex &&
                 currentLetterIndex < revealedLetterIndex &&
                 i < revealedLetterIndex
-              )
-                return l;
+              ) return l;
               if (
                 currentLetterIndex < revealedLetterIndex &&
                 i > revealedLetterIndex &&
-                i <=
-                  currentLetterIndex +
-                    currentWord.displayWord.length -
-                    revealedLetterIndex -
-                    1
-              )
-                return l;
+                i <= currentLetterIndex + currentWord.displayWord.length - revealedLetterIndex - 1
+              ) return l;
               return "_";
             })
             .join(" ")}
@@ -87,7 +81,6 @@ function MazeGameArea({
         </p>
       </div>
 
-      {/* Letter buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {(options[currentLetterIndex] || []).map((letter, idx) => (
           <button
@@ -112,30 +105,33 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
 
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
   const sizeMap = {
-    small: "text-base md:text-lg",
+    small:  "text-base md:text-lg",
     medium: "text-lg md:text-xl",
-    large: "text-xl md:text-2xl",
+    large:  "text-xl md:text-2xl",
   };
   const sizeClass = sizeMap[fontSize || "medium"];
 
-  const [words, setWords] = useState([]);
+  // ── Infinite loop: words is replaceable ─────────────────────
+  const [words, setWords] = useState(() => buildLevels(wordsPerLevel));
+
   const [mazeProgress, setMazeProgress] = useState({
-    level: 0,
-    levelIndex: 0,
-    rewardsEarned: [false, false, false],
+    level: 0, levelIndex: 0, rewardsEarned: [false, false, false],
   });
-  const [heartsInit, setHeartsInit] = useState(null);
-  const [cooldownInit, setCooldownInit] = useState(null);
+  const [heartsInit,          setHeartsInit]          = useState(null);
+  const [cooldownInit,        setCooldownInit]        = useState(null);
   const [revealedLetterIndex, setRevealedLetterIndex] = useState(0);
-  const [currentLetterIndex, setCurrentLetterIndex] = useState(1);
-  const [feedback, setFeedback] = useState("");
-  const [paused, setPaused] = useState(false);
-  const [showResetModal, setShowResetModal] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [starEarned, setStarEarned] = useState(false);
-  const [showUnlockModal, setShowUnlockModal] = useState(false);
+  const [currentLetterIndex,  setCurrentLetterIndex]  = useState(1);
+  const [feedback,            setFeedback]            = useState("");
+  const [paused,              setPaused]              = useState(false);
+  const [showResetModal,      setShowResetModal]      = useState(false);
+  const [loaded,              setLoaded]              = useState(false);
+  const [justLeveledUp,       setJustLeveledUp]       = useState(false);
 
   const { level, levelIndex, rewardsEarned } = mazeProgress;
+
+  const xp      = user?.progress?.xp    || 0;
+  const xpLevel = user?.progress?.level || 1;
+  const keys    = user?.progress?.currency?.keys || 0;
 
   const getLocalizedWord = (wordObj) => {
     if (!wordObj) return "";
@@ -149,23 +145,9 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     ? { ...currentWordData, displayWord: getLocalizedWord(currentWordData) }
     : null;
 
-  const {
-    hearts,
-    cooldownUntil,
-    heartAnimating,
-    loseHeart,
-    maxHearts,
-    heartsReady,
-  } = useHearts({
-    user,
-    gameKey: "wordMaze",
-    initialHearts: heartsInit,
-    initialCooldown: cooldownInit,
-  });
+  const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady } =
+    useHearts({ user, gameKey: "wordMaze", initialHearts: heartsInit, initialCooldown: cooldownInit });
 
-  const keys = user?.progress?.currency?.keys || 0;
-
-  // ✅ Memoize options — only regenerates when the word changes, not on every re-render
   const options = useMemo(
     () => (currentWord ? generateMazeOptions(currentWord.displayWord) : []),
     [currentWord?.displayWord]
@@ -178,25 +160,24 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
       const userData = await getUser(user.id);
       const progress = userData?.progress?.wordMaze || {};
 
-      const levels = Array.from(
-        { length: Math.ceil(wordData.length / wordsPerLevel) },
-        (_, i) => wordData.slice(i * wordsPerLevel, i * wordsPerLevel + wordsPerLevel)
-      );
-      setWords(levels);
+      // Use saved levels from DB if present, otherwise fresh shuffle
+      setWords(buildLevels(wordsPerLevel));
 
       setMazeProgress({
-        level: progress.level || 0,
-        levelIndex: progress.levelIndex || 0,
+        level:         progress.level         || 0,
+        levelIndex:    progress.levelIndex    || 0,
         rewardsEarned: progress.rewardsEarned || [false, false, false],
       });
 
-      setHeartsInit(progress.hearts ?? MAX_HEARTS);
+      setHeartsInit(progress.hearts         ?? MAX_HEARTS);
       setCooldownInit(progress.cooldownUntil ?? null);
 
-      const initialWordObj = levels[progress.level || 0][progress.levelIndex || 0];
+      const initialWordObj = wordData[
+        (progress.level || 0) * wordsPerLevel + (progress.levelIndex || 0)
+      ];
       if (initialWordObj) {
-        const displayWord = getLocalizedWord(initialWordObj);
-        const randomIndex = getRandomRevealedIndex(displayWord.length);
+        const displayWord  = getLocalizedWord(initialWordObj);
+        const randomIndex  = getRandomRevealedIndex(displayWord.length);
         setRevealedLetterIndex(randomIndex);
         setCurrentLetterIndex((randomIndex + 1) % displayWord.length);
       }
@@ -222,15 +203,13 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
   };
 
   const resetMaze = async () => {
-    const newProgress = {
-      level: 0,
-      levelIndex: 0,
-      rewardsEarned: [false, false, false],
-    };
+    const freshLevels  = buildLevels(wordsPerLevel);
+    const newProgress  = { level: 0, levelIndex: 0, rewardsEarned: [false, false, false] };
+    setWords(freshLevels);
     setMazeProgress(newProgress);
 
-    if (words.length > 0 && words[0].length > 0) {
-      const displayWord = getLocalizedWord(words[0][0]);
+    if (freshLevels.length > 0 && freshLevels[0].length > 0) {
+      const displayWord = getLocalizedWord(freshLevels[0][0]);
       const randomIndex = getRandomRevealedIndex(displayWord.length);
       setRevealedLetterIndex(randomIndex);
       setCurrentLetterIndex((randomIndex + 1) % displayWord.length);
@@ -239,16 +218,11 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     setFeedback("");
     setPaused(false);
     setShowResetModal(false);
-    setStarEarned(false);
     await saveProgress(newProgress);
   };
 
   const togglePause = () => setPaused((prev) => !prev);
-
-  const goHome = async () => {
-    await saveProgress();
-    navigate("/menu", { replace: true });
-  };
+  const goHome = async () => { await saveProgress(); navigate("/menu", { replace: true }); };
 
   const handleLetterClick = async (letter) => {
     if (paused || !currentWord) return;
@@ -261,10 +235,9 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
         nextIndex = (nextIndex + 1) % currentWord.displayWord.length;
       }
 
-      const revealedSet = new Set([revealedLetterIndex]);
-      const guessedCount = Array.from(
-        { length: currentWord.displayWord.length },
-        (_, i) => i
+      const revealedSet   = new Set([revealedLetterIndex]);
+      const guessedCount  = Array.from(
+        { length: currentWord.displayWord.length }, (_, i) => i
       )
         .filter((i) => !revealedSet.has(i))
         .filter((i) => {
@@ -276,17 +249,14 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
         }).length;
 
       if (guessedCount === currentWord.displayWord.length - 1) {
-        await addKeys(user.id, 1);
-        setUser((prev) => ({
-          ...prev,
-          progress: {
-            ...prev.progress,
-            currency: {
-              ...prev.progress?.currency,
-              keys: (prev.progress?.currency?.keys || 0) + 1,
-            },
-          },
-        }));
+        const result = await addKeysAndXP(user.id, 1, 10);
+        if (result) {
+          setUser((prev) => ({ ...prev, progress: result.user.progress }));
+          if (result.leveledUp) {
+            setJustLeveledUp(true);
+            setTimeout(() => setJustLeveledUp(false), 3000);
+          }
+        }
 
         setMazeProgress((prev) => {
           const updated = { ...prev };
@@ -311,18 +281,20 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     if (progress.levelIndex + 1 < currentLevelWords.length) {
       newProgress.levelIndex += 1;
     } else if (progress.level + 1 < words.length) {
-      newProgress.level += 1;
+      newProgress.level    += 1;
       newProgress.levelIndex = 0;
     } else {
-      newProgress.rewardsEarned = [true, true, true];
+      // ── All done: reshuffle and restart — no VictoryScreen ──
+      const freshLevels = buildLevels(wordsPerLevel);
+      setWords(freshLevels);
+      newProgress = { level: 0, levelIndex: 0, rewardsEarned: [false, false, false] };
       setMazeProgress(newProgress);
-      setFeedback("victory");
+      setFeedback("");
       return;
     }
 
-    const totalWords = words.flat().length;
-    const currentPosition =
-      newProgress.level * wordsPerLevel + newProgress.levelIndex + 1;
+    const totalWords      = words.flat().length;
+    const currentPosition = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1;
     const progressPercent = Math.min((currentPosition / totalWords) * 100, 100);
 
     await checkAndAwardStars(newProgress, progressPercent);
@@ -332,21 +304,17 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
 
   const checkAndAwardStars = async (newProgress, progressPercent) => {
     const starsEarned = calculateStars(progressPercent);
-    const rewards = newProgress.rewardsEarned || [false, false, false];
-    let rewardsAdded = 0;
+    const rewards     = newProgress.rewardsEarned || [false, false, false];
+    let rewardsAdded  = 0;
 
     for (let i = 0; i < starsEarned; i++) {
-      if (!rewards[i]) {
-        rewards[i] = true;
-        rewardsAdded += 1;
-      }
+      if (!rewards[i]) { rewards[i] = true; rewardsAdded++; }
     }
 
     newProgress.rewardsEarned = rewards;
     await updateProgress(user.id, { wordMaze: newProgress });
 
     if (rewardsAdded > 0) {
-      setStarEarned(true);
       await addReward(user.id, rewardsAdded);
       setUser((prev) => ({
         ...prev,
@@ -356,12 +324,6 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     }
   };
 
-  const goToNextLevel = async () => {
-    setStarEarned(false);
-    setFeedback("");
-    await saveProgress();
-  };
-
   if (!loaded || !heartsReady)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
 
@@ -369,50 +331,9 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
 
   if (hearts <= 0)
-    return (
-      <NoHeartsScreen
-        cooldownUntil={cooldownUntil}
-        fontClass={fontClass}
-        sizeClass={sizeClass}
-      />
-    );
+    return <NoHeartsScreen cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />;
 
-  if (showUnlockModal)
-    return (
-      <UnlockModal
-        fontClass={fontClass}
-        sizeClass={sizeClass}
-        gameName={t("gameCards.finalWordBuilder.title")}
-        gameEmoji="🔤"
-        gameRoute="/finalwordbuilder"
-        onClose={() => {
-          setShowUnlockModal(false);
-          setStarEarned(false);
-          setFeedback("");
-        }}
-      />
-    );
-
-  if (starEarned)
-    return (
-      <LevelCompleteScreen
-        nextLevel={goToNextLevel}
-        fontClass={fontClass}
-        sizeMap={sizeMap}
-      />
-    );
-
-  if (feedback === "victory")
-    return (
-      <VictoryScreen
-        fontClass={fontClass}
-        sizeMap={sizeMap}
-        words={words}
-        onRestart={resetMaze}
-      />
-    );
-
-  const totalWords = words.flat().length;
+  const totalWords      = words.flat().length;
   const currentPosition = level * wordsPerLevel + levelIndex + 1;
   const displayProgress = (currentPosition / totalWords) * 100;
 
@@ -434,12 +355,8 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
         onHome={goHome}
         onReset={() => setShowResetModal(true)}
       >
-        <HeartsDisplay
-          hearts={hearts}
-          heartAnimating={heartAnimating}
-          maxHearts={maxHearts}
-        />
-
+        <HeartsDisplay hearts={hearts} heartAnimating={heartAnimating} maxHearts={maxHearts} />
+        <XPBadge xp={xp} level={xpLevel} />
         <MazeGameArea
           currentWord={currentWord}
           revealedLetterIndex={revealedLetterIndex}
@@ -451,6 +368,8 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
           sizeClass={sizeClass}
         />
       </GameContainer>
+
+      <LevelUpToast level={xpLevel} show={justLeveledUp} />
 
       {showResetModal && (
         <ResetConfirmationModal

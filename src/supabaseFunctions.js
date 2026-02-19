@@ -247,3 +247,54 @@ export async function unlockGame(userId, gameKey, cost) {
 
   return { success: true, data };
 }
+
+export async function addKeysAndXP(userId, keyAmount = 1, xpAmount = 10) {
+  try {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("progress")
+      .eq("id", userId)
+      .single()
+
+    if (error) throw error
+
+    const progress = user.progress || {}
+
+    const currentKeys  = progress?.currency?.keys || 0
+    const currentXP    = progress?.xp    || 0
+    const currentLevel = progress?.level || 1
+
+    const newXP    = currentXP + xpAmount
+    const newLevel = Math.floor(newXP / 100) + 1
+
+    const updatedProgress = {
+      ...progress,
+      xp: newXP,
+      level: newLevel,
+      currency: {
+        ...progress.currency,
+        keys: currentKeys + keyAmount,
+      },
+    }
+
+    const { data, error: updateError } = await supabase
+      .from("users")
+      .update({ progress: updatedProgress })
+      .eq("id", userId)
+      .select()
+      .single()
+
+    if (updateError) throw updateError
+
+    return {
+      keys: currentKeys + keyAmount,
+      xp: newXP,
+      level: newLevel,
+      leveledUp: newLevel > currentLevel,
+      user: data,
+    }
+  } catch (err) {
+    console.error("Error in addKeysAndXP:", err)
+    return null
+  }
+}
