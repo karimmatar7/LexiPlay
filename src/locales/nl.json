@@ -49,7 +49,8 @@
     "timeLeft": "Resterende tijd",
     "limitReachedMessage": "Je dagelijkse speeltijdlimiet is bereikt!",
     "returnTime": "Kom terug om",
-    "unlockButton": "Nu ontgrendelen"
+    "unlockButton": "Nu ontgrendelen",
+    "yourKeys": "Jouw Sleutels"
   },
   "settings": {
     "title": "Instellingen",
@@ -84,14 +85,28 @@
   "game": {
     "available": "Beschikbaar",
     "play_now": "Speel nu!",
-    "locked": "Vergrendeld"
+    "locked": "Vergrendeld",
+    "timeLocked": "Tijdslimiet bereikt",
+    "keysNeeded": "Sleutels nodig",
+    "keys": "sleutels",
+    "unlockFor" : "Ontgrendel voor"
+  },
+  "wordMatch": {
+    "title": "Woord Match",
+    "desc": "Match woorden met geluiden en maak de juiste combinaties!",
+    "noHearts": "Geen hartjes meer!",
+    "tryLater": "Probeer later opnieuw!",
+    "backToMenu": "Terug naar menu"
   },
 
   "gameCards": {
   "wordMatch": {
     "title": "Woord Match",
     "desc": "Match woorden met geluiden en maak de juiste combinaties!",
-    "unlockMsg": "Scoor 7 punten in Woord Match"
+    "unlockMsg": "Scoor 7 punten in Woord Match",
+    "noHearts": "Geen hartjes meer!",
+    "tryLater": "Probeer later opnieuw!",
+    "backToMenu": "Terug naar menu"
   },
   "letterBuild": {
     "title": "Letter Bouw",
@@ -107,6 +122,7 @@
     "title": "Finale Woorden Bouw",
     "desc": "Bouw woorden onder tijdsdruk en word een echte kampioen!",
     "unlockMsg": "Scoor 10 punten in Woorden Doolhof"
+  
   },
   "limitReached": "Dagelijkse limiet bereikt"
 },
@@ -254,7 +270,8 @@
   }
 },
 "header": {
-  "score": "Score"
+  "score": "Score",
+  "keys": "Sleutels"
 },
  "mazeGame": {
     "clickLetter": "Klik op de juiste letter!",
@@ -271,10 +288,20 @@
     "finalWordBuilder": "Finale Woorden Bouw"
   },
     "letterBuild": {
-    "dragLettersHere": "Sleep de letters hierheen"
+    "dragLettersHere": "Sleep de letters hierheen",
+        "tryLater": "Probeer later opnieuw",
+        "backToMenu": "Terug naar menu",
+    "noHearts": "Geen hartjes meer!"
   },
     "finalWordBuilder": {
-    "word": "Woord"
+      "warningTitle": "Let op!",
+  "warningDesc": "Als je al je hartjes verliest in dit spel, worden ALLE spellen vergrendeld — niet alleen dit spel. Speel voorzichtig!",
+  "warningLockAll": "0 hartjes = alle spellen vergrendeld",
+  "warningUnderstood": "Begrepen!",
+  "allLockedTitle": "Alle spellen vergrendeld!",
+  "allLockedDesc": "Je hebt al je hartjes verloren in het Finale Woorden Bouw spel.",
+  "word": "Woord",
+  "cancel": "Annuleren"
   },
 "support": {
   "title": "Ondersteuning",
@@ -297,7 +324,13 @@
     "successMessage": "Bedankt dat je contact met ons hebt opgenomen. We nemen snel contact met je op.",
         "errorTitle": "Fout",
     "errorMessage": "Er is een probleem opgetreden bij het verzenden van je bericht. Probeer het later opnieuw."
+},
+"hearts": {
+  "noHearts": "Geen hartjes meer!",
+  "tryLater": "Probeer later opnieuw",
+  "backToMenu": "Terug naar menu"
 }
+
 
 
 }

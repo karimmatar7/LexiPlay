@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -9,42 +9,37 @@ import LevelCompleteScreen from "../components/LevelCompleteScreen"
 import VictoryScreen from "../components/VictoryScreen"
 import ResetConfirmationModal from "../components/ResetConfirmationModal"
 import UnlockModal from "../components/UnlockModal"
+import NoHeartsScreen from "../components/NoHeartsScreen"
+import { HeartsDisplay } from "../components/HeartsDisplay"
+import { useHearts } from "../hooks/useHearts"
 import wordData from "../data/words.json"
-import { updateProgress, getUser, addReward } from "../supabaseFunctions.js"
+import { updateProgress, getUser, addReward, addKeys } from "../supabaseFunctions.js"
 import { calculateStars } from "../utils/progressStars"
-import { useLetterDrag } from "../hooks/useLetterDrag"
 import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
 
+const MAX_HEARTS = 5
+
+// Drag state outside React — never causes re-renders, never stale
+const dragState = { item: null, fromArea: null, fromIndex: null }
 
 function GameArea({
   currentWord,
   selectedLetters,
-  currentLetters,
-  handleLetterClick,
-  handleUndo,
-  dragHandlers,
+  availableLetters,
+  onPickLetter,
+  onUndoLetter,
+  onDragStartAvailable,
+  onDragStartSelected,
+  onDropOnSelected,
+  onDropOnAvailable,
   soundOn,
   paused,
-  t
+  t,
+  fontClass,
+  sizeClass,
 }) {
   return (
-    <div className="flex flex-col items-center gap-8">
-      <style>{`
-        .dragging-element {
-          position: fixed;
-          pointer-events: none;
-          z-index: 1000;
-          opacity: 0.8;
-          transform: scale(1.1) rotate(5deg);
-          transition: none;
-        }
-        .drag-placeholder {
-          background: linear-gradient(135deg, #c7d2fe 0%, #ddd6fe 100%);
-          border: 3px dashed #8b5cf6;
-          opacity: 0.5;
-        }
-      `}</style>
-      
+    <div className={`flex flex-col items-center gap-8 ${fontClass} ${sizeClass}`}>
       <AudioButton
         word={currentWord.displayWord}
         soundOn={soundOn}
@@ -53,61 +48,47 @@ function GameArea({
         className="px-8 py-4 text-xl md:text-2xl"
       />
 
+      {/* Drop zone — selected letters */}
       <div
-        data-drop-zone="selected"
-        className="min-h-[100px] w-full flex items-center justify-center gap-3 bg-gradient-to-br from-indigo-50 to-blue-50 border-3 border-indigo-400 border-dashed rounded-2xl px-6 py-4 shadow-sm transition-colors duration-200"
-        onDragOver={dragHandlers.handleDragOver}
-        onDrop={dragHandlers.handleDropOnSelected}
-        style={{ touchAction: 'none' }}
+        className="min-h-[100px] w-full flex items-center justify-center gap-3 bg-gradient-to-br from-indigo-50 to-blue-50 border-b-4 border-indigo-400 border-dashed rounded-2xl px-6 py-4 shadow-sm transition-colors duration-200"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={onDropOnSelected}
       >
         {selectedLetters.length === 0 ? (
           <p className="text-gray-400 italic font-medium text-lg">
             {t("letterBuild.dragLettersHere")}
           </p>
         ) : (
-          selectedLetters.map((letter, i) => (
+          selectedLetters.map((item, i) => (
             <div
-              key={`${letter}-${i}`}
-              data-selected-letter
-              data-index={i}
+              key={item.id}
               draggable
-              onDragStart={(e) => dragHandlers.handleDragStart(e, letter, i, "selected")}
-              onTouchStart={(e) => dragHandlers.handleTouchStart(e, letter, i, "selected")}
-              onTouchMove={dragHandlers.handleTouchMove}
-              onTouchEnd={dragHandlers.handleTouchEnd}
-              onClick={() => handleUndo(letter, i)}
-              className="cursor-pointer bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-3xl md:text-4xl rounded-xl px-6 py-4 shadow-md border-b-4 border-purple-700 hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-110 active:scale-95"
-              style={{ touchAction: 'none' }}
+              onDragStart={(e) => onDragStartSelected(e, item, i)}
+              onClick={() => onUndoLetter(i)}
+              className="cursor-pointer bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-3xl md:text-4xl rounded-2xl px-6 py-4 shadow-md border-b-4 border-purple-700 hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-110 active:scale-95 select-none"
             >
-              {letter}
+              {item.letter}
             </div>
           ))
         )}
       </div>
 
+      {/* Available letters */}
       <div
-        data-drop-zone="available"
-        className="flex flex-wrap justify-center gap-3 md:gap-4 mt-6 p-6 bg-white rounded-2xl shadow-md border-3 border-gray-200 transition-colors duration-200"
-        onDragOver={dragHandlers.handleDragOver}
-        onDrop={dragHandlers.handleDropOnAvailable}
-        style={{ touchAction: 'none' }}
+        className="flex flex-wrap justify-center gap-3 md:gap-4 mt-6 p-6 bg-white rounded-2xl shadow-md border-2 border-gray-200 transition-colors duration-200"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={onDropOnAvailable}
       >
-        {currentLetters.map((letter, i) =>
-          letter ? (
+        {availableLetters.map((item, i) =>
+          item ? (
             <div
-              key={`${letter}-${i}`}
-              data-available-letter
-              data-index={i}
+              key={item.id}
               draggable
-              onDragStart={(e) => dragHandlers.handleDragStart(e, letter, i, "available")}
-              onTouchStart={(e) => dragHandlers.handleTouchStart(e, letter, i, "available")}
-              onTouchMove={dragHandlers.handleTouchMove}
-              onTouchEnd={dragHandlers.handleTouchEnd}
-              onClick={() => handleLetterClick(letter, i)}
-              className="cursor-pointer bg-gradient-to-br from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-black text-3xl md:text-4xl rounded-xl px-6 py-4 shadow-md border-b-4 border-pink-600 transition-all duration-200 transform hover:scale-110 active:scale-95"
-              style={{ touchAction: 'none' }}
+              onDragStart={(e) => onDragStartAvailable(e, item, i)}
+              onClick={() => onPickLetter(i)}
+              className="cursor-pointer bg-gradient-to-br from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-black text-3xl md:text-4xl rounded-2xl px-6 py-4 shadow-md border-b-4 border-pink-600 transition-all duration-200 transform hover:scale-110 active:scale-95 select-none"
             >
-              {letter}
+              {item.letter}
             </div>
           ) : (
             <div key={`empty-${i}`} className="w-16 h-16" />
@@ -126,62 +107,101 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const navigate = useNavigate()
 
   const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans"
-  const sizeMap = { small: "text-base md:text-lg", medium: "text-lg md:text-xl", large: "text-xl md:text-2xl" }
-  const langKey = i18n.language === "en" ? "en" : i18n.language === "fr" ? "fr" : "correct";
+  const sizeMap = {
+    small: "text-base md:text-lg",
+    medium: "text-lg md:text-xl",
+    large: "text-xl md:text-2xl",
+  }
+  const sizeClass = sizeMap[fontSize || "medium"]
 
   const [words, setWords] = useState([])
   const [letterBuildProgress, setLetterBuildProgress] = useState({
     level: 0,
     levelIndex: 0,
-    score: 0,
-    mazeUnlocked: false,
-    rewardsEarned: [false, false, false]
+    rewardsEarned: [false, false, false],
   })
+  const [heartsInit, setHeartsInit] = useState(null)
+  const [cooldownInit, setCooldownInit] = useState(null)
   const [feedback, setFeedback] = useState("")
   const [paused, setPaused] = useState(false)
-  const [currentLetters, setCurrentLetters] = useState([])
-  const [selectedLetters, setSelectedLetters] = useState([])
+  const [shuffleKey, setShuffleKey] = useState(0)
+
+  // Single source of truth: one flat array of all letter slots
+  // Each slot: { letter, id, zone: "available" | "selected" }
+  const [letterSlots, setLetterSlots] = useState([])
+
   const [loading, setLoading] = useState(true)
   const [showResetModal, setShowResetModal] = useState(false)
   const [showUnlockModal, setShowUnlockModal] = useState(false)
   const [starEarned, setStarEarned] = useState(false)
 
-  const { level, levelIndex, score, mazeUnlocked, rewardsEarned } = letterBuildProgress
+  const currentWordRef = useRef(null)
+  const checkingRef = useRef(false)
+  const { level, levelIndex, rewardsEarned } = letterBuildProgress
 
-  const dragHook = useLetterDrag()
+  const getLocalizedWord = useCallback((wordObj) => {
+    if (!wordObj) return ""
+    if (i18n.language === "en") return wordObj.en
+    if (i18n.language === "fr") return wordObj.fr
+    return wordObj.correct
+  }, [i18n.language])
 
-  // Helper to get localized word
-const getLocalizedWord = (wordObj) => {
-  if (!wordObj) return "";
-  if (i18n.language === "en") return wordObj.en;
-  if (i18n.language === "fr") return wordObj.fr; // <-- fix here
-  return wordObj.correct; // Dutch
-};
-
-  // Get current word with display word
   const currentWordData = (words[level] || [])[levelIndex]
-  const currentWord = currentWordData ? {
-    ...currentWordData,
-    displayWord: getLocalizedWord(currentWordData)
-  } : null
+  const currentWord = useMemo(() =>
+    currentWordData
+      ? { ...currentWordData, displayWord: getLocalizedWord(currentWordData) }
+      : null,
+    [currentWordData, getLocalizedWord]
+  )
+  currentWordRef.current = currentWord
 
-  const dragHandlers = {
-    handleDragStart: dragHook.handleDragStart,
-    handleDragOver: dragHook.handleDragOver,
-    handleDropOnSelected: (e) => dragHook.handleDropOnSelected(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord?.displayWord.length || 0),
-    handleDropOnAvailable: (e) => dragHook.handleDropOnAvailable(e, setSelectedLetters, setCurrentLetters),
-    handleTouchStart: dragHook.handleTouchStart,
-    handleTouchMove: dragHook.handleTouchMove,
-    handleTouchEnd: (e) => {
-      const onClickCallback = (letter, index, area) => {
-        if (area === 'available') handleLetterClick(letter, index)
-        else if (area === 'selected') handleUndo(letter, index)
-      }
-      dragHook.handleTouchEnd(e, selectedLetters, setSelectedLetters, setCurrentLetters, currentWord?.displayWord.length || 0, onClickCallback)
-    }
-  }
+  // Derive the two zones from the single array — no state sync needed
+  const availableLetters = useMemo(
+    () => letterSlots.filter((s) => s.zone === "available"),
+    [letterSlots]
+  )
+const selectedLetters = useMemo(
+  () =>
+    letterSlots
+      .filter((s) => s.zone === "selected")
+      .sort((a, b) => a.order - b.order),
+  [letterSlots]
+)
 
-  // --- Load words + progress ---
+
+  const {
+    hearts,
+    cooldownUntil,
+    heartAnimating,
+    loseHeart,
+    maxHearts,
+    heartsReady,
+  } = useHearts({
+    user,
+    gameKey: "letterBuild",
+    initialHearts: heartsInit,
+    initialCooldown: cooldownInit,
+  })
+
+  const keys = user?.progress?.currency?.keys || 0
+
+  // ── Initialize slots when word or shuffleKey changes ──────────────────────
+  useEffect(() => {
+    if (!currentWord) return
+    const slots = currentWord.displayWord
+  .split("")
+  .map((letter, i) => ({
+    letter,
+    id: `${letter}-${i}-${shuffleKey}`,
+    zone: "available",
+    order: null   // 👈 ADD THIS
+  }))
+  .sort(() => Math.random() - 0.5)
+
+    setLetterSlots(slots)
+    checkingRef.current = false
+  }, [currentWord?.displayWord, shuffleKey])
+
   useEffect(() => {
     async function load() {
       const userData = await getUser(user.id)
@@ -197,93 +217,173 @@ const getLocalizedWord = (wordObj) => {
       setLetterBuildProgress({
         level: saved?.level || 0,
         levelIndex: saved?.levelIndex || 0,
-        score: saved?.score || 0,
-        mazeUnlocked: saved?.mazeUnlocked || false,
-        rewardsEarned: saved?.rewardsEarned || [false, false, false]
+        rewardsEarned: saved?.rewardsEarned || [false, false, false],
       })
 
-      const restoredWordObj = saved
-        ? levels[saved.level || 0][saved.levelIndex || 0]
-        : levels[0][0]
-
-const restoredWord = restoredWordObj[langKey];
-setupLetters(restoredWord);
-
-      setupLetters(restoredWord)
+      setHeartsInit(saved?.hearts ?? MAX_HEARTS)
+      setCooldownInit(saved?.cooldownUntil ?? null)
       setLoading(false)
     }
-
     load()
   }, [user, wordsPerLevel, i18n.language])
 
   const saveToSupabase = async (progressData = letterBuildProgress) => {
     if (!user) return
     const updated = await updateProgress(user.id, { letterBuild: progressData })
-    if (updated) setUser(prev => ({ ...prev, progress: updated.progress }))
+    if (updated) setUser((prev) => ({ ...prev, progress: updated.progress }))
   }
 
-  const setupLetters = (word) => {
-    setCurrentLetters(word.split("").sort(() => 0.5 - Math.random()))
-    setSelectedLetters([])
-  }
+  // ── Move a slot between zones by its id ───────────────────────────────────
+const moveSlot = useCallback((id, toZone) => {
+  setLetterSlots((prev) =>
+    prev.map((s) =>
+      s.id === id
+        ? { ...s, zone: toZone, order: toZone === "selected" ? s.order : null }
+        : s
+    )
+  );
+}, []);
 
-  const handleLetterClick = (letter, index) => {
-    if (selectedLetters.length < currentWord.displayWord.length) {
-      setSelectedLetters([...selectedLetters, letter])
-      setCurrentLetters((c) => {
-        const arr = [...c]
-        arr[index] = null
-        return arr
-      })
+
+  // ── Click handlers ────────────────────────────────────────────────────────
+const handlePickLetter = useCallback((id) => {
+  const word = currentWordRef.current;
+  if (!word) return;
+
+  setLetterSlots((prev) => {
+    const selectedCount = prev.filter((s) => s.zone === "selected").length;
+    if (selectedCount >= word.displayWord.length) return prev;
+
+    const idx = prev.findIndex((s) => s.id === id);
+    if (idx === -1) return prev;
+
+    const next = [...prev];
+    next[idx] = {
+      ...next[idx],
+      zone: "selected",
+      order: selectedCount  // 👈 assign order
+    };
+
+    return next;
+  });
+}, []);
+
+const handleUndoLetter = useCallback((id) => {
+  setLetterSlots((prev) =>
+    prev.map((s) =>
+      s.id === id ? { ...s, zone: "available", order: null } : s
+    )
+  );
+}, []);
+
+
+  // ── Drag handlers ─────────────────────────────────────────────────────────
+  const handleDragStartAvailable = useCallback((e, item) => {
+    dragState.item = item
+    dragState.fromArea = "available"
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", item.letter)
+  }, [])
+
+  const handleDragStartSelected = useCallback((e, item) => {
+    dragState.item = item
+    dragState.fromArea = "selected"
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", item.letter)
+  }, [])
+
+  const handleDropOnSelected = useCallback((e) => {
+    e.preventDefault()
+    const { item, fromArea } = dragState
+    if (!item) return
+    if (fromArea === "available") {
+      const word = currentWordRef.current
+      if (!word) return
+ setLetterSlots((prev) => {
+  const selectedCount = prev.filter((s) => s.zone === "selected").length;
+  if (selectedCount >= word.displayWord.length) return prev;
+
+  const idx = prev.findIndex((s) => s.id === item.id);
+  if (idx === -1) return prev;
+
+  const next = [...prev];
+  next[idx] = {
+    ...next[idx],
+    zone: "selected",
+    order: selectedCount
+  };
+
+  return next;
+});
+
     }
-  }
+    // selected → selected reorder: no-op for now (order is insertion order)
+    dragState.item = null
+  }, [])
 
-  const handleUndo = (letter, index) => {
-    setSelectedLetters((s) => s.filter((_, i) => i !== index))
-    setCurrentLetters((c) => {
-      const arr = [...c]
-      const empty = arr.indexOf(null)
-      arr[empty === -1 ? arr.length : empty] = letter
-      return arr
-    })
-  }
+  const handleDropOnAvailable = useCallback((e) => {
+    e.preventDefault()
+    const { item, fromArea } = dragState
+    if (!item) return
+    if (fromArea === "selected") {
+      moveSlot(item.id, "available");
 
+    }
+    dragState.item = null
+  }, [moveSlot])
+
+  // ── Answer check ──────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!currentWord) return
-    if (selectedLetters.length === currentWord.displayWord.length) {
-      setTimeout(async () => {
-        if (selectedLetters.join("") === currentWord.displayWord) {
-          setFeedback("correct")
-          setLetterBuildProgress(prev => {
-            const updated = { ...prev, score: prev.score + 1 }
-            if (updated.score === 10 && !prev.mazeUnlocked) {
-              updated.mazeUnlocked = true
-              setShowUnlockModal(true)
-              setUser(prevUser => ({
-                ...prevUser,
-                progress: { ...prevUser.progress, letterBuild: updated }
-              }))
-            }
-            setTimeout(() => nextWordOrLevel(updated), 1500)
-            return updated
-          })
-        } else {
-          setFeedback("incorrect")
-          setTimeout(() => {
-            setFeedback("")
-            setupLetters(currentWord.displayWord)
-          }, 1500)
-        }
-      }, 300)
-    }
-  }, [selectedLetters, currentWord?.displayWord])
+    const word = currentWordRef.current
+    if (!word) return
+    if (selectedLetters.length !== word.displayWord.length) return
+    if (checkingRef.current) return
+    checkingRef.current = true
+
+    setTimeout(async () => {
+      const latestWord = currentWordRef.current
+      if (!latestWord) return
+
+      const attempt = selectedLetters.map((s) => s.letter).join("")
+
+      if (attempt === latestWord.displayWord) {
+        setFeedback("correct")
+
+        await addKeys(user.id, 1)
+        setUser((prev) => ({
+          ...prev,
+          progress: {
+            ...prev.progress,
+            currency: {
+              ...prev.progress?.currency,
+              keys: (prev.progress?.currency?.keys || 0) + 1,
+            },
+          },
+        }))
+
+        setLetterBuildProgress((prev) => {
+          const updated = { ...prev }
+          setTimeout(() => nextWordOrLevel(updated), 1500)
+          return updated
+        })
+      } else {
+        setFeedback("incorrect")
+        await loseHeart()
+        setTimeout(() => {
+          setFeedback("")
+          setShuffleKey((k) => k + 1)
+        }, 1500)
+      }
+    }, 300)
+  }, [selectedLetters])
 
   const nextWordOrLevel = async (progress = letterBuildProgress) => {
     const currentLevelWords = words[progress.level] || []
     let newProgress = { ...progress }
 
-    if (progress.levelIndex + 1 < currentLevelWords.length) newProgress.levelIndex += 1
-    else if (progress.level + 1 < words.length) {
+    if (progress.levelIndex + 1 < currentLevelWords.length) {
+      newProgress.levelIndex += 1
+    } else if (progress.level + 1 < words.length) {
       newProgress.level += 1
       newProgress.levelIndex = 0
     } else {
@@ -299,10 +399,6 @@ setupLetters(restoredWord);
 
     await checkAndAwardStars(newProgress, progressPercent)
     setLetterBuildProgress(newProgress)
-    
-    const nextWordObj = words[newProgress.level][newProgress.levelIndex]
-    const nextWord = nextWordObj[langKey];
-setupLetters(nextWord);
     setFeedback("")
   }
 
@@ -324,58 +420,57 @@ setupLetters(nextWord);
     if (rewardsAdded > 0) {
       setStarEarned(true)
       await addReward(user.id, rewardsAdded)
-      setUser(prev => ({
+      setUser((prev) => ({
         ...prev,
         rewards: (prev.rewards || 0) + rewardsAdded,
-        progress: { ...prev.progress, letterBuild: newProgress }
+        progress: { ...prev.progress, letterBuild: newProgress },
       }))
     }
   }
 
   const goToNextLevel = async () => {
     setStarEarned(false)
-    const nextWordObj = words[letterBuildProgress.level][letterBuildProgress.levelIndex]
-    const nextWord = i18n.language === "en" ? nextWordObj.en : nextWordObj.correct
-    setupLetters(nextWord)
     setFeedback("")
     await saveToSupabase()
   }
 
   const togglePause = async () => {
-    setPaused(prev => !prev)
+    setPaused((prev) => !prev)
     if (!paused) await saveToSupabase()
   }
 
   const resetScore = async () => {
-    const newProgress = {
-      score: 0,
-      level: 0,
-      levelIndex: 0,
-      mazeUnlocked,
-      rewardsEarned: [false, false, false]
-    }
+    const newProgress = { level: 0, levelIndex: 0, rewardsEarned: [false, false, false] }
     setLetterBuildProgress(newProgress)
+    setShuffleKey((k) => k + 1)
     setFeedback("")
     setPaused(false)
     setShowResetModal(false)
     setStarEarned(false)
-    
-    if (words.length > 0 && words[0].length > 0) {
-      const firstWordObj = words[0][0]
-      const firstWord = i18n.language === "en" ? firstWordObj.en : firstWordObj.correct
-      setupLetters(firstWord)
-    }
     await saveToSupabase(newProgress)
   }
 
-  if (loading) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
-  if (!currentWord) return null
+  // ── Guards ────────────────────────────────────────────────────────────────
+  if (loading || !heartsReady)
+    return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
+
+  if (!currentWord)
+    return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
+
+  if (hearts <= 0)
+    return (
+      <NoHeartsScreen
+        cooldownUntil={cooldownUntil}
+        fontClass={fontClass}
+        sizeClass={sizeClass}
+      />
+    )
 
   if (showUnlockModal)
     return (
       <UnlockModal
         fontClass={fontClass}
-        sizeClass={sizeMap[fontSize || "medium"]}
+        sizeClass={sizeClass}
         gameName={t("gameCards.wordMaze.title")}
         gameEmoji="🧩"
         gameRoute="/wordmaze"
@@ -400,7 +495,6 @@ setupLetters(nextWord);
     return (
       <VictoryScreen
         onRestart={resetScore}
-        score={score}
         words={words}
         fontClass={fontClass}
         sizeMap={sizeMap}
@@ -415,29 +509,44 @@ setupLetters(nextWord);
     <>
       <GameContainer
         fontClass={fontClass}
-        sizeClass={sizeMap[fontSize]}
-        bgColor="bg-cyan-50"
-        bgVariant="cyan"
+        sizeClass={sizeClass}
+        bgColor="bg-sky-50"
+        bgVariant="default"
         score={currentPosition - 1}
         total={totalWords}
+        keys={keys}
         paused={paused}
         rewardsEarned={rewardsEarned}
         progress={displayProgress}
         feedback={feedback}
         onPauseToggle={togglePause}
-        onHome={async () => { await saveToSupabase(); navigate("/menu", { replace: true }) }}
+        onHome={async () => {
+          await saveToSupabase()
+          navigate("/menu", { replace: true })
+        }}
         onReset={() => setShowResetModal(true)}
       >
+        <HeartsDisplay
+          hearts={hearts}
+          heartAnimating={heartAnimating}
+          maxHearts={maxHearts}
+        />
+
         <GameArea
           currentWord={currentWord}
           selectedLetters={selectedLetters}
-          currentLetters={currentLetters}
-          handleLetterClick={handleLetterClick}
-          handleUndo={handleUndo}
-          dragHandlers={dragHandlers}
+          availableLetters={availableLetters}
+          onPickLetter={(i) => handlePickLetter(availableLetters[i]?.id)}
+          onUndoLetter={(i) => handleUndoLetter(selectedLetters[i]?.id)}
+          onDragStartAvailable={handleDragStartAvailable}
+          onDragStartSelected={handleDragStartSelected}
+          onDropOnSelected={handleDropOnSelected}
+          onDropOnAvailable={handleDropOnAvailable}
           soundOn={soundOn}
           paused={paused}
           t={t}
+          fontClass={fontClass}
+          sizeClass={sizeClass}
         />
       </GameContainer>
 

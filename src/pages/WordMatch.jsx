@@ -1,362 +1,275 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useSettings } from "../context/SettingsContext";
-import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import GameContainer from "../components/GameContainer";
-import AudioButton from "../components/AudioButton";
-import LoadingScreen from "../components/LoadingScreen";
-import LevelCompleteScreen from "../components/LevelCompleteScreen";
-import VictoryScreen from "../components/VictoryScreen";
-import UnlockModal from "../components/UnlockModal";
-import ResetConfirmationModal from "../components/ResetConfirmationModal";
-import wordData from "../data/words.json";
-import { updateProgress, addReward } from "../supabaseFunctions.js";
-import { supabase } from "../supaBaseClient";
-import { calculateStars } from "../utils/progressStars";
-import usePlaytimeTracker from "../hooks/usePlaytimeTracker";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useSettings } from "../context/SettingsContext"
+import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
+import GameContainer from "../components/GameContainer"
+import AudioButton from "../components/AudioButton"
+import LoadingScreen from "../components/LoadingScreen"
+import VictoryScreen from "../components/VictoryScreen"
+import ResetConfirmationModal from "../components/ResetConfirmationModal"
+import NoHeartsScreen from "../components/NoHeartsScreen"
+import { HeartsDisplay } from "../components/HeartsDisplay"
+import { useHearts } from "../hooks/useHearts"
+import wordData from "../data/words.json"
+import { supabase } from "../supaBaseClient"
+import { addKeys } from "../supabaseFunctions"
+import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
 
+const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5)
+const MAX_HEARTS = 5
 
-// --- Helpers ---
-const shuffleArray = (arr) => [...arr].sort(() => Math.random() - 0.5);
+function scrambleWord(word) {
+  if (word.length <= 2) return word.split("").reverse().join("")
+  const letters = word.split("")
+  let scrambled
+  let attempts = 0
+  do {
+    scrambled = shuffleArray(letters).join("")
+    attempts++
+  } while (scrambled === word && attempts < 20)
+  return scrambled
+}
 
-
-const generateOptions = (correctWord, allWords, currentLanguage) => {
-  const targetLength = correctWord.length;
-
-  const wordsInLanguage = allWords.map(w =>
-    currentLanguage === "en" ? w.en :
-    currentLanguage === "fr" ? w.fr :
-    w.correct
-  );
-
-  const distractors = shuffleArray(
-    wordsInLanguage.filter(w => w !== correctWord && Math.abs(w.length - targetLength) <= 1)
-  ).slice(0, 3);
-
-  while (distractors.length < 3) {
-    const randomIndex = Math.floor(Math.random() * allWords.length);
-    const random = currentLanguage === "en" ? allWords[randomIndex].en :
-                   currentLanguage === "fr" ? allWords[randomIndex].fr :
-                   allWords[randomIndex].correct;
-
-    if (random !== correctWord && !distractors.includes(random)) distractors.push(random);
+function generateScrambles(word) {
+  const scrambles = new Set()
+  let attempts = 0
+  while (scrambles.size < 3 && attempts < 50) {
+    const s = scrambleWord(word)
+    if (s !== word) scrambles.add(s)
+    attempts++
   }
+  while (scrambles.size < 3) {
+    const arr = word.split("")
+    const i = Math.floor(Math.random() * arr.length)
+    const j = (i + 1) % arr.length
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    scrambles.add(arr.join(""))
+  }
+  return [...scrambles]
+}
 
-  return shuffleArray([correctWord, ...distractors]);
-};
+export default function WordMatch({ user, setUser }) {
+  usePlaytimeTracker(user)
 
+  const { fontType, fontSize, soundOn } = useSettings()
+  const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
 
+  const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans"
+  const sizeMap = {
+    small: "text-base md:text-lg",
+    medium: "text-lg md:text-xl",
+    large: "text-xl md:text-2xl",
+  }
+  const sizeClass = sizeMap[fontSize || "medium"]
 
-// --- Word Options Component ---
-const WordOptions = ({ currentWord, answered, soundOn, paused, handleAnswer, t }) => {
-  if (!currentWord) return null;
-  const options = currentWord.options;
+  const [words] = useState(() => shuffleArray(wordData))
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [heartsInit, setHeartsInit] = useState(null)
+  const [cooldownInit, setCooldownInit] = useState(null)
+  const [feedback, setFeedback] = useState("")
+  const [answered, setAnswered] = useState(false)
+  const [paused, setPaused] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
+  const [victory, setVictory] = useState(false)
 
-  return (
-    <>
-      <div className="mb-8 md:mb-12">
-        <AudioButton
-          word={currentWord.displayWord}
-          soundOn={soundOn}
-          paused={paused}
-          label={t("wordMatch.playWord")}
-          className="w-full text-2xl md:text-3xl py-6 md:py-8"
-        />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-        {options.map((opt, i) => (
-          <button
-            key={i}
-            disabled={answered}
-            onClick={() => handleAnswer(opt)}
-            className={`py-6 md:py-8 px-4 rounded-2xl font-bold text-xl md:text-2xl transition-all duration-200 ${
-              answered
-                ? "opacity-50 cursor-not-allowed bg-gray-200 border-3 border-gray-400"
-                : "bg-gradient-to-br from-purple-50 to-pink-50 border-3 border-purple-400 hover:border-purple-500 hover:bg-gradient-to-br hover:from-purple-100 hover:to-pink-100 shadow-md hover:shadow-lg transform hover:scale-105"
-            }`}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-    </>
-  );
-};
+  const processingRef = useRef(false)
+  const keys = user?.progress?.currency?.keys || 0
 
+  const getLocalizedWord = useCallback((wordObj) => {
+    if (!wordObj) return ""
+    if (wordObj[i18n.language]) return wordObj[i18n.language]
+    return wordObj.correct || wordObj.en
+  }, [i18n.language])
 
-// --- Main Component ---
-// --- Main Component ---
-export default function WordMatch({ user, setUser, wordsPerLevel = 7 }) {
-  usePlaytimeTracker(user);
-  
-  const { fontType, fontSize, soundOn } = useSettings();
-  const { t, i18n } = useTranslation();
-  const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
-  const sizeMap = { small: "text-base md:text-lg", medium: "text-lg md:text-xl", large: "text-xl md:text-2xl" };
-  const navigate = useNavigate();
+  const currentWordObj = words[currentIndex]
 
-  const [levels, setLevels] = useState([]);
-  const [progress, setProgress] = useState({
-    level: 0,
-    levelIndex: 0,
-    score: 0,
-    letterBuildUnlocked: false,
-    rewardsEarned: [false, false, false]
-  });
-  const [feedback, setFeedback] = useState("");
-  const [answered, setAnswered] = useState(false);
-  const [paused, setPaused] = useState(false);
-  const [showUnlockModal, setShowUnlockModal] = useState(false);
-  const [showResetModal, setShowResetModal] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [starEarned, setStarEarned] = useState(false);
+  const currentWord = useMemo(() => {
+    if (!currentWordObj) return null
+    const correct = getLocalizedWord(currentWordObj)
+    if (!correct) return null
+    const scrambles = generateScrambles(correct)
+    const options = shuffleArray([correct, ...scrambles])
+    return { displayWord: correct, options }
+  }, [currentIndex, currentWordObj, getLocalizedWord])
 
-  const { level, levelIndex, rewardsEarned } = progress;
-
-  // Helper to get localized word
-const getLocalizedWord = (wordObj) => {
-  if (!wordObj) return "";
-  if (i18n.language === "en") return wordObj.en;
-  if (i18n.language === "fr") return wordObj.fr; // <-- fix here
-  return wordObj.correct; // Dutch
-};
-
-
-  // Get current word with display word and options
-  const currentWordData = (levels[level] || [])[levelIndex];
-  const currentWord = currentWordData ? {
-    ...currentWordData,
-    displayWord: getLocalizedWord(currentWordData),
-    options: generateOptions(getLocalizedWord(currentWordData), wordData, i18n.language)
-  } : null;
-
-  // --- Load progress ---
   useEffect(() => {
-    const loadProgress = async () => {
-      if (!user) return;
-
-      const { data, error } = await supabase
+    const load = async () => {
+      if (!user) return
+      const { data } = await supabase
         .from("users")
         .select("*")
         .eq("id", user.id)
-        .single();
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      const userProgress = data.progress?.wordMatch || {};
-      const levelsArr = Array.from(
-        { length: Math.ceil(wordData.length / wordsPerLevel) },
-        (_, i) => wordData.slice(i * wordsPerLevel, i * wordsPerLevel + wordsPerLevel)
-      );
-
-      setLevels(levelsArr);
-
-      setProgress({
-        level: userProgress.level || 0,
-        levelIndex: userProgress.levelIndex || 0,
-        score: userProgress.score || 0,
-        letterBuildUnlocked: userProgress.letterBuildUnlocked || false,
-        rewardsEarned: userProgress.rewardsEarned || [false, false, false]
-      });
-
-      setLoaded(true);
-    };
-
-    loadProgress();
-  }, [user, wordsPerLevel, i18n.language]);
-
-  // --- Save progress ---
-  const saveProgress = async (newProgress = progress) => {
-    if (!user) return;
-    const updated = await updateProgress(user.id, { wordMatch: newProgress });
-    if (updated) {
-      setUser(prev => ({ ...prev, progress: updated.progress }));
+        .single()
+      const progress = data.progress?.wordMatch || {}
+      setHeartsInit(progress.hearts ?? MAX_HEARTS)
+      setCooldownInit(progress.cooldownUntil ?? null)
+      setLoaded(true)
     }
-  };
+    load()
+  }, [user])
 
-  // --- Reset progress ---
-  const resetScore = async () => {
-    const newProgress = {
-      ...progress,
-      score: 0,
-      level: 0,
-      levelIndex: 0,
-      rewardsEarned: [false, false, false]
-    };
-    setProgress(newProgress);
-    setFeedback("");
-    setAnswered(false);
-    setPaused(false);
-    setShowResetModal(false);
-    setStarEarned(false);
-    await saveProgress(newProgress);
-  };
+  const {
+    hearts,
+    cooldownUntil,
+    heartAnimating,
+    loseHeart,
+    maxHearts,
+    heartsReady,
+  } = useHearts({
+    user,
+    gameKey: "wordMatch",
+    initialHearts: heartsInit,
+    initialCooldown: cooldownInit,
+  })
 
-  const togglePause = async () => {
-    setPaused(prev => !prev);
-    if (!paused) await saveProgress();
-  };
+  const handleAnswer = useCallback(async (opt) => {
+    if (processingRef.current || answered || paused || !currentWord) return
+    if (hearts <= 0) return
 
-  const goHome = async () => {
-    await saveProgress();
-    navigate("/menu");
-  };
-
-  const handleAnswer = (opt) => {
-    if (answered || paused || !currentWord) return;
-    setAnswered(true);
+    processingRef.current = true
+    setAnswered(true)
 
     if (opt === currentWord.displayWord) {
-      setFeedback("correct");
-      setProgress(prev => {
-        const updated = { ...prev, score: prev.score + 1 };
-        setTimeout(() => nextWordOrLevel(updated), 1500);
-        return updated;
-      });
-    } else {
-      setFeedback("incorrect");
-      setTimeout(() => { setFeedback(""); setAnswered(false); }, 1500);
-    }
-  };
+      setFeedback("correct")
 
-  const nextWordOrLevel = async (newProgress = progress) => {
-    const currentLevelWords = levels[newProgress.level] || [];
-    let updatedProgress = { ...newProgress };
-
-    if (updatedProgress.levelIndex + 1 < currentLevelWords.length) {
-      updatedProgress.levelIndex += 1;
-    } else if (updatedProgress.level + 1 < levels.length) {
-      updatedProgress.level += 1;
-      updatedProgress.levelIndex = 0;
-      if (updatedProgress.level === 1 && !updatedProgress.letterBuildUnlocked) {
-        updatedProgress.letterBuildUnlocked = true;
-        setShowUnlockModal(true);
-
-          setUser(prev => ({
-    ...prev,
-    progress: { ...prev.progress, wordMatch: updatedProgress }
-  }));
-
-    await saveProgress(updatedProgress);
-
-      }
-    } else {
-      updatedProgress.rewardsEarned = [true, true, true];
-      setProgress(updatedProgress);
-      setFeedback("victory");
-      await updateProgress(user.id, { wordMatch: updatedProgress });
-      return;
-    }
-
-    const totalWords = levels.flat().length;
-    const currentPosition = updatedProgress.level * wordsPerLevel + updatedProgress.levelIndex + 1;
-    const progressPercent = Math.min((currentPosition / totalWords) * 100, 100);
-    await checkAndAwardStars(updatedProgress, progressPercent);
-
-    setProgress(updatedProgress);
-    setFeedback(updatedProgress.rewardsEarned.some((r, i) => !progress.rewardsEarned[i] && r) ? "star" : "");
-    setAnswered(false);
-  };
-
-  const checkAndAwardStars = async (updatedProgress, progressPercent) => {
-    const starsEarned = calculateStars(progressPercent);
-    const rewards = updatedProgress.rewardsEarned || [false, false, false];
-    let rewardsAdded = 0;
-
-    for (let i = 0; i < starsEarned; i++) {
-      if (!rewards[i]) {
-        rewards[i] = true;
-        rewardsAdded += 1;
-      }
-    }
-
-    updatedProgress.rewardsEarned = rewards;
-
-    if (rewardsAdded > 0) {
-      setStarEarned(true);
-      await addReward(user.id, rewardsAdded);
-      setUser(prev => ({
+      await addKeys(user.id, 1)
+      setUser((prev) => ({
         ...prev,
-        rewards: (prev.rewards || 0) + rewardsAdded,
-        progress: { ...prev.progress, wordMatch: updatedProgress }
-      }));
+        progress: {
+          ...prev.progress,
+          currency: {
+            ...prev.progress?.currency,
+            keys: (prev.progress?.currency?.keys || 0) + 1,
+          },
+        },
+      }))
+
+      setTimeout(() => {
+        setCurrentIndex((prev) => {
+          const next = prev + 1
+          if (next >= words.length) {
+            setVictory(true)
+            return prev
+          }
+          return next
+        })
+        setAnswered(false)
+        setFeedback("")
+        processingRef.current = false
+      }, 1200)
+
+    } else {
+      setFeedback("incorrect")
+      await loseHeart()
+
+      setTimeout(() => {
+        setFeedback("")
+        setAnswered(false)
+        processingRef.current = false
+      }, 1200)
     }
+  }, [answered, paused, currentWord, hearts, words.length, loseHeart])
 
-    await updateProgress(user.id, { wordMatch: updatedProgress });
-  };
+  if (!loaded || !heartsReady)
+    return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
 
-  const goToNextLevel = async () => {
-    setStarEarned(false);
-    setProgress(prev => ({ ...prev, level: prev.level + 1, levelIndex: 0 }));
-    setFeedback("");
-    setAnswered(false);
-    await saveProgress();
-  };
-
-  if (!loaded) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
-
-  if (showUnlockModal)
+  if (hearts <= 0)
     return (
-      <UnlockModal
+      <NoHeartsScreen
+        cooldownUntil={cooldownUntil}
         fontClass={fontClass}
-        sizeClass={sizeMap[fontSize || "medium"]}
-        gameName={t("gameCards.letterBuild.title")}
-        gameEmoji="🔤"
-        gameRoute="/letterbuild"
-        onClose={async () => {
-          setShowUnlockModal(false);
-          setFeedback("");
-          setAnswered(false);
-          await saveProgress();
-        }}
+        sizeClass={sizeClass}
       />
-    );
+    )
 
-  if (starEarned)
-    return <LevelCompleteScreen fontClass={fontClass} sizeMap={sizeMap} nextLevel={goToNextLevel} />;
+  if (victory)
+    return (
+      <VictoryScreen
+        score={words.length}
+        words={words}
+        onRestart={() => {
+          setCurrentIndex(0)
+          setVictory(false)
+          setAnswered(false)
+          setFeedback("")
+          processingRef.current = false
+        }}
+        fontClass={fontClass}
+        sizeMap={sizeMap}
+      />
+    )
 
-  // CHECK VICTORY BEFORE RENDERING GAME CONTAINER
-  if (feedback === "victory")
-    return <VictoryScreen fontClass={fontClass} sizeMap={sizeMap} score={progress.score} words={levels} onRestart={resetScore} />;
-
-  // Only render game if currentWord exists
-  if (!currentWord) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
-
-  const totalWords = levels.flat().length;
-  const currentPosition = level * wordsPerLevel + levelIndex + 1;
-  const displayProgress = (currentPosition / totalWords) * 100;
+  if (!currentWord)
+    return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
 
   return (
     <>
       <GameContainer
         fontClass={fontClass}
-        sizeClass={sizeMap[fontSize || "medium"]}
+        sizeClass={sizeClass}
         bgColor="bg-sky-50"
         bgVariant="default"
-        score={currentPosition - 1}
-        total={totalWords}
+        score={currentIndex}
+        total={words.length}
+        keys={keys}
         paused={paused}
-        rewardsEarned={rewardsEarned}
-        progress={displayProgress}
+        progress={(currentIndex / words.length) * 100}
         feedback={feedback}
-        onPauseToggle={togglePause}
-        onHome={goHome}
+        onPauseToggle={() => setPaused((p) => !p)}
+        onHome={() => navigate("/menu")}
         onReset={() => setShowResetModal(true)}
       >
-        <WordOptions 
-          currentWord={currentWord} 
-          answered={answered} 
-          soundOn={soundOn}
-          paused={paused}
-          handleAnswer={handleAnswer}
-          t={t}
+        <HeartsDisplay
+          hearts={hearts}
+          heartAnimating={heartAnimating}
+          maxHearts={maxHearts}
         />
+
+        <div className="mb-6 md:mb-12">
+          <AudioButton
+            word={currentWord.displayWord}
+            soundOn={soundOn}
+            paused={paused}
+            label={t("wordMatch.playWord")}
+            className="w-full text-xl md:text-3xl py-6"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+          {currentWord.options.map((opt, i) => (
+            <button
+              key={i}
+              disabled={answered}
+              onClick={() => handleAnswer(opt)}
+              className={`${fontClass} ${sizeClass} py-6 px-4 rounded-2xl font-bold transition-all duration-200 border-b-4 ${
+                answered
+                  ? opt === currentWord.displayWord
+                    ? "bg-green-100 border-green-400 text-green-700"
+                    : "opacity-50 cursor-not-allowed bg-gray-200 border-gray-400 text-gray-500"
+                  : "bg-gradient-to-br from-purple-50 to-pink-50 border-purple-400 hover:border-purple-500 hover:from-purple-100 hover:to-pink-100 shadow-md hover:shadow-lg transform hover:scale-105"
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
       </GameContainer>
 
-      {showResetModal && <ResetConfirmationModal onCancel={() => setShowResetModal(false)} onConfirm={resetScore} />}
+      {showResetModal && (
+        <ResetConfirmationModal
+          onCancel={() => setShowResetModal(false)}
+          onConfirm={() => {
+            setCurrentIndex(0)
+            setVictory(false)
+            setAnswered(false)
+            setFeedback("")
+            processingRef.current = false
+            setShowResetModal(false)
+          }}
+        />
+      )}
     </>
-  );
+  )
 }

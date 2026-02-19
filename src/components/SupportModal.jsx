@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 export default function SupportModal({ title, message, onClose }) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-lg">
@@ -10,7 +12,7 @@ export default function SupportModal({ title, message, onClose }) {
           onClick={onClose}
           className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-full font-bold"
         >
-          Close
+          {t("support.close")}
         </button>
       </div>
     </div>

@@ -49,7 +49,8 @@
     "timeLeft": "Temps restant",
     "limitReachedMessage": "Ta limite quotidienne de jeu est atteinte !",
     "returnTime": "Reviens à",
-    "unlockButton": "Débloquer maintenant"
+    "unlockButton": "Débloquer maintenant",
+        "yourKeys": "Tes clés"
   },
   "settings": {
     "title": "Paramètres",
@@ -84,7 +85,18 @@
   "game": {
     "available": "Disponible",
     "play_now": "Jouer maintenant !",
-    "locked": "Verrouillé"
+    "locked": "Verrouillé",
+    "timeLocked": "Limite de temps atteinte",
+    "keysNeeded": "Clés nécessaires",
+    "keys": "clés",
+        "unlockFor" : "Débloquer pour"
+  },
+  "wordMatch": {
+    "title": "Association de mots",
+    "desc": "Associe les mots aux sons et crée les bonnes combinaisons !",
+        "noHearts": "Aucun cœur restant !",
+    "tryLater": "Réessaie plus tard !",
+    "backToMenu": "Retour au menu"
   },
   "gameCards": {
     "letterBuild": {
@@ -94,7 +106,10 @@
     },
     "wordMatch": {
       "title": "Association de mots",
-      "desc": "Associe les mots aux sons et crée les bonnes combinaisons !"
+      "desc": "Associe les mots aux sons et crée les bonnes combinaisons !",
+        "noHearts": "Aucun cœur restant !",
+    "tryLater": "Réessaie plus tard !",
+    "backToMenu": "Retour au menu"
     },
     "wordMaze": {
       "title": "Labyrinthe de mots",
@@ -245,7 +260,8 @@
     }
   },
   "header": {
-    "score": "Score"
+    "score": "Score",
+    "keys": "Clés"
   },
   "mazeGame": {
     "clickLetter": "Clique sur la bonne lettre !",
@@ -262,11 +278,22 @@
     "finalWordBuilder": "Constructeur de mots final"
   },
   "letterBuild": {
-    "dragLettersHere": "👆 Clique ou fais glisser les lettres ici"
+    "dragLettersHere": "👆 Clique ou fais glisser les lettres ici",
+            "tryLater": "Réessayez plus tard",
+            "backToMenu": "Retour au menu",
+    "noHearts": "Aucun cœur restant !"
   },
   "finalWordBuilder": {
-    "word": "Mot"
-  },
+  "warningTitle": "Attention !",
+  "warningDesc": "Si tu perds tous tes cœurs dans ce jeu, TOUS les jeux seront bloqués — pas seulement celui-ci. Joue prudemment !",
+  "warningLockAll": "0 cœurs = tous les jeux bloqués",
+  "warningUnderstood": "Compris !",
+  "allLockedTitle": "Tous les jeux sont bloqués !",
+  "allLockedDesc": "Tu as perdu tous tes cœurs dans le jeu Constructeur de Mots Final.",
+  "word": "Mot",
+  "cancel": "Annuler"
+}
+,
   "support": {
     "title": "Support",
     "subtitle": "Besoin d’aide ? Envoie-nous un message",
@@ -288,5 +315,10 @@
     "successMessage": "Merci de nous avoir contactés. Nous te répondrons bientôt.",
     "errorTitle": "Erreur",
     "errorMessage": "Un problème est survenu lors de l’envoi de ton message. Veuillez réessayer plus tard."
+  },
+  "hearts": {
+    "noHearts": "Aucun cœur restant !",
+    "tryLater": "Réessayez dans",
+    "backToMenu": "Retour au menu"
   }
 }

@@ -31,15 +31,43 @@ export async function createUser(name, pin) {
     const recoveryCode = generateRecoveryCode();
     const hashedRecovery = sha256(recoveryCode);
 
-    const defaultProgress = {
-      wordMatch: {
-        level: 0,
-        levelIndex: 0,
-        score: 0,
-        letterBuildUnlocked: false,
-        rewardsEarned: [false, false, false],
-      },
-    };
+const defaultProgress = {
+  currency: {
+    keys: 0
+  },
+
+  wordMatch: {
+    score: 0,
+    rewardsEarned: [false, false, false],
+    hearts: 5,
+    cooldownUntil: null,
+    keysEarnedThisRun: 0
+  },
+
+  letterBuild: {
+    score: 0,
+    rewardsEarned: [false, false, false],
+    hearts: 5,
+    cooldownUntil: null,
+    unlocked: false
+  },
+
+  wordMaze: {
+    score: 0,
+    rewardsEarned: [false, false, false],
+    hearts: 5,
+    cooldownUntil: null,
+    unlocked: false
+  },
+
+  finalWordBuilder: {
+    score: 0,
+    rewardsEarned: [false, false, false],
+    hearts: 5,
+    cooldownUntil: null,
+    unlocked: false
+  }
+};
 
     const defaultSettings = {
       fontType: 'normal',
@@ -327,6 +355,54 @@ export async function resetParentalPinWithCode(name, recoveryCode, newPin) {
     return { success: true, user: updated };
   } catch (err) {
     console.error(err);
+    return { success: false, message: "Something went wrong" };
+  }
+}
+
+
+/* =========================
+   UNLOCK GAME WITH KEYS
+========================= */
+export async function unlockGame(userId, gameKey, keyCost) {
+  try {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("progress")
+      .eq("id", userId)
+      .single();
+
+    if (error) throw error;
+
+    const progress = user.progress || {};
+    const currentKeys = progress?.currency?.keys || 0;
+
+    if (currentKeys < keyCost) {
+      return { success: false, message: "Not enough keys" };
+    }
+
+    const updatedProgress = {
+      ...progress,
+      currency: {
+        ...progress.currency,
+        keys: currentKeys - keyCost,
+      },
+      [gameKey]: {
+        ...(progress[gameKey] || {}),
+        unlocked: true,
+      },
+    };
+
+    const { data, error: updateError } = await supabase
+      .from("users")
+      .update({ progress: updatedProgress })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+    return { success: true, user: data };
+  } catch (err) {
+    console.error("Error unlocking game:", err);
     return { success: false, message: "Something went wrong" };
   }
 }

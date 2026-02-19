@@ -1,4 +1,4 @@
-import "./i18n"; 
+import "./i18n";
 import React, { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { SettingsProvider } from "./context/SettingsContext";
@@ -11,9 +11,9 @@ import FinalWordBuilder from "./pages/FinalWordBuilder";
 import Reward from "./pages/Reward";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
-import AuthPage from './pages/Auth';
-import ProtectedRoute from "./components/ProtectedRoute"; // <-- import it
-import { supabase } from './supaBaseClient';
+import AuthPage from "./pages/Auth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { supabase } from "./supaBaseClient";
 import "./index.css";
 import ParentalControlPage from "./pages/ParentalControlPage";
 import ParentRoute from "./components/ParentRoute";
@@ -22,11 +22,11 @@ import ParentDashboard from "./pages/ParentDashboard";
 import { useTranslation } from "react-i18next";
 
 function App() {
-    const { t, i18n } = useTranslation(); 
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [parentUnlocked, setParentUnlocked] = useState(false);
-  const [langLoaded, setLangLoaded] = useState(false); // ✅ new
+  const [langLoaded, setLangLoaded] = useState(false);
 
   const fetchUser = useCallback(async () => {
     setLoading(true);
@@ -47,14 +47,13 @@ function App() {
 
     if (latestUser) {
       setUser(latestUser);
-
-      // 🔹 Set i18n language from user settings
       if (latestUser.settings?.language) {
         await i18n.changeLanguage(latestUser.settings.language);
       }
     }
+
     setLoading(false);
-    setLangLoaded(true); // ✅ mark language as ready
+    setLangLoaded(true);
   }, [i18n]);
 
   useEffect(() => {
@@ -65,7 +64,6 @@ function App() {
     return () => listener.subscription.unsubscribe();
   }, [fetchUser]);
 
-  // ✅ Don't render until language is ready
   if (!langLoaded) return null;
   if (loading) return <div>Loading...</div>;
 
@@ -73,92 +71,104 @@ function App() {
     <SettingsProvider user={user} setUser={setUser}>
       <Router>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/menu" /> : <AuthPage onLogin={setUser} />} />
-          <Route path="/menu" element={user ? <GameMenu user={user} fetchUser={fetchUser} /> : <Navigate to="/" />} />
+          {/* Auth */}
+          <Route
+            path="/"
+            element={user ? <Navigate to="/menu" /> : <AuthPage onLogin={setUser} />}
+          />
+
+          {/* Menu — setUser added */}
+          <Route
+            path="/menu"
+            element={
+              user ? (
+                <GameMenu user={user} setUser={setUser} fetchUser={fetchUser} />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          {/* Games */}
+          <Route
+            path="/game"
+            element={
+              <ProtectedRoute user={user} requiredUnlock="any">
+                <WordMatch user={user} setUser={setUser} fetchUser={fetchUser} />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
-  path="/menu"
-  element={
-    loading ? (
-      <div>Loading...</div>
-    ) : user ? (
-      <GameMenu user={user} fetchUser={fetchUser} />
-    ) : (
-      <Navigate to="/" />
-    )
-  }
-/>
+            path="/letterbuild"
+            element={
+              <ProtectedRoute user={user} requiredUnlock="letterBuild">
+                <LetterBuild user={user} setUser={setUser} />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/game"
-  element={
-    <ProtectedRoute user={user} requiredUnlock="any">
-      <WordMatch user={user} setUser={setUser} fetchUser={fetchUser} />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/wordmaze"
+            element={
+              <ProtectedRoute user={user} requiredUnlock="maze">
+                <WordMaze user={user} setUser={setUser} />
+              </ProtectedRoute>
+            }
+          />
 
+          <Route
+            path="/finalwordbuilder"
+            element={
+              <ProtectedRoute user={user} requiredUnlock="finalWord">
+                <FinalWordBuilder user={user} setUser={setUser} />
+              </ProtectedRoute>
+            }
+          />
 
-    <Route
-  path="/letterbuild"
-  element={
-    <ProtectedRoute user={user} requiredUnlock="letterBuild">
-      <LetterBuild user={user} setUser={setUser} />
-    </ProtectedRoute>
-  }
-/>
+          {/* Other pages */}
+          <Route
+            path="/reward"
+            element={user ? <Reward user={user} /> : <Navigate to="/" />}
+          />
 
-<Route
-  path="/wordmaze"
-  element={
-    <ProtectedRoute user={user} requiredUnlock="maze">
-      <WordMaze user={user} setUser={setUser} />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/settings"
+            element={
+              user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/" />
+            }
+          />
 
-<Route
-  path="/finalwordbuilder"
-  element={
-    <ProtectedRoute user={user} requiredUnlock="finalWord">
-      <FinalWordBuilder user={user} setUser={setUser} />
-    </ProtectedRoute>
-  }
-/>
+          {/* Parental control */}
+          <Route
+            path="/parental-control"
+            element={
+              <ParentRoute unlocked={parentUnlocked}>
+                <ParentalControlPage user={user} fetchUser={fetchUser} />
+              </ParentRoute>
+            }
+          />
 
+          <Route
+            path="/unlock-parental"
+            element={
+              <ParentalUnlockPage user={user} setUnlocked={setParentUnlocked} />
+            }
+          />
 
-          <Route path="/reward" element={user ? <Reward user={user} /> : <Navigate to="/" />} />
-          <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/" />} />
+          <Route
+            path="/parent-dashboard/:childId"
+            element={
+              <ParentRoute unlocked={parentUnlocked}>
+                <ParentDashboard />
+              </ParentRoute>
+            }
+          />
 
-<Route
-  path="/parental-control"
-  element={
-    <ParentRoute unlocked={parentUnlocked}>
-      <ParentalControlPage user={user} fetchUser={fetchUser} />
-    </ParentRoute>
-  }
-/>
-<Route
-  path="/unlock-parental"
-  element={<ParentalUnlockPage user={user} setUnlocked={setParentUnlocked} />}
-/>
-
-<Route
-  path="/parent-dashboard/:childId"
-  element={
-    <ParentRoute unlocked={parentUnlocked}>
-      <ParentDashboard />
-    </ParentRoute>
-  }
-/>
-
-<Route
-  path="/support"
-  element={user ? <Support /> : <Navigate to="/" />}
-/>
-
-
-
+          <Route
+            path="/support"
+            element={user ? <Support /> : <Navigate to="/" />}
+          />
         </Routes>
       </Router>
     </SettingsProvider>

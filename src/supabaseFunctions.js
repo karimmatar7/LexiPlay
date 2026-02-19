@@ -185,3 +185,65 @@ export async function addPlaytime(userId, minutesPlayed) {
 }
 
 
+export async function addKeys(userId, amount = 1) {
+  const { data: user } = await supabase
+    .from("users")
+    .select("progress")
+    .eq("id", userId)
+    .single();
+
+  const currentKeys = user.progress?.currency?.keys || 0;
+
+  const updatedProgress = {
+    ...user.progress,
+    currency: {
+      ...user.progress.currency,
+      keys: currentKeys + amount,
+    },
+  };
+
+  const { data } = await supabase
+    .from("users")
+    .update({ progress: updatedProgress })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  return data;
+}
+
+
+export async function unlockGame(userId, gameKey, cost) {
+  const { data: user } = await supabase
+    .from("users")
+    .select("progress")
+    .eq("id", userId)
+    .single();
+
+  const currentKeys = user.progress?.currency?.keys || 0;
+
+  if (currentKeys < cost) {
+    return { success: false, message: "Not enough keys" };
+  }
+
+  const updatedProgress = {
+    ...user.progress,
+    currency: {
+      ...user.progress.currency,
+      keys: currentKeys - cost,
+    },
+    [gameKey]: {
+      ...user.progress[gameKey],
+      unlocked: true,
+    },
+  };
+
+  const { data } = await supabase
+    .from("users")
+    .update({ progress: updatedProgress })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  return { success: true, data };
+}

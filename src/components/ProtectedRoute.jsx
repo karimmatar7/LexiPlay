@@ -2,43 +2,88 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { getUser } from "../utils/user";
 
+const MAX_HEARTS = 5;
+
 export default function ProtectedRoute({ user, requiredUnlock, children }) {
-  if (!user) return <Navigate to="/menu" replace />;
+  const [checked, setChecked] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const [redirect, setRedirect] = useState(null);
 
-  const pc = user.parental_control || {};
+  useEffect(() => {
+    async function check() {
+      if (!user?.id) {
+        setRedirect("/");
+        setChecked(true);
+        return;
+      }
 
-  // Only enforce limit if parental control is currently enabled
-  if (pc.enabled) {
-    const today = new Date().toISOString().slice(0, 10);
-    const playtimeToday = pc.playtimeToday || 0;
-    const dailyLimit = pc.dailyLimitMinutes || 60;
-    const limitReached = pc.lastPlayedDate === today && playtimeToday >= dailyLimit * 60;
+      // Always fetch fresh from DB — stale prop won't reflect mid-game heart loss
+      const fresh = await getUser(user.id);
+      if (!fresh) {
+        setRedirect("/");
+        setChecked(true);
+        return;
+      }
 
-    if (limitReached) return <Navigate to="/menu" replace />;
-  }
+      const pc = fresh.parental_control || {};
+      const progress = fresh.progress || {};
 
-  // Unlocks based on progress
-  const progress = user.progress || {};
-  const letterBuildProgress = progress.letterBuild || {};
-  const letterBuildUnlocked = !!progress.wordMatch?.letterBuildUnlocked;
-  const mazeUnlocked = !!letterBuildProgress.mazeUnlocked;
-  const finalUnlocked = !!progress.wordMaze?.finalWordBuilderUnlocked;
+      // --- Parental time limit ---
+      if (pc.enabled) {
+        const today = new Date().toISOString().slice(0, 10);
+        const playtimeToday = pc.playtimeToday || 0;
+        const dailyLimit = pc.dailyLimitMinutes || 60;
+        const limitReached =
+          pc.lastPlayedDate === today && playtimeToday >= dailyLimit * 60;
+        if (limitReached) {
+          setRedirect("/menu");
+          setChecked(true);
+          return;
+        }
+      }
 
-  switch (requiredUnlock) {
-    case "letterBuild":
-      if (!letterBuildUnlocked) return <Navigate to="/menu" replace />;
-      break;
-    case "maze":
-      if (!mazeUnlocked) return <Navigate to="/menu" replace />;
-      break;
-    case "finalWord":
-      if (!finalUnlocked) return <Navigate to="/menu" replace />;
-      break;
-    case "any":
-      break;
-    default:
-      break;
-  }
+      // --- Global lock: FinalWordBuilder 0 hearts = all games locked ---
+      const finalHearts = progress.finalWordBuilder?.hearts ?? MAX_HEARTS;
+      const finalCooldown = progress.finalWordBuilder?.cooldownUntil;
+      const finalGloballyLocked =
+        finalHearts <= 0 &&
+        finalCooldown &&
+        new Date(finalCooldown) > new Date();
 
+      if (finalGloballyLocked) {
+        setRedirect("/menu");
+        setChecked(true);
+        return;
+      }
+
+      // --- Key-purchase unlocks ---
+      const letterBuildUnlocked = progress.letterBuild?.unlocked === true;
+      const mazeUnlocked        = progress.wordMaze?.unlocked === true;
+      const finalUnlocked       = progress.finalWordBuilder?.unlocked === true;
+
+      switch (requiredUnlock) {
+        case "letterBuild":
+          if (!letterBuildUnlocked) { setRedirect("/menu"); setChecked(true); return; }
+          break;
+        case "maze":
+          if (!mazeUnlocked) { setRedirect("/menu"); setChecked(true); return; }
+          break;
+        case "finalWord":
+          if (!finalUnlocked) { setRedirect("/menu"); setChecked(true); return; }
+          break;
+        case "any":
+        default:
+          break;
+      }
+
+      setBlocked(false);
+      setChecked(true);
+    }
+
+    check();
+  }, [user?.id, requiredUnlock]);
+
+  if (!checked) return null; // brief flash prevention
+  if (redirect) return <Navigate to={redirect} replace />;
   return children;
 }

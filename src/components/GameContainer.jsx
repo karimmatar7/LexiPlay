@@ -11,6 +11,7 @@ export default function GameContainer({
   bgColor = "bg-sky-50",
   bgVariant = "default",
   score,
+  keys = 0,
   total,
   paused,
   rewardsEarned,
@@ -27,6 +28,7 @@ export default function GameContainer({
       
       <div className="relative max-w-5xl mx-auto">
         <HeaderBar
+          keys={keys}           // ← add this
           score={score}
           total={total}
           paused={paused}
