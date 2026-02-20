@@ -213,7 +213,7 @@ export default function WordMatch({ user, setUser }) {
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
 
   if (hearts <= 0)
-    return <NoHeartsScreen cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
+    return <NoHeartsScreen hearts={hearts} cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
 
   if (!currentWord)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />

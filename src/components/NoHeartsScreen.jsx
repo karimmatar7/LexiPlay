@@ -2,27 +2,32 @@ import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
-const MAX_HEARTS = 5
+const MAX_HEARTS        = 5;
+const MINUTES_PER_HEART = 12;
+const MS_PER_HEART      = MINUTES_PER_HEART * 60 * 1000;
 
-export default function NoHeartsScreen({ cooldownUntil, fontClass, sizeClass }) {
+export default function NoHeartsScreen({ hearts = 0, cooldownUntil, fontClass, sizeClass }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const [secondsLeft, setSecondsLeft] = useState(() =>
-    cooldownUntil
-      ? Math.max(0, Math.round((new Date(cooldownUntil) - new Date()) / 1000))
-      : 0
-  )
+  // Compute the timestamp when ALL hearts will be full
+  function getFullRefillMs() {
+    if (!cooldownUntil) return 0;
+    const heartsNeeded  = MAX_HEARTS - hearts;
+    const nextHeartMs   = new Date(cooldownUntil).getTime();
+    const fullRefillMs  = nextHeartMs + Math.max(0, heartsNeeded - 1) * MS_PER_HEART;
+    return Math.max(0, Math.round((fullRefillMs - Date.now()) / 1000));
+  }
+
+  const [secondsLeft, setSecondsLeft] = useState(getFullRefillMs)
 
   useEffect(() => {
     if (!cooldownUntil) return
     const interval = setInterval(() => {
-      setSecondsLeft(
-        Math.max(0, Math.round((new Date(cooldownUntil) - new Date()) / 1000))
-      )
+      setSecondsLeft(getFullRefillMs())
     }, 1000)
     return () => clearInterval(interval)
-  }, [cooldownUntil])
+  }, [cooldownUntil, hearts]) // re-run if either changes
 
   const m = Math.floor(secondsLeft / 60)
   const s = secondsLeft % 60

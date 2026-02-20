@@ -342,7 +342,7 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
   if (!currentWord)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
   if (hearts <= 0)
-    return <NoHeartsScreen cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />;
+    return <NoHeartsScreen hearts={hearts} cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />;
 
   const totalWords      = words.flat().length;
   const currentPosition = level * wordsPerLevel + levelIndex + 1;

@@ -276,7 +276,7 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   if (loading || !heartsReady) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
   if (!currentWord)            return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
-  if (hearts <= 0)             return <NoHeartsScreen cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
+  if (hearts <= 0)             return <NoHeartsScreen hearts={hearts} cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
 
   const totalWords      = words.flat().length
   const currentPosition = level * wordsPerLevel + levelIndex + 1
