@@ -3,7 +3,6 @@ import { useSettings } from "../context/SettingsContext"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import GameContainer from "../components/GameContainer"
-import AudioButton from "../components/AudioButton"
 import LoadingScreen from "../components/LoadingScreen"
 import ResetConfirmationModal from "../components/ResetConfirmationModal"
 import NoHeartsScreen from "../components/NoHeartsScreen"
@@ -11,87 +10,22 @@ import { HeartsDisplay } from "../components/HeartsDisplay"
 import { useHearts } from "../hooks/useHearts"
 import XPBadge from "../components/XPBadge"
 import LevelUpToast from "../components/LevelUpToast"
+import KeyStreakBar from "../components/KeyStreakBar"
+import LetterBuildGameArea from "../components/letterBuild/LetterBuildGameArea"
+import { useLetterBuildSlots } from "../hooks/useLetterBuildSlots"
 import wordData from "../data/words.json"
 import { updateProgress, getUser, addReward, addKeysAndXP } from "../supabaseFunctions.js"
 import { calculateStars } from "../utils/progressStars"
 import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
 
-const MAX_HEARTS = 5
-const dragState = { item: null, fromArea: null }
+const MAX_HEARTS  = 5
+const KEY_EVERY_N = 4
 
 function buildLevels(wordsPerLevel) {
   const shuffled = [...wordData].sort(() => 0.5 - Math.random())
   return Array.from(
     { length: Math.ceil(shuffled.length / wordsPerLevel) },
     (_, i) => shuffled.slice(i * wordsPerLevel, i * wordsPerLevel + wordsPerLevel)
-  )
-}
-
-function GameArea({
-  currentWord, selectedLetters, availableLetters,
-  onPickLetter, onUndoLetter,
-  onDragStartAvailable, onDragStartSelected,
-  onDropOnSelected, onDropOnAvailable,
-  soundOn, paused, t, fontClass, sizeClass,
-}) {
-  return (
-    <div className={`flex flex-col items-center gap-8 ${fontClass} ${sizeClass}`}>
-      <AudioButton
-        word={currentWord.displayWord}
-        soundOn={soundOn}
-        paused={paused}
-        label={t("letterBuild.listen")}
-        className="px-8 py-4 text-xl md:text-2xl"
-      />
-
-      {/* Drop zone — selected letters */}
-      <div
-        className="min-h-[100px] w-full flex items-center justify-center gap-3 bg-gradient-to-br from-indigo-50 to-blue-50 border-b-4 border-indigo-400 border-dashed rounded-2xl px-6 py-4 shadow-sm transition-colors duration-200"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={onDropOnSelected}
-      >
-        {selectedLetters.length === 0 ? (
-          <p className="text-gray-400 italic font-medium text-lg">
-            {t("letterBuild.dragLettersHere")}
-          </p>
-        ) : (
-          selectedLetters.map((item, i) => (
-            <div
-              key={item.id}
-              draggable
-              onDragStart={(e) => onDragStartSelected(e, item, i)}
-              onClick={() => onUndoLetter(i)}
-              className="cursor-pointer bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-3xl md:text-4xl rounded-2xl px-6 py-4 shadow-md border-b-4 border-purple-700 hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-110 active:scale-95 select-none"
-            >
-              {item.letter}
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Available letters */}
-      <div
-        className="flex flex-wrap justify-center gap-3 md:gap-4 mt-6 p-6 bg-white rounded-2xl shadow-md border-2 border-gray-200 transition-colors duration-200"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={onDropOnAvailable}
-      >
-        {availableLetters.map((item, i) =>
-          item ? (
-            <div
-              key={item.id}
-              draggable
-              onDragStart={(e) => onDragStartAvailable(e, item, i)}
-              onClick={() => onPickLetter(i)}
-              className="cursor-pointer bg-gradient-to-br from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white font-black text-3xl md:text-4xl rounded-2xl px-6 py-4 shadow-md border-b-4 border-pink-600 transition-all duration-200 transform hover:scale-110 active:scale-95 select-none"
-            >
-              {item.letter}
-            </div>
-          ) : (
-            <div key={`empty-${i}`} className="w-16 h-16" />
-          )
-        )}
-      </div>
-    </div>
   )
 }
 
@@ -110,24 +44,36 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   }
   const sizeClass = sizeMap[fontSize || "medium"]
 
-  // ── Infinite loop: words is always replaceable ───────────────
-  const [words, setWords] = useState(() => buildLevels(wordsPerLevel))
-
+  const [words,               setWords]               = useState(() => buildLevels(wordsPerLevel))
   const [letterBuildProgress, setLetterBuildProgress] = useState({
     level: 0, levelIndex: 0, rewardsEarned: [false, false, false],
   })
-  const [heartsInit,   setHeartsInit]   = useState(null)
-  const [cooldownInit, setCooldownInit] = useState(null)
-  const [feedback,     setFeedback]     = useState("")
-  const [paused,       setPaused]       = useState(false)
-  const [shuffleKey,   setShuffleKey]   = useState(0)
-  const [letterSlots,  setLetterSlots]  = useState([])
-  const [loading,      setLoading]      = useState(true)
-  const [showResetModal,  setShowResetModal]  = useState(false)
-  const [justLeveledUp,   setJustLeveledUp]   = useState(false)
+  const [heartsInit,     setHeartsInit]     = useState(null)
+  const [cooldownInit,   setCooldownInit]   = useState(null)
+  const [feedback,       setFeedback]       = useState("")
+  const [paused,         setPaused]         = useState(false)
+  const [shuffleKey,     setShuffleKey]     = useState(0)
+  const [letterSlots,    setLetterSlots]    = useState([])
+  const [loading,        setLoading]        = useState(true)
+  const [showResetModal, setShowResetModal] = useState(false)
+  const [justLeveledUp,  setJustLeveledUp]  = useState(false)
+  const [keyStreak,      setKeyStreak]      = useState(0)
+  const [keyJustEarned,  setKeyJustEarned]  = useState(false)
 
-  const currentWordRef = useRef(null)
-  const checkingRef    = useRef(false)
+  const currentWordRef    = useRef(null)
+  const checkingRef       = useRef(false)
+
+  // ── Refs to break stale closure in useEffect dep arrays ──
+  const keyStreakRef       = useRef(keyStreak)
+  const loseHeartRef      = useRef(null)
+  const nextWordOrLevelRef = useRef(null)
+  const userRef           = useRef(user)
+  const setUserRef        = useRef(setUser)
+
+  useEffect(() => { keyStreakRef.current    = keyStreak },   [keyStreak])
+  useEffect(() => { userRef.current        = user },        [user])
+  useEffect(() => { setUserRef.current     = setUser },     [setUser])
+
   const { level, levelIndex, rewardsEarned } = letterBuildProgress
 
   const xp      = user?.progress?.xp    || 0
@@ -162,6 +108,15 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady } =
     useHearts({ user, gameKey: "letterBuild", initialHearts: heartsInit, initialCooldown: cooldownInit })
 
+  // Keep loseHeart ref fresh
+  useEffect(() => { loseHeartRef.current = loseHeart }, [loseHeart])
+
+  const {
+    handlePickById, handleUndoById,
+    handleMoveToSelected, handleMoveToAvailable, handleReorderSelected,
+  } = useLetterBuildSlots(setLetterSlots, currentWordRef)
+
+  // ── Initialise letter slots when word changes ────────────
   useEffect(() => {
     if (!currentWord) return
     const slots = currentWord.displayWord
@@ -175,27 +130,24 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
       .sort(() => Math.random() - 0.5)
     setLetterSlots(slots)
     checkingRef.current = false
-  }, [currentWord?.displayWord, shuffleKey])
+  }, [currentWord?.displayWord, shuffleKey]) // ✅ displayWord is the stable primitive dep
 
   useEffect(() => {
     async function load() {
       const userData = await getUser(user.id)
-      const saved = userData?.progress?.letterBuild
-
+      const saved    = userData?.progress?.letterBuild
       setWords(buildLevels(wordsPerLevel))
-
       setLetterBuildProgress({
         level:         saved?.level         || 0,
         levelIndex:    saved?.levelIndex    || 0,
         rewardsEarned: saved?.rewardsEarned || [false, false, false],
       })
-
       setHeartsInit(saved?.hearts         ?? MAX_HEARTS)
       setCooldownInit(saved?.cooldownUntil ?? null)
       setLoading(false)
     }
     load()
-  }, [user, wordsPerLevel, i18n.language])
+  }, [user.id, wordsPerLevel, i18n.language])
 
   const saveToSupabase = async (progressData = letterBuildProgress) => {
     if (!user) return
@@ -203,72 +155,55 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     if (updated) setUser((prev) => ({ ...prev, progress: updated.progress }))
   }
 
-  const moveSlot = useCallback((id, toZone) => {
-    setLetterSlots((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, zone: toZone, order: toZone === "selected" ? s.order : null } : s
-      )
-    )
+  const checkAndAwardStars = useCallback(async (newProgress, progressPercent) => {
+    const starsEarned = calculateStars(progressPercent)
+    const rewards     = newProgress.rewardsEarned || [false, false, false]
+    let rewardsAdded  = 0
+    for (let i = 0; i < starsEarned; i++) {
+      if (!rewards[i]) { rewards[i] = true; rewardsAdded++ }
+    }
+    newProgress.rewardsEarned = rewards
+    await updateProgress(userRef.current.id, { letterBuild: newProgress })
+    if (rewardsAdded > 0) {
+      await addReward(userRef.current.id, rewardsAdded)
+      setUserRef.current((prev) => ({
+        ...prev,
+        rewards: (prev.rewards || 0) + rewardsAdded,
+        progress: { ...prev.progress, letterBuild: newProgress },
+      }))
+    }
   }, [])
 
-  const handlePickLetter = useCallback((id) => {
-    const word = currentWordRef.current
-    if (!word) return
-    setLetterSlots((prev) => {
-      const selectedCount = prev.filter((s) => s.zone === "selected").length
-      if (selectedCount >= word.displayWord.length) return prev
-      const idx = prev.findIndex((s) => s.id === id)
-      if (idx === -1) return prev
-      const next = [...prev]
-      next[idx] = { ...next[idx], zone: "selected", order: selectedCount }
-      return next
-    })
-  }, [])
+  const nextWordOrLevel = useCallback(async (progress) => {
+    const currentLevelWords = words[progress.level] || []
+    let newProgress = { ...progress }
 
-  const handleUndoLetter = useCallback((id) => {
-    setLetterSlots((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, zone: "available", order: null } : s))
-    )
-  }, [])
+    if (progress.levelIndex + 1 < currentLevelWords.length) {
+      newProgress.levelIndex += 1
+    } else if (progress.level + 1 < words.length) {
+      newProgress.level += 1
+      newProgress.levelIndex = 0
+    } else {
+      setWords(buildLevels(wordsPerLevel))
+      newProgress = { level: 0, levelIndex: 0, rewardsEarned: [false, false, false] }
+      setLetterBuildProgress(newProgress)
+      setFeedback("")
+      setShuffleKey((k) => k + 1)
+      return
+    }
 
-  const handleDragStartAvailable = useCallback((e, item) => {
-    dragState.item = item; dragState.fromArea = "available"
-    e.dataTransfer.effectAllowed = "move"
-    e.dataTransfer.setData("text/plain", item.letter)
-  }, [])
+    const totalWords      = words.flat().length
+    const currentPosition = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1
+    await checkAndAwardStars(newProgress, Math.min((currentPosition / totalWords) * 100, 100))
+    setLetterBuildProgress(newProgress)
+    setFeedback("")
+  }, [words, wordsPerLevel, checkAndAwardStars])
 
-  const handleDragStartSelected = useCallback((e, item) => {
-    dragState.item = item; dragState.fromArea = "selected"
-    e.dataTransfer.effectAllowed = "move"
-    e.dataTransfer.setData("text/plain", item.letter)
-  }, [])
+  // Keep nextWordOrLevel ref fresh so the answer-check effect can call
+  // the latest version without listing it as a dep
+  useEffect(() => { nextWordOrLevelRef.current = nextWordOrLevel }, [nextWordOrLevel])
 
-  const handleDropOnSelected = useCallback((e) => {
-    e.preventDefault()
-    const { item, fromArea } = dragState
-    if (!item || fromArea !== "available") return
-    const word = currentWordRef.current
-    if (!word) return
-    setLetterSlots((prev) => {
-      const selectedCount = prev.filter((s) => s.zone === "selected").length
-      if (selectedCount >= word.displayWord.length) return prev
-      const idx = prev.findIndex((s) => s.id === item.id)
-      if (idx === -1) return prev
-      const next = [...prev]
-      next[idx] = { ...next[idx], zone: "selected", order: selectedCount }
-      return next
-    })
-    dragState.item = null
-  }, [])
-
-  const handleDropOnAvailable = useCallback((e) => {
-    e.preventDefault()
-    const { item, fromArea } = dragState
-    if (!item || fromArea !== "selected") return
-    moveSlot(item.id, "available")
-    dragState.item = null
-  }, [moveSlot])
-
+  // ── Check answer when all slots are filled ───────────────
   useEffect(() => {
     const word = currentWordRef.current
     if (!word) return
@@ -279,89 +214,48 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     setTimeout(async () => {
       const latestWord = currentWordRef.current
       if (!latestWord) return
-
       const attempt = selectedLetters.map((s) => s.letter).join("")
 
       if (attempt === latestWord.displayWord) {
         setFeedback("correct")
 
-        const result = await addKeysAndXP(user.id, 1, 10)
+        const streak  = keyStreakRef.current
+        const newStreak = streak + 1
+        const earnKey   = newStreak >= KEY_EVERY_N
+
+        const result = await addKeysAndXP(userRef.current.id, earnKey ? 1 : 0, 10)
         if (result) {
-          setUser((prev) => ({ ...prev, progress: result.user.progress }))
+          setUserRef.current((prev) => ({ ...prev, progress: result.user.progress }))
           if (result.leveledUp) {
             setJustLeveledUp(true)
             setTimeout(() => setJustLeveledUp(false), 3000)
           }
         }
 
+        if (earnKey) {
+          setKeyStreak(0)
+          setKeyJustEarned(true)
+          setTimeout(() => setKeyJustEarned(false), 1500)
+        } else {
+          setKeyStreak(newStreak)
+        }
+
         setLetterBuildProgress((prev) => {
           const updated = { ...prev }
-          setTimeout(() => nextWordOrLevel(updated), 1500)
+          setTimeout(() => nextWordOrLevelRef.current(updated), 1500)
           return updated
         })
       } else {
         setFeedback("incorrect")
-        await loseHeart()
+        setKeyStreak(0)
+        await loseHeartRef.current?.()
         setTimeout(() => {
           setFeedback("")
           setShuffleKey((k) => k + 1)
         }, 1500)
       }
     }, 300)
-  }, [selectedLetters])
-
-  const nextWordOrLevel = async (progress = letterBuildProgress) => {
-    const currentLevelWords = words[progress.level] || []
-    let newProgress = { ...progress }
-
-    if (progress.levelIndex + 1 < currentLevelWords.length) {
-      // next word in same level
-      newProgress.levelIndex += 1
-    } else if (progress.level + 1 < words.length) {
-      // next level
-      newProgress.level    += 1
-      newProgress.levelIndex = 0
-    } else {
-      // ── All done: reshuffle and restart — no VictoryScreen ──
-      const freshLevels = buildLevels(wordsPerLevel)
-      setWords(freshLevels)
-      newProgress = { level: 0, levelIndex: 0, rewardsEarned: [false, false, false] }
-      setLetterBuildProgress(newProgress)
-      setFeedback("")
-      setShuffleKey((k) => k + 1)
-      return
-    }
-
-    const totalWords       = words.flat().length
-    const currentPosition  = newProgress.level * wordsPerLevel + newProgress.levelIndex + 1
-    const progressPercent  = Math.min((currentPosition / totalWords) * 100, 100)
-
-    await checkAndAwardStars(newProgress, progressPercent)
-    setLetterBuildProgress(newProgress)
-    setFeedback("")
-  }
-
-  const checkAndAwardStars = async (newProgress, progressPercent) => {
-    const starsEarned = calculateStars(progressPercent)
-    const rewards     = newProgress.rewardsEarned || [false, false, false]
-    let rewardsAdded  = 0
-
-    for (let i = 0; i < starsEarned; i++) {
-      if (!rewards[i]) { rewards[i] = true; rewardsAdded++ }
-    }
-
-    newProgress.rewardsEarned = rewards
-    await updateProgress(user.id, { letterBuild: newProgress })
-
-    if (rewardsAdded > 0) {
-      await addReward(user.id, rewardsAdded)
-      setUser((prev) => ({
-        ...prev,
-        rewards: (prev.rewards || 0) + rewardsAdded,
-        progress: { ...prev.progress, letterBuild: newProgress },
-      }))
-    }
-  }
+  }, [selectedLetters]) // ✅ all other values accessed via refs
 
   const togglePause = async () => {
     setPaused((prev) => !prev)
@@ -369,43 +263,32 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
   }
 
   const resetScore = async () => {
-    const freshLevels  = buildLevels(wordsPerLevel)
-    const newProgress  = { level: 0, levelIndex: 0, rewardsEarned: [false, false, false] }
-    setWords(freshLevels)
+    const newProgress = { level: 0, levelIndex: 0, rewardsEarned: [false, false, false] }
+    setWords(buildLevels(wordsPerLevel))
     setLetterBuildProgress(newProgress)
     setShuffleKey((k) => k + 1)
     setFeedback("")
+    setKeyStreak(0)
     setPaused(false)
     setShowResetModal(false)
     await saveToSupabase(newProgress)
   }
 
-  if (loading || !heartsReady)
-    return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
-
-  if (!currentWord)
-    return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
-
-  if (hearts <= 0)
-    return <NoHeartsScreen cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
+  if (loading || !heartsReady) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
+  if (!currentWord)            return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
+  if (hearts <= 0)             return <NoHeartsScreen cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
 
   const totalWords      = words.flat().length
   const currentPosition = level * wordsPerLevel + levelIndex + 1
-  const displayProgress = (currentPosition / totalWords) * 100
 
   return (
     <>
       <GameContainer
-        fontClass={fontClass}
-        sizeClass={sizeClass}
-        bgColor="bg-sky-50"
-        bgVariant="default"
-        score={currentPosition - 1}
-        total={totalWords}
-        keys={keys}
-        paused={paused}
-        rewardsEarned={rewardsEarned}
-        progress={displayProgress}
+        fontClass={fontClass} sizeClass={sizeClass}
+        bgColor="bg-sky-50" bgVariant="default"
+        score={currentPosition - 1} total={totalWords} keys={keys}
+        paused={paused} rewardsEarned={rewardsEarned}
+        progress={(currentPosition / totalWords) * 100}
         feedback={feedback}
         onPauseToggle={togglePause}
         onHome={async () => { await saveToSupabase(); navigate("/menu", { replace: true }) }}
@@ -413,21 +296,24 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
       >
         <HeartsDisplay hearts={hearts} heartAnimating={heartAnimating} maxHearts={maxHearts} />
         <XPBadge xp={xp} level={xpLevel} />
-        <GameArea
+        <KeyStreakBar
+          keyStreak={keyStreak}
+          keyEveryN={KEY_EVERY_N}
+          justEarned={keyJustEarned}
+          soundOn={soundOn}
+        />
+
+        <LetterBuildGameArea
           currentWord={currentWord}
           selectedLetters={selectedLetters}
           availableLetters={availableLetters}
-          onPickLetter={(i)    => handlePickLetter(availableLetters[i]?.id)}
-          onUndoLetter={(i)    => handleUndoLetter(selectedLetters[i]?.id)}
-          onDragStartAvailable={handleDragStartAvailable}
-          onDragStartSelected={handleDragStartSelected}
-          onDropOnSelected={handleDropOnSelected}
-          onDropOnAvailable={handleDropOnAvailable}
-          soundOn={soundOn}
-          paused={paused}
-          t={t}
-          fontClass={fontClass}
-          sizeClass={sizeClass}
+          onPickById={handlePickById}
+          onUndoById={handleUndoById}
+          onMoveToSelected={handleMoveToSelected}
+          onMoveToAvailable={handleMoveToAvailable}
+          onReorderSelected={handleReorderSelected}
+          soundOn={soundOn} paused={paused} t={t}
+          fontClass={fontClass} sizeClass={sizeClass}
         />
       </GameContainer>
 
