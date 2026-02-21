@@ -380,7 +380,16 @@
     "mouth":     "😄 Mond",
     "outfit":    "👕 Outfit",
     "accessory": "✨ Extra"
-  }
+  },
+"shop": {
+  "keys":      "sleutels",
+  "cost":      "Kosten",
+  "yourKeys":  "Jouw sleutels",
+  "buy":       "Kopen",
+  "cancel":    "Annuleren",
+  "notEnough": "Niet genoeg sleutels"
+}
+
 },
 "print": {
   "title":          "Voortgangsrapport",

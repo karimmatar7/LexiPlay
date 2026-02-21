@@ -371,8 +371,16 @@
     "mouth":     "😄 Bouche",
     "outfit":    "👕 Tenue",
     "accessory": "✨ Extra"
-  }
   },
+      "shop": {
+  "keys":      "clés",
+  "cost":      "Coût",
+  "yourKeys":  "Vos clés",
+  "buy":       "Acheter",
+  "cancel":    "Annuler",
+  "notEnough": "Pas assez de clés"
+}
+},
 "print": {
   "title":          "Rapport de progression",
   "button":         "Imprimer / Enregistrer PDF",

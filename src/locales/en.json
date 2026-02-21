@@ -386,6 +386,14 @@
     "mouth":     "😄 Mouth",
     "outfit":    "👕 Outfit",
     "accessory": "✨ Extra"
+  },
+      "shop": {
+    "keys":      "keys",
+    "cost":      "Cost",
+    "yourKeys":  "Your keys",
+    "buy":       "Buy",
+    "cancel":    "Cancel",
+    "notEnough": "Not enough keys"
   }
   },
   "print": {
