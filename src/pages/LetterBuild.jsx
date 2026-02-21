@@ -105,8 +105,8 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
     [letterSlots]
   )
 
-  const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady } =
-    useHearts({ user, gameKey: "letterBuild", initialHearts: heartsInit, initialCooldown: cooldownInit })
+const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady, setHearts, setCooldownUntil } =
+  useHearts({ user, gameKey: "letterBuild", initialHearts: heartsInit, initialCooldown: cooldownInit })
 
   // Keep loseHeart ref fresh
   useEffect(() => { loseHeartRef.current = loseHeart }, [loseHeart])
@@ -276,7 +276,23 @@ export default function LetterBuild({ user, setUser, wordsPerLevel = 7 }) {
 
   if (loading || !heartsReady) return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
   if (!currentWord)            return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
-  if (hearts <= 0)             return <NoHeartsScreen hearts={hearts} cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
+if (hearts <= 0) return (
+  <NoHeartsScreen
+    hearts={hearts}
+    cooldownUntil={cooldownUntil}
+    fontClass={fontClass}
+    sizeClass={sizeClass}
+    userId={user.id}
+    gameKey="letterBuild"
+    onHeartsRefilled={(updatedUser) => {
+      const g = updatedUser.progress.letterBuild
+      setHearts(g.hearts)
+      setCooldownUntil(g.cooldownUntil)
+      setUser(updatedUser)
+    }}
+  />
+)
+
 
   const totalWords      = words.flat().length
   const currentPosition = level * wordsPerLevel + levelIndex + 1

@@ -1,6 +1,7 @@
 // src/utils/user.js
 import { supabase } from '../supaBaseClient.js';
 import { sha256 } from 'js-sha256';
+import { MAX_HEARTS, MS_PER_HEART } from './heartConstants.js';
 
 /* =========================
    BROWSER-SAFE RECOVERY CODE GENERATOR
@@ -448,5 +449,76 @@ export async function addXP(userId, amount = 10) {
   } catch (err) {
     console.error("Error adding XP:", err)
     return null
+  }
+}
+
+/* =========================
+   BUY HEARTS WITH KEYS
+========================= */
+export async function buyHearts(userId, gameKey, heartsToAdd, keyCost) {
+  try {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("progress")
+      .eq("id", userId)
+      .single();
+
+    if (error) throw error;
+
+    const progress = user.progress || {};
+    const currentKeys = progress?.currency?.keys || 0;
+
+    if (currentKeys < keyCost) {
+      return { success: false, message: "Not enough keys" };
+    }
+
+    const gameProgress = progress[gameKey] || {};
+    const currentHearts = gameProgress.hearts || 0;
+    const newHearts = Math.min(currentHearts + heartsToAdd, MAX_HEARTS);
+    const heartsActuallyAdded = newHearts - currentHearts;
+
+    if (heartsActuallyAdded <= 0) {
+      return { success: false, message: "Hearts already full" };
+    }
+
+    // Recalculate cooldown: if now full, clear it; otherwise shift it back
+    let newCooldown = gameProgress.cooldownUntil;
+    if (newHearts >= MAX_HEARTS) {
+      newCooldown = null;
+    } else if (gameProgress.cooldownUntil) {
+      // Shift cooldown earlier by the number of hearts added × MS_PER_HEART
+      const MINUTES_PER_HEART = 12;
+      const MS_PER_HEART = MINUTES_PER_HEART * 60 * 1000;
+      const existing = new Date(gameProgress.cooldownUntil).getTime();
+      const shifted = existing - heartsActuallyAdded * MS_PER_HEART;
+      // If the shifted time is in the past, clear it (hearts would already have refilled)
+      newCooldown = shifted <= Date.now() ? null : new Date(shifted).toISOString();
+    }
+
+    const updatedProgress = {
+      ...progress,
+      currency: {
+        ...progress.currency,
+        keys: currentKeys - keyCost,
+      },
+      [gameKey]: {
+        ...gameProgress,
+        hearts: newHearts,
+        cooldownUntil: newCooldown,
+      },
+    };
+
+    const { data, error: updateError } = await supabase
+      .from("users")
+      .update({ progress: updatedProgress })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+    return { success: true, user: data, newHearts, newCooldown };
+  } catch (err) {
+    console.error("Error buying hearts:", err);
+    return { success: false, message: "Something went wrong" };
   }
 }

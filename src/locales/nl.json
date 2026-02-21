@@ -357,8 +357,17 @@
 },
 "hearts": {
   "noHearts": "Geen hartjes meer!",
-  "tryLater": "Probeer later opnieuw",
-  "backToMenu": "Terug naar menu"
+  "tryLater": "Volledig herladen over",
+  "buyHearts": "Koop hartjes met sleutels",
+  "backToMenu": "Terug naar menu",
+  "shop": "Hartjeswinkel",
+  "keysEarned": "Verdien 🗝️ sleutels door spellen te spelen",
+  "deal3": "3 Hartjes",
+  "deal5": "5 Hartjes",
+  "best": "BEST",
+  "added": "+{{count}} ❤️ toegevoegd!",
+  "notEnoughKeys": "Niet genoeg 🗝️ sleutels!",
+  "error": "Er is iets misgegaan"
 },
 "streak": {
   "keyEarned": "Sleutel verdiend!"

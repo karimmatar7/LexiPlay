@@ -347,11 +347,20 @@
     "errorTitle": "Erreur",
     "errorMessage": "Un problème est survenu lors de l’envoi de ton message. Veuillez réessayer plus tard."
   },
-  "hearts": {
-    "noHearts": "Aucun cœur restant !",
-    "tryLater": "Réessayez dans",
-    "backToMenu": "Retour au menu"
-  },
+"hearts": {
+  "noHearts": "Plus de cœurs !",
+  "tryLater": "Rechargement complet dans",
+  "buyHearts": "Acheter des cœurs avec des clés",
+  "backToMenu": "Retour au menu",
+  "shop": "Boutique de cœurs",
+  "keysEarned": "Gagne des 🗝️ clés en jouant",
+  "deal3": "3 Cœurs",
+  "deal5": "5 Cœurs",
+  "best": "BEST",
+  "added": "+{{count}} ❤️ ajoutés !",
+  "notEnoughKeys": "Pas assez de 🗝️ clés !",
+  "error": "Une erreur s'est produite"
+},
   "streak" : {
     "keyEarned": "Clé gagnée !"
   },

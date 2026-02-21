@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { updateProgress } from "../supabaseFunctions.js";
 
-const MAX_HEARTS        = 5;
-const MINUTES_PER_HEART = 12;
-const MS_PER_HEART      = MINUTES_PER_HEART * 60 * 1000;
+import { MAX_HEARTS, MINUTES_PER_HEART, MS_PER_HEART } from '../utils/heartConstants.js';
 
 function resolveHearts(savedHearts, savedCooldown) {
   if (savedHearts >= MAX_HEARTS || !savedCooldown) {

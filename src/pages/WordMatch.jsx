@@ -143,13 +143,13 @@ export default function WordMatch({ user, setUser }) {
     load()
   }, [user])
 
-  const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady } =
-    useHearts({
-      user,
-      gameKey: "wordMatch",
-      initialHearts: heartsInit,
-      initialCooldown: cooldownInit,
-    })
+const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady, setHearts, setCooldownUntil } =
+  useHearts({
+    user,
+    gameKey: "wordMatch",
+    initialHearts: heartsInit,
+    initialCooldown: cooldownInit,
+  })
 
   const handleAnswer = useCallback(async (opt) => {
     if (processingRef.current || answered || paused || !currentWord) return
@@ -212,8 +212,23 @@ export default function WordMatch({ user, setUser }) {
   if (!loaded || !heartsReady)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />
 
-  if (hearts <= 0)
-    return <NoHeartsScreen hearts={hearts} cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />
+if (hearts <= 0) return (
+  <NoHeartsScreen
+    hearts={hearts}
+    cooldownUntil={cooldownUntil}
+    fontClass={fontClass}
+    sizeClass={sizeClass}
+    userId={user.id}
+    gameKey="wordMatch"
+    onHeartsRefilled={(updatedUser) => {
+      const g = updatedUser.progress.wordMatch
+      setHearts(g.hearts)
+      setCooldownUntil(g.cooldownUntil)
+      setUser(updatedUser)
+    }}
+  />
+)
+
 
   if (!currentWord)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />

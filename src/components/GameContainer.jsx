@@ -28,7 +28,7 @@ export default function GameContainer({
       
       <div className="relative max-w-5xl mx-auto">
         <HeaderBar
-          keys={keys}           // ← add this
+          keys={keys}           
           score={score}
           total={total}
           paused={paused}

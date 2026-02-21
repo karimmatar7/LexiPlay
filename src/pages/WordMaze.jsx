@@ -126,8 +126,8 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
   const [showResetModal,      setShowResetModal]      = useState(false);
   const [loaded,              setLoaded]              = useState(false);
   const [justLeveledUp,       setJustLeveledUp]       = useState(false);
-  const [keyStreak,           setKeyStreak]           = useState(0);   // ← NEW
-  const [keyJustEarned,       setKeyJustEarned]       = useState(false); // ← NEW
+  const [keyStreak,           setKeyStreak]           = useState(0);  
+  const [keyJustEarned,       setKeyJustEarned]       = useState(false);
 
   const { level, levelIndex, rewardsEarned } = mazeProgress;
 
@@ -147,8 +147,8 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     ? { ...currentWordData, displayWord: getLocalizedWord(currentWordData) }
     : null;
 
-  const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady } =
-    useHearts({ user, gameKey: "wordMaze", initialHearts: heartsInit, initialCooldown: cooldownInit });
+const { hearts, cooldownUntil, heartAnimating, loseHeart, maxHearts, heartsReady, setHearts, setCooldownUntil } =
+  useHearts({ user, gameKey: "wordMaze", initialHearts: heartsInit, initialCooldown: cooldownInit })
 
   const options = useMemo(
     () => (currentWord ? generateMazeOptions(currentWord.displayWord) : []),
@@ -341,8 +341,25 @@ export default function WordMaze({ user, setUser, wordsPerLevel = 5 }) {
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
   if (!currentWord)
     return <LoadingScreen fontClass={fontClass} sizeMap={sizeMap} />;
-  if (hearts <= 0)
-    return <NoHeartsScreen hearts={hearts} cooldownUntil={cooldownUntil} fontClass={fontClass} sizeClass={sizeClass} />;
+
+// Replace with:
+if (hearts <= 0) return (
+  <NoHeartsScreen
+    hearts={hearts}
+    cooldownUntil={cooldownUntil}
+    fontClass={fontClass}
+    sizeClass={sizeClass}
+    userId={user.id}
+    gameKey="wordMaze"
+    onHeartsRefilled={(updatedUser) => {
+      const g = updatedUser.progress.wordMaze
+      setHearts(g.hearts)
+      setCooldownUntil(g.cooldownUntil)
+      setUser(updatedUser)
+    }}
+  />
+)
+
 
   const totalWords      = words.flat().length;
   const currentPosition = level * wordsPerLevel + levelIndex + 1;

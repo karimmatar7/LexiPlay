@@ -360,8 +360,17 @@
 },
 "hearts": {
   "noHearts": "No hearts left!",
-  "tryLater": "Try again in",
-  "backToMenu": "Back to menu"
+  "tryLater": "Full refill in",
+  "buyHearts": "Buy Hearts with Keys",
+  "backToMenu": "Back to Menu",
+  "shop": "Heart Shop",
+  "keysEarned": "Earn 🗝️ keys by completing games",
+  "deal3": "3 Hearts",
+  "deal5": "5 Hearts",
+  "best": "BEST",
+  "added": "+{{count}} ❤️ added!",
+  "notEnoughKeys": "Not enough 🗝️ keys!",
+  "error": "Something went wrong"
 },
 "streak": {
   "keyEarned": "Key earned!"
