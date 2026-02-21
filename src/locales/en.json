@@ -387,7 +387,22 @@
     "outfit":    "👕 Outfit",
     "accessory": "✨ Extra"
   }
-  }
+  },
+  "print": {
+  "title":          "Progress Report",
+  "button":         "Print / Save PDF",
+  "generated":      "Generated",
+  "playerOverview": "Player Overview",
+  "totalXP":        "Total XP",
+  "playtimeSummary":"Playtime Summary",
+  "engagement":     "Engagement",
+  "dailyHistory":   "Daily Playtime History",
+  "date":           "Date",
+  "minutesPlayed":  "Minutes Played",
+  "game":           "Game",
+  "status":         "Status",
+  "footer":         "Confidential – for therapist / carer use only"
+}
 
 }
 

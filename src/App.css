@@ -37,3 +37,27 @@
   }
 }
 
+/* Hide print report on screen */
+.print-only {
+  display: none;
+}
+
+/* When printing: hide everything EXCEPT the report */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-report,
+  #print-report * {
+    visibility: visible;
+  }
+  #print-report {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+  .print-only {
+    display: block;
+  }
+}

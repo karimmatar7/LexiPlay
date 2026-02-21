@@ -381,6 +381,22 @@
     "outfit":    "👕 Outfit",
     "accessory": "✨ Extra"
   }
+},
+"print": {
+  "title":          "Voortgangsrapport",
+  "button":         "Afdrukken / Opslaan als PDF",
+  "generated":      "Gegenereerd op",
+  "playerOverview": "Spelersoverzicht",
+  "totalXP":        "Totaal XP",
+  "playtimeSummary":"Speeltijdoverzicht",
+  "engagement":     "Betrokkenheid",
+  "dailyHistory":   "Dagelijkse speeltijd",
+  "date":           "Datum",
+  "minutesPlayed":  "Gespeelde minuten",
+  "game":           "Spel",
+  "status":         "Status",
+  "footer":         "Vertrouwelijk – alleen voor therapeut / begeleider"
 }
+
 
 }

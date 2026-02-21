@@ -206,7 +206,9 @@
   "progress": "Progression",
   "starsAcrossGames": "{{total}}/{{max}} étoiles gagnées sur {{games}} jeux",
   "readyToPlay": "Prêt à jouer",
-  "waitingGames": "En attente de cœurs"
+  "waitingGames": "En attente de cœurs",
+  "outOfHearts": "Aucun cœur restant !"
+
 },
   "progressBar": {
     "completed": "terminé",
@@ -370,5 +372,21 @@
     "outfit":    "👕 Tenue",
     "accessory": "✨ Extra"
   }
-  }
+  },
+"print": {
+  "title":          "Rapport de progression",
+  "button":         "Imprimer / Enregistrer PDF",
+  "generated":      "Généré le",
+  "playerOverview": "Aperçu du joueur",
+  "totalXP":        "XP total",
+  "playtimeSummary":"Résumé du temps de jeu",
+  "engagement":     "Engagement",
+  "dailyHistory":   "Historique quotidien",
+  "date":           "Date",
+  "minutesPlayed":  "Minutes jouées",
+  "game":           "Jeu",
+  "status":         "Statut",
+  "footer":         "Confidentiel – à l'usage du thérapeute / accompagnateur"
+}
+
 }
