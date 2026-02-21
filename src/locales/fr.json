@@ -379,7 +379,12 @@
   "buy":       "Acheter",
   "cancel":    "Annuler",
   "notEnough": "Pas assez de clés"
-}
+},
+
+  "gender": {
+    "male":   "Garçon",
+    "female": "Fille"
+  }
 },
 "print": {
   "title":          "Rapport de progression",

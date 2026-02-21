@@ -388,7 +388,11 @@
   "buy":       "Kopen",
   "cancel":    "Annuleren",
   "notEnough": "Niet genoeg sleutels"
-}
+},
+  "gender": {
+    "male":   "Jongen",
+    "female": "Meisje"
+  }
 
 },
 "print": {

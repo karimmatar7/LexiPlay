@@ -120,7 +120,7 @@ export default function GameMenuHeader({ fontClass, sizeMap, fontSize, children,
                 <div
                   className="gmh-avatar-wrapper border-4 border-white group-hover:border-indigo-300 shadow-lg transition-all duration-200 group-hover:scale-110"
                 >
-                  <AvatarCanvas avatar={avatar} size={96} animated={false} />
+                  <AvatarCanvas avatar={avatar} size={96} animated={false} fullBody={false} />
                 </div>
 
                 {/* Edit pencil badge */}

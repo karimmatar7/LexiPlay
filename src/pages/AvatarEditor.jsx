@@ -9,6 +9,7 @@ import { useAvatarShop } from "../hooks/useAvatarShop";
 import AvatarOptionButton from "../components/avatar/AvatarOptionButton";
 import BuyConfirmModal    from "../components/avatar/BuyConfirmModal";
 import KeysBar            from "../components/avatar/KeysBar";
+import GenderSelector     from "../components/avatar/GenderSelector";
 
 const TABS = ["bg", "skin", "hair", "eyes", "mouth", "outfit", "accessory"];
 
@@ -18,18 +19,23 @@ export default function AvatarEditor({ user, setUser }) {
   const fontClass     = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
   const navigate      = useNavigate();
 
-  const [avatar,    setAvatar]    = useState(user?.avatar || DEFAULT_AVATAR);
+  const [avatar,    setAvatar]    = useState({ gender: "male", ...DEFAULT_AVATAR, ...(user?.avatar || {}) });
   const [activeTab, setActiveTab] = useState("bg");
   const [saving,    setSaving]    = useState(false);
   const [saved,     setSaved]     = useState(false);
 
   const {
-    pendingItem, purchasing, currentKeys,
-    isUnlocked, openBuyModal, closeBuyModal, confirmPurchase,
+    pendingItem, currentKeys,
+    openBuyModal, closeBuyModal, confirmPurchase,
   } = useAvatarShop({ user, setUser });
 
   const select = useCallback((part, value) => {
     setAvatar(prev => ({ ...prev, [part]: value }));
+    setSaved(false);
+  }, []);
+
+  const handleGenderChange = useCallback((g) => {
+    setAvatar(prev => ({ ...prev, gender: g }));
     setSaved(false);
   }, []);
 
@@ -53,17 +59,17 @@ export default function AvatarEditor({ user, setUser }) {
 
   const currentOptions = AVATAR_PARTS[activeTab] || [];
 
-  // Helper: is this option unlocked?
   const itemUnlocked = (opt) => {
-    if (!opt.locked) return true; // free item
+    if (!opt.locked) return true;
     return user?.progress?.avatar?.unlocked?.[activeTab]?.[opt.id] === true;
   };
+
+  const isOutfitTab = activeTab === "outfit";
 
   return (
     <div className={`min-h-screen bg-sky-50 ${fontClass} relative overflow-hidden`}
       style={{ padding: "clamp(16px,4vw,32px)" }}>
 
-      {/* same <style> block as before — keep it */}
       <style>{`
         @keyframes ae-fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
         @keyframes ae-idle { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-8px) rotate(1deg)} }
@@ -75,9 +81,39 @@ export default function AvatarEditor({ user, setUser }) {
         .ae-s4{animation:ae-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.24s both}
         .ae-s5{animation:ae-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.32s both}
         .ae-grid-in{animation:ae-tab-in 0.3s cubic-bezier(0.22,1,0.36,1) both}
-        .ae-avatar-container{width:clamp(120px,38vw,190px);height:clamp(120px,38vw,190px);border-radius:50%;overflow:hidden;flex-shrink:0;animation:ae-idle 3.5s ease-in-out infinite;filter:drop-shadow(0 10px 18px rgba(0,0,0,0.13));margin-left:auto;margin-right:auto;display:block}
-        .ae-avatar-container svg{width:100%!important;height:100%!important;display:block}
-        .ae-tabs::-webkit-scrollbar{height:5px}.ae-tabs::-webkit-scrollbar-track{background:transparent}.ae-tabs::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:999px}.ae-tabs::-webkit-scrollbar-thumb:hover{background:#818cf8}
+
+        .ae-avatar-container {
+          width:clamp(120px,38vw,190px);
+          height:clamp(120px,38vw,190px);
+          border-radius:50%;
+          overflow:hidden;
+          flex-shrink:0;
+          animation:ae-idle 3.5s ease-in-out infinite;
+          filter:drop-shadow(0 10px 18px rgba(0,0,0,0.13));
+          margin-left:auto;
+          margin-right:auto;
+          display:block;
+        }
+        .ae-avatar-container svg { width:100%!important; height:100%!important; display:block; }
+
+        .ae-body-container {
+          width: clamp(90px, 24vw, 140px);
+          height: clamp(180px, 48vw, 280px);
+          border-radius: 16px;
+          overflow: hidden;
+          flex-shrink: 0;
+          animation: ae-idle 3.5s ease-in-out infinite;
+          filter: drop-shadow(0 10px 18px rgba(0,0,0,0.13));
+          margin-left: auto;
+          margin-right: auto;
+          display: block;
+        }
+        .ae-body-container svg { width:100%!important; height:100%!important; display:block; }
+
+        .ae-tabs::-webkit-scrollbar{height:5px}
+        .ae-tabs::-webkit-scrollbar-track{background:transparent}
+        .ae-tabs::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:999px}
+        .ae-tabs::-webkit-scrollbar-thumb:hover{background:#818cf8}
         @media(hover:none){.ae-tabs::-webkit-scrollbar{display:none}.ae-tabs{scrollbar-width:none}}
       `}</style>
 
@@ -87,73 +123,109 @@ export default function AvatarEditor({ user, setUser }) {
 
       <div className="relative max-w-2xl mx-auto flex flex-col gap-5 z-10">
 
-        {/* Top bar */}
+        {/* ── TOP BAR ── */}
         <div className="ae-s1 flex items-center justify-between gap-2">
-          <button onClick={() => navigate("/menu")}
+          <button
+            onClick={() => navigate("/menu")}
             className="inline-flex items-center gap-2 bg-white border-2 border-gray-200 rounded-2xl font-bold text-gray-600 hover:bg-gray-50 hover:scale-105 transition-all duration-200 shadow-sm flex-shrink-0"
-            style={{ padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)", fontSize:"clamp(12px,2.5vw,15px)" }}>
+            style={{ padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)", fontSize:"clamp(12px,2.5vw,15px)" }}
+          >
             {t("avatar.back")}
           </button>
 
-          <h1 className="font-black text-indigo-700 text-center leading-tight"
-            style={{ fontSize:"clamp(16px,4vw,26px)" }}>
+          <h1
+            className="font-black text-indigo-700 text-center leading-tight"
+            style={{ fontSize:"clamp(16px,4vw,26px)" }}
+          >
             {t("avatar.title")} 🎨
           </h1>
 
-          <button onClick={handleSave} disabled={saving}
+          <button
+            onClick={handleSave}
+            disabled={saving}
             className={`inline-flex items-center gap-1.5 font-black rounded-2xl shadow-md border-b-4 transition-all duration-200 hover:scale-105 flex-shrink-0
-              ${saved ? "bg-green-400 border-green-600 text-white" : "bg-indigo-500 hover:bg-indigo-600 border-indigo-700 text-white"}`}
-            style={{ padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)", fontSize:"clamp(12px,2.5vw,15px)", animation: saved ? "ae-saved 0.4s ease both" : "none" }}>
+              ${saved
+                ? "bg-green-400 border-green-600 text-white"
+                : "bg-indigo-500 hover:bg-indigo-600 border-indigo-700 text-white"
+              }`}
+            style={{
+              padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)",
+              fontSize:"clamp(12px,2.5vw,15px)",
+              animation: saved ? "ae-saved 0.4s ease both" : "none",
+            }}
+          >
             {saving ? "💾…" : saved ? `✅ ${t("avatar.saved")}` : `💾 ${t("avatar.save")}`}
           </button>
         </div>
 
-        {/* Keys bar */}
+        {/* ── KEYS BAR ── */}
         <div className="ae-s2">
           <KeysBar keys={currentKeys} />
         </div>
 
-        {/* Avatar preview */}
+        {/* ── GENDER SELECTOR ── */}
+        <div className="ae-s2">
+          <GenderSelector value={avatar.gender || "male"} onChange={handleGenderChange} />
+        </div>
+
+        {/* ── AVATAR PREVIEW ── */}
         <div className="ae-s2 flex flex-col items-center gap-3 w-full">
-          <div className="ae-avatar-container">
-            <AvatarCanvas avatar={avatar} size={190} animated={false} />
-          </div>
+          {isOutfitTab ? (
+            <div className="ae-body-container">
+              <AvatarCanvas avatar={avatar} size={140} animated={false} fullBody={true} />
+            </div>
+          ) : (
+            <div className="ae-avatar-container">
+              <AvatarCanvas avatar={avatar} size={190} animated={false} fullBody={false} />
+            </div>
+          )}
           <p className="font-black text-indigo-600" style={{ fontSize:"clamp(14px,3vw,18px)" }}>
             {user?.name} 👋
           </p>
         </div>
 
-        {/* Tab bar */}
+        {/* ── TAB BAR ── */}
         <div className="ae-s3 ae-tabs flex gap-2 overflow-x-auto pb-2 w-full">
           {TABS.map((key) => (
-            <button key={key} onClick={() => setActiveTab(key)}
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
               className={`flex-shrink-0 font-bold rounded-2xl border-2 transition-all duration-200 hover:scale-105
-                ${activeTab === key ? "bg-indigo-500 border-indigo-600 text-white shadow-md scale-105" : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300"}`}
-              style={{ padding:"clamp(6px,1.5vw,10px) clamp(9px,2.2vw,15px)", fontSize:"clamp(11px,2vw,14px)" }}>
+                ${activeTab === key
+                  ? "bg-indigo-500 border-indigo-600 text-white shadow-md scale-105"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300"
+                }`}
+              style={{ padding:"clamp(6px,1.5vw,10px) clamp(9px,2.2vw,15px)", fontSize:"clamp(11px,2vw,14px)" }}
+            >
               {t(`avatar.tabs.${key}`)}
             </button>
           ))}
         </div>
 
-        {/* Options grid */}
-        <div key={activeTab}
+        {/* ── OPTIONS GRID ── */}
+        <div
+          key={activeTab}
           className="ae-s4 ae-grid-in bg-white border-2 border-indigo-100 rounded-3xl shadow-md w-full"
-          style={{ padding:"clamp(12px,3vw,22px)" }}>
-
+          style={{ padding:"clamp(12px,3vw,22px)" }}
+        >
           {activeTab === "bg" ? (
-            // Background: colour swatches — always free, no lock needed
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
               {currentOptions.map((opt) => {
                 const isSel = avatar.bg === opt.id;
                 return (
-                  <button key={opt.id} onClick={() => select("bg", opt.id)}
+                  <button
+                    key={opt.id}
+                    onClick={() => select("bg", opt.id)}
                     title={getLabel(opt, i18n.language)}
                     className={`relative rounded-2xl border-4 transition-all duration-200 hover:scale-110
                       ${isSel ? "border-indigo-500 scale-110 shadow-lg" : "border-transparent hover:border-indigo-300"}`}
-                    style={{ background: opt.color, aspectRatio:"1 / 1" }}>
+                    style={{ background: opt.color, aspectRatio:"1 / 1" }}
+                  >
                     {isSel && (
-                      <span className="absolute inset-0 flex items-center justify-center text-white font-black drop-shadow"
-                        style={{ fontSize:"clamp(14px,4vw,20px)" }}>✓</span>
+                      <span
+                        className="absolute inset-0 flex items-center justify-center text-white font-black drop-shadow"
+                        style={{ fontSize:"clamp(14px,4vw,20px)" }}
+                      >✓</span>
                     )}
                   </button>
                 );
@@ -177,36 +249,39 @@ export default function AvatarEditor({ user, setUser }) {
           )}
         </div>
 
-        {/* Randomise — only picks from unlocked items */}
+        {/* ── RANDOMISE ── */}
         <div className="ae-s5 flex justify-center pb-4">
           <button
             onClick={() => {
-              const rand = (arr) => {
-                const free = arr.filter(o =>
-                  !o.locked || user?.progress?.avatar?.unlocked?.[activeTab]?.[o.id]
+              const rand = (part, arr) => {
+                const pool = arr.filter(o =>
+                  !o.locked || user?.progress?.avatar?.unlocked?.[part]?.[o.id]
                 );
-                const pool = free.length ? free : arr.filter(o => !o.locked);
-                return pool[Math.floor(Math.random() * pool.length)]?.id;
+                const safe = pool.length ? pool : arr.filter(o => !o.locked);
+                return safe[Math.floor(Math.random() * safe.length)]?.id;
               };
-              setAvatar({
-                skin:      rand(AVATAR_PARTS.skin),
-                eyes:      rand(AVATAR_PARTS.eyes),
-                mouth:     rand(AVATAR_PARTS.mouth),
-                hair:      rand(AVATAR_PARTS.hair),
-                outfit:    rand(AVATAR_PARTS.outfit),
-                accessory: rand(AVATAR_PARTS.accessory),
-                bg:        rand(AVATAR_PARTS.bg),
-              });
+              setAvatar(prev => ({
+                gender:    prev.gender,           // keep gender
+                skin:      rand("skin",      AVATAR_PARTS.skin),
+                eyes:      rand("eyes",      AVATAR_PARTS.eyes),
+                mouth:     rand("mouth",     AVATAR_PARTS.mouth),
+                hair:      rand("hair",      AVATAR_PARTS.hair),
+                outfit:    rand("outfit",    AVATAR_PARTS.outfit),
+                accessory: rand("accessory", AVATAR_PARTS.accessory),
+                bg:        rand("bg",        AVATAR_PARTS.bg),
+              }));
               setSaved(false);
             }}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-black rounded-2xl shadow-md border-b-4 border-purple-700 hover:scale-105 transition-all duration-200"
-            style={{ padding:"clamp(10px,2.5vw,14px) clamp(20px,5vw,32px)", fontSize:"clamp(13px,2.5vw,16px)" }}>
+            style={{ padding:"clamp(10px,2.5vw,14px) clamp(20px,5vw,32px)", fontSize:"clamp(13px,2.5vw,16px)" }}
+          >
             🎲 {t("avatar.randomise")}
           </button>
         </div>
+
       </div>
 
-      {/* Buy confirm modal */}
+      {/* ── BUY MODAL ── */}
       {pendingItem && (
         <BuyConfirmModal
           item={pendingItem}
@@ -215,6 +290,7 @@ export default function AvatarEditor({ user, setUser }) {
           onCancel={closeBuyModal}
         />
       )}
+
     </div>
   );
 }

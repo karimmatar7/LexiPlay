@@ -64,6 +64,7 @@ export const AVATAR_PARTS = {
 }
 
 export const DEFAULT_AVATAR = {
+    gender:    "male",  
   skin:      "light",
   eyes:      "happy",
   mouth:     "smile",
