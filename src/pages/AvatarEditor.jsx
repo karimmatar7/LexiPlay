@@ -120,7 +120,7 @@ export default function AvatarEditor({ user, setUser }) {
             className="inline-flex items-center gap-2 bg-white border-2 border-gray-200 rounded-2xl font-bold text-gray-600 hover:bg-gray-50 hover:scale-105 transition-all duration-200 shadow-sm flex-shrink-0"
             style={{ padding: "clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)", fontSize: "clamp(12px,2.5vw,15px)" }}
           >
-            ← {t("avatar.back")}
+            {t("avatar.back")}
           </button>
 
           <h1
