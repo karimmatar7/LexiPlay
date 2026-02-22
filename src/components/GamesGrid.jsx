@@ -22,19 +22,20 @@ export default function GamesGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
-      {/* WordMatch — always free, never globally locked */}
-      <GameCard
-        icon="🧩"
-        title={t("gameCards.wordMatch.title")}
-        desc={t("gameCards.wordMatch.desc")}
-        active={displayWordMatch}
-        to={displayWordMatch ? "/game" : null}
-        bgColor="bg-green-100"
-        borderColor="border-green-400"
-        purchased={true}
-        globallyLocked={false}
-        unlockMsg={limitReached ? t("gameCards.limitReached") : undefined}
-      />
+  {/* WordMatch */}
+<GameCard
+  icon="🧩"
+  title={t("gameCards.wordMatch.title")}
+  desc={t("gameCards.wordMatch.desc")}
+  active={displayWordMatch && !globallyLocked}   // ← add !globallyLocked
+  to={displayWordMatch && !globallyLocked ? "/game" : null}
+  bgColor="bg-green-100"
+  borderColor="border-green-400"
+  purchased={true}
+  globallyLocked={globallyLocked}                // ← was hardcoded false
+  unlockMsg={limitReached ? t("gameCards.limitReached") : undefined}
+/>
+
 
       {/* Letter Bouw */}
       <GameCard

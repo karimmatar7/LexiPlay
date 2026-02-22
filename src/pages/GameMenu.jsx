@@ -149,15 +149,21 @@ export default function GameMenu({ user, setUser }) {
           <XPCard xp={userXP} level={userLevel} />
         </div>
 
-        {finalGloballyLocked && (
-          <div className="gm-s2">
-            <GlobalLockBanner
-              hearts={finalHearts}
-              cooldownUntil={finalCooldown}
-              countdown={countdown}
-            />
-          </div>
-        )}
+   {finalGloballyLocked && (
+  <div className="gm-s2">
+    <GlobalLockBanner
+      hearts={finalHearts}
+      cooldownUntil={finalCooldown}
+      countdown={countdown}
+      userId={user.id}
+      onHeartsRefilled={(updatedUser) => {
+        const newProgress = updatedUser.progress
+        setProgress(newProgress)
+        setUser((prev) => ({ ...prev, progress: newProgress }))
+      }}
+    />
+  </div>
+)}
 
         <div className="flex justify-center gm-s3">
           <KeysCard

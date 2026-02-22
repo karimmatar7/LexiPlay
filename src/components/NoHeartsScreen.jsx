@@ -5,6 +5,7 @@ import { buyHearts } from "../utils/user"
 import { MAX_HEARTS, MS_PER_HEART } from "../utils/heartConstants"
 import HeartShopPanel from "./hearts/HeartShopPanel"
 
+
 function getSecondsLeft(until, hearts) {
   if (!until) return 0
   const nextHeartMs  = new Date(until).getTime()
@@ -12,10 +13,12 @@ function getSecondsLeft(until, hearts) {
   return Math.max(0, Math.round((fullRefillMs - Date.now()) / 1000))
 }
 
+
 export default function NoHeartsScreen({
   hearts = 0, cooldownUntil,
   fontClass, sizeClass,
   userId, gameKey, onHeartsRefilled,
+  isGlobalLock = false,   // ← NEW
 }) {
   const { t }    = useTranslation()
   const navigate = useNavigate()
@@ -53,6 +56,63 @@ export default function NoHeartsScreen({
     setBuying(false)
   }
 
+  // ── Global lock variant (FinalWordBuilder) ────────────────────
+  if (isGlobalLock) {
+    return (
+      <div className={`min-h-screen bg-sky-50 flex items-center justify-center p-4 ${fontClass} ${sizeClass}`}>
+        <div className="bg-white w-full max-w-sm sm:max-w-md rounded-3xl border-2 border-red-300 shadow-lg overflow-hidden">
+
+          {/* Red header strip */}
+          <div className="bg-gradient-to-r from-red-500 to-rose-500 px-6 py-5 text-center">
+            <div className="text-5xl mb-2 select-none">🔒</div>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              {t("finalWordBuilder.allLockedTitle", "All games locked!")}
+            </h2>
+          </div>
+
+          <div className="p-6 text-center">
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
+              {t("finalWordBuilder.allLockedDesc", "You lost all your hearts in the Final Word Builder game.")}
+            </p>
+
+            {/* Empty hearts row */}
+            <div className="flex justify-center gap-2 mb-4" aria-hidden>
+              {Array.from({ length: MAX_HEARTS }).map((_, i) => (
+                <span key={i} className="text-2xl opacity-20 grayscale select-none">❤️</span>
+              ))}
+            </div>
+
+            {/* Countdown */}
+            <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-5 py-2 mb-6 shadow-sm">
+              <span>⏳</span>
+              <span className="text-sm font-bold text-red-500 tabular-nums">
+                {t("letterBuild.tryLater", "Try again later!")}{" "}
+                ({m}:{String(s).padStart(2, "0")})
+              </span>
+            </div>
+
+            {/* Buy hint */}
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl px-4 py-3 mb-6 text-left">
+              <p className="text-xs text-yellow-800 font-semibold flex items-start gap-2">
+                <span className="text-base">💡</span>
+                <span>{t("hearts.buyHint", "You can buy hearts with 🗝️ keys from the main menu to unlock all games early.")}</span>
+              </p>
+            </div>
+
+            {/* Back to menu — only action */}
+            <button
+              onClick={() => navigate("/menu")}
+              className="w-full inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-md border-b-4 border-indigo-700 hover:scale-105 transition-all duration-200"
+            >
+              {t("letterBuild.backToMenu", "Back to Menu")}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Default variant (all other games) ────────────────────────
   return (
     <div className={`min-h-screen bg-sky-50 flex items-center justify-center p-4 ${fontClass} ${sizeClass}`}>
       <div className="bg-white w-full max-w-sm sm:max-w-md rounded-3xl border-2 border-purple-300 shadow-lg text-center overflow-visible">
@@ -88,7 +148,7 @@ export default function NoHeartsScreen({
             onClick={() => navigate("/menu")}
             className="w-full inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white px-6 py-3 rounded-2xl font-bold shadow-md border-b-4 border-indigo-700 hover:scale-105 transition-all duration-200"
           >
-           {t("hearts.backToMenu", "Back to Menu")}
+            {t("hearts.backToMenu", "Back to Menu")}
           </button>
         </div>
 

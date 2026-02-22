@@ -1,9 +1,14 @@
 import React from "react"
 import HeartDealButton from "./HeartDealButton"
 
-const HEART_DEALS = [
+export const DEALS_SINGLE = [
   { hearts: 3, keys: 5,  highlight: false },
   { hearts: 5, keys: 10, highlight: true  },
+]
+
+export const DEALS_ALL = [
+  { hearts: 3, keys: 12, highlight: false },
+  { hearts: 5, keys: 20, highlight: true  },
 ]
 
 function FeedbackBanner({ feedback }) {
@@ -20,7 +25,7 @@ function FeedbackBanner({ feedback }) {
   )
 }
 
-export default function HeartShopPanel({ onClose, buying, onBuy, feedback, t }) {
+export default function HeartShopPanel({ onClose, buying, onBuy, feedback, t, deals = DEALS_SINGLE }) {
   return (
     <div className="border-t-2 border-purple-100 bg-purple-50 p-4 sm:p-5">
       <div className="flex items-center justify-between mb-4">
@@ -37,15 +42,9 @@ export default function HeartShopPanel({ onClose, buying, onBuy, feedback, t }) 
       </div>
 
       <div className="flex flex-col gap-5 mt-4">
-        {HEART_DEALS.map((deal) => (
-          <HeartDealButton
-            key={deal.hearts}
-            deal={deal}
-            onBuy={onBuy}
-            buying={buying}
-            t={t}
-          />
-        ))}
+         {deals.map((deal) => (
+      <HeartDealButton key={deal.hearts} deal={deal} onBuy={onBuy} buying={buying} t={t} />
+    ))}
       </div>
 
       <FeedbackBanner feedback={feedback} />

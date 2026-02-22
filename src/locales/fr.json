@@ -314,15 +314,13 @@
             "backToMenu": "Retour au menu",
     "noHearts": "Aucun cœur restant !"
   },
-  "finalWordBuilder": {
-  "warningTitle": "Attention !",
-  "warningDesc": "Si tu perds tous tes cœurs dans ce jeu, TOUS les jeux seront bloqués, pas seulement celui-ci. Joue prudemment !",
-  "warningLockAll": "0 cœurs = tous les jeux bloqués",
-  "warningUnderstood": "Compris !",
-  "allLockedTitle": "Tous les jeux sont bloqués !",
+"finalWordBuilder": {
+  "allLockedTitle": "Tous les jeux verrouillés !",
   "allLockedDesc": "Tu as perdu tous tes cœurs dans le jeu Constructeur de Mots Final.",
-  "word": "Mot",
-  "cancel": "Annuler"
+  "warningTitle": "Attention !",
+  "warningDesc": "Si tu perds tous tes cœurs dans ce jeu, tous les autres jeux seront aussi verrouillés.",
+  "warningLockAll": "Tu perds tous tes cœurs ? Tous les jeux seront bloqués !",
+  "warningUnderstood": "Compris !"
 }
 ,
   "support": {
@@ -356,10 +354,12 @@
   "keysEarned": "Gagne des 🗝️ clés en jouant",
   "deal3": "3 Cœurs",
   "deal5": "5 Cœurs",
-  "best": "BEST",
+  "best": "MEILLEUR",
   "added": "+{{count}} ❤️ ajoutés !",
   "notEnoughKeys": "Pas assez de 🗝️ clés !",
-  "error": "Une erreur s'est produite"
+  "error": "Une erreur s'est produite",
+  "buyHint": "Tu peux acheter des cœurs avec des 🗝️ clés depuis le menu principal pour débloquer tous les jeux plus tôt.",
+  "buyHeartsAll": "Acheter des cœurs pour tous les jeux"
 },
   "streak" : {
     "keyEarned": "Clé gagnée !"

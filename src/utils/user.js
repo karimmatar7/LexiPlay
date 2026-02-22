@@ -522,3 +522,61 @@ export async function buyHearts(userId, gameKey, heartsToAdd, keyCost) {
     return { success: false, message: "Something went wrong" };
   }
 }
+
+/* =========================
+   BUY HEARTS FOR ALL GAMES (menu purchase)
+========================= */
+export async function buyHeartsAllGames(userId, heartsToAdd, keyCost) {
+  try {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("progress")
+      .eq("id", userId)
+      .single();
+
+    if (error) throw error;
+
+    const progress    = user.progress || {};
+    const currentKeys = progress?.currency?.keys || 0;
+
+    if (currentKeys < keyCost) {
+      return { success: false, message: "Not enough keys" };
+    }
+
+    const GAME_KEYS = ["wordMatch", "letterBuild", "wordMaze", "finalWordBuilder"];
+    const updatedGames = {};
+
+    for (const key of GAME_KEYS) {
+      const gp       = progress[key] || {};
+      // ── SET hearts to exactly heartsToAdd, don't add on top ──
+      const newHearts = Math.min(heartsToAdd, MAX_HEARTS);
+
+      updatedGames[key] = {
+        ...gp,
+        hearts:        newHearts,
+        // Full hearts or buying max → clear cooldown entirely
+        cooldownUntil: newHearts >= MAX_HEARTS ? null : gp.cooldownUntil,
+      };
+    }
+
+    const updatedProgress = {
+      ...progress,
+      currency: { ...progress.currency, keys: currentKeys - keyCost },
+      ...updatedGames,
+    };
+
+    const { data, error: updateError } = await supabase
+      .from("users")
+      .update({ progress: updatedProgress })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+    return { success: true, user: data };
+  } catch (err) {
+    console.error("Error buying hearts for all games:", err);
+    return { success: false, message: "Something went wrong" };
+  }
+}
+

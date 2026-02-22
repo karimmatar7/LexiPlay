@@ -370,7 +370,9 @@
   "best": "BEST",
   "added": "+{{count}} ❤️ added!",
   "notEnoughKeys": "Not enough 🗝️ keys!",
-  "error": "Something went wrong"
+  "error": "Something went wrong",
+    "buyHint": "You can buy hearts with 🗝️ keys from the main menu to unlock all games early.",
+    "buyHeartsAll": "Buy Hearts for All Games"
 },
 "streak": {
   "keyEarned": "Key earned!"
