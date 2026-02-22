@@ -120,35 +120,50 @@ export function useHearts({ user, gameKey, initialHearts, initialCooldown }) {
   }, [synced]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Lose a heart ──────────────────────────────────────────────
-  const loseHeart = async () => {
-    if (heartsRef.current === null || heartsRef.current <= 0) return;
+const loseHeart = async () => {
+  if (heartsRef.current === null || heartsRef.current <= 0) return;
 
-    const lostIndex = heartsRef.current - 1;
-    setHeartAnimating(lostIndex);
+  const lostIndex        = heartsRef.current - 1;
+  const heartsBeforeLoss = heartsRef.current;
+  setHeartAnimating(lostIndex);
 
-    setTimeout(async () => {
-      const newHearts = heartsRef.current - 1;
-      setHearts(newHearts);
-      heartsRef.current = newHearts;
-      setHeartAnimating(null);
+  setTimeout(async () => {
+    const newHearts = heartsBeforeLoss - 1;
+    setHearts(newHearts);
+    heartsRef.current = newHearts;
+    setHeartAnimating(null);
 
-      let newCooldown = cooldownRef.current;
-      if (!newCooldown || new Date(newCooldown) <= new Date()) {
-        newCooldown = new Date(Date.now() + MS_PER_HEART).toISOString();
+    let newCooldown = cooldownRef.current;
+    if (!newCooldown || new Date(newCooldown) <= new Date()) {
+      newCooldown = new Date(Date.now() + MS_PER_HEART).toISOString();
+    }
+
+    setCooldownUntil(newCooldown);
+    cooldownRef.current = newCooldown;
+
+    setTimeUntilNext(Math.max(0, Math.round((new Date(newCooldown) - Date.now()) / 1000)));
+    setTimeUntilFull(secondsUntilFull(newCooldown, newHearts));
+
+    // ── If this is FinalWordBuilder and hearts just hit 0,
+    //    zero out all other games too so buy-all works symmetrically ──
+    if (gameKey === "finalWordBuilder" && newHearts <= 0) {
+      const OTHER_GAMES = ["wordMatch", "letterBuild", "wordMaze"];
+      const patch = {
+        [gameKey]: { hearts: newHearts, cooldownUntil: newCooldown },
+      };
+      for (const key of OTHER_GAMES) {
+        patch[key] = { hearts: 0, cooldownUntil: newCooldown };
       }
-
-      setCooldownUntil(newCooldown);
-      cooldownRef.current = newCooldown;
-
-      // Immediately update both timers after losing a heart
-      setTimeUntilNext(Math.max(0, Math.round((new Date(newCooldown) - Date.now()) / 1000)));
-      setTimeUntilFull(secondsUntilFull(newCooldown, newHearts));
-
+      await updateProgress(user.id, patch);
+    } else {
       await updateProgress(user.id, {
         [gameKey]: { hearts: newHearts, cooldownUntil: newCooldown },
       });
-    }, 450);
-  };
+    }
+  }, 450);
+};
+
+
 
   const isInCooldown = !!(cooldownUntil && new Date(cooldownUntil) > new Date());
 

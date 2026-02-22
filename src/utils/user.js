@@ -547,16 +547,20 @@ export async function buyHeartsAllGames(userId, heartsToAdd, keyCost) {
     const updatedGames = {};
 
     for (const key of GAME_KEYS) {
-      const gp       = progress[key] || {};
-      // ── SET hearts to exactly heartsToAdd, don't add on top ──
-      const newHearts = Math.min(heartsToAdd, MAX_HEARTS);
+      const gp        = progress[key] || {};
+      const current   = gp.hearts ?? MAX_HEARTS;
+      const newHearts = Math.min(current + heartsToAdd, MAX_HEARTS);
 
-      updatedGames[key] = {
-        ...gp,
-        hearts:        newHearts,
-        // Full hearts or buying max → clear cooldown entirely
-        cooldownUntil: newHearts >= MAX_HEARTS ? null : gp.cooldownUntil,
-      };
+      let newCooldown = gp.cooldownUntil ?? null;
+      if (newHearts >= MAX_HEARTS) {
+        newCooldown = null;
+      } else if (gp.cooldownUntil) {
+        const existing = new Date(gp.cooldownUntil).getTime();
+        const shifted  = existing - heartsToAdd * MS_PER_HEART;
+        newCooldown = shifted <= Date.now() ? null : new Date(shifted).toISOString();
+      }
+
+      updatedGames[key] = { ...gp, hearts: newHearts, cooldownUntil: newCooldown };
     }
 
     const updatedProgress = {
@@ -579,4 +583,5 @@ export async function buyHeartsAllGames(userId, heartsToAdd, keyCost) {
     return { success: false, message: "Something went wrong" };
   }
 }
+
 
