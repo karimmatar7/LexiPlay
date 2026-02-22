@@ -56,25 +56,33 @@ export function useHearts({ user, gameKey, initialHearts, initialCooldown }) {
   useEffect(() => { cooldownRef.current = cooldownUntil;}, [cooldownUntil]);
 
   // ── Initial sync ──────────────────────────────────────────────
-  useEffect(() => {
-    if (initialHearts === null || initialHearts === undefined) return;
-    if (synced) return;
+useEffect(() => {
+  if (initialHearts === null || initialHearts === undefined) return;
+  if (synced) return;
 
-    const { hearts: resolvedHearts, cooldownUntil: resolvedCooldown } =
-      resolveHearts(initialHearts, initialCooldown ?? null);
+  const { hearts: resolvedHearts, cooldownUntil: resolvedCooldown } =
+    resolveHearts(initialHearts, initialCooldown ?? null);
 
-    setHearts(resolvedHearts);
-    setCooldownUntil(resolvedCooldown);
-    heartsRef.current   = resolvedHearts;
-    cooldownRef.current = resolvedCooldown;
-    setSynced(true);
+  // ── If hearts are below max but no cooldown exists, start one now ──
+  const finalHearts   = resolvedHearts;
+  let   finalCooldown = resolvedCooldown;
+  if (finalHearts < MAX_HEARTS && !finalCooldown) {
+    finalCooldown = new Date(Date.now() + MS_PER_HEART).toISOString();
+  }
 
-    if (resolvedHearts !== initialHearts || resolvedCooldown !== initialCooldown) {
-      updateProgress(user.id, {
-        [gameKey]: { hearts: resolvedHearts, cooldownUntil: resolvedCooldown },
-      });
-    }
-  }, [initialHearts, initialCooldown]); // eslint-disable-line react-hooks/exhaustive-deps
+  setHearts(finalHearts);
+  setCooldownUntil(finalCooldown);
+  heartsRef.current   = finalHearts;
+  cooldownRef.current = finalCooldown;
+  setSynced(true);
+
+  if (finalHearts !== initialHearts || finalCooldown !== initialCooldown) {
+    updateProgress(user.id, {
+      [gameKey]: { hearts: finalHearts, cooldownUntil: finalCooldown },
+    });
+  }
+}, [initialHearts, initialCooldown]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   // ── Live tick ─────────────────────────────────────────────────
   useEffect(() => {

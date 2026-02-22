@@ -495,6 +495,11 @@ export async function buyHearts(userId, gameKey, heartsToAdd, keyCost) {
       newCooldown = shifted <= Date.now() ? null : new Date(shifted).toISOString();
     }
 
+
+    if (newHearts < MAX_HEARTS && !newCooldown) {
+  newCooldown = new Date(Date.now() + MS_PER_HEART).toISOString();
+}
+
     const updatedProgress = {
       ...progress,
       currency: {
@@ -546,22 +551,28 @@ export async function buyHeartsAllGames(userId, heartsToAdd, keyCost) {
     const GAME_KEYS = ["wordMatch", "letterBuild", "wordMaze", "finalWordBuilder"];
     const updatedGames = {};
 
-    for (const key of GAME_KEYS) {
-      const gp        = progress[key] || {};
-      const current   = gp.hearts ?? MAX_HEARTS;
-      const newHearts = Math.min(current + heartsToAdd, MAX_HEARTS);
+ for (const key of GAME_KEYS) {
+  const gp        = progress[key] || {};
+  const current   = gp.hearts ?? MAX_HEARTS;
+  const newHearts = Math.min(current + heartsToAdd, MAX_HEARTS);
 
-      let newCooldown = gp.cooldownUntil ?? null;
-      if (newHearts >= MAX_HEARTS) {
-        newCooldown = null;
-      } else if (gp.cooldownUntil) {
-        const existing = new Date(gp.cooldownUntil).getTime();
-        const shifted  = existing - heartsToAdd * MS_PER_HEART;
-        newCooldown = shifted <= Date.now() ? null : new Date(shifted).toISOString();
-      }
+  let newCooldown = gp.cooldownUntil ?? null;
+  if (newHearts >= MAX_HEARTS) {
+    newCooldown = null;
+  } else if (gp.cooldownUntil) {
+    const existing = new Date(gp.cooldownUntil).getTime();
+    const shifted  = existing - heartsToAdd * MS_PER_HEART;
+    newCooldown = shifted <= Date.now() ? null : new Date(shifted).toISOString();
+  }
 
-      updatedGames[key] = { ...gp, hearts: newHearts, cooldownUntil: newCooldown };
-    }
+  // ── If still below max and no cooldown, start a fresh one ──
+  if (newHearts < MAX_HEARTS && !newCooldown) {
+    newCooldown = new Date(Date.now() + MS_PER_HEART).toISOString();
+  }
+
+  updatedGames[key] = { ...gp, hearts: newHearts, cooldownUntil: newCooldown };
+}
+
 
     const updatedProgress = {
       ...progress,
