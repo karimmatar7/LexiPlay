@@ -441,7 +441,24 @@
   "next": "Volgende",
   "finish": "Klaar",
   "showAgain": "Menu-uitleg opnieuw bekijken"
+},
+"letterDraw": {
+  "goals": "Doelpunten!",
+  "resultPerfect": "🏆 Perfecte ronde! Geweldig getekend!",
+  "resultGood": "🌟 Goed gedaan! Blijf oefenen!",
+  "resultKeepGoing": "💪 Blijf doorgaan, je krijgt het!",
+  "saving": "Score opslaan…",
+  "playAgain": "Opnieuw spelen",
+  "backToMenu": "Terug naar menu",
+  "round": "Ronde",
+  "instruction": "Teken de letter",
+  "goal": "Doelpunt! 🎉",
+  "miss": "Probeer opnieuw!",
+  "clear": "Wissen",
+  "shoot": "Schieten!",
+    "score": "Score"
 }
+
 
 
 

@@ -16,7 +16,8 @@ import GlobalLockBanner from "../components/GlobalLockBanner";
 import GameMenuTour from "../components/GameMenuTour";
 import { getUser, unlockGame, updateSettings } from "../utils/user.js";
 
-const KEY_THRESHOLDS = { letterBuild: 5, maze: 15, final: 30 };
+const KEY_THRESHOLDS = { letterBuild: 5, maze: 15, final: 30, letterDraw: 10
+ };
 const MAX_HEARTS = 5;
 
 export default function GameMenu({ user, setUser }) {
@@ -126,6 +127,7 @@ export default function GameMenu({ user, setUser }) {
   const letterBuildUnlocked = progress?.letterBuild?.unlocked === true;
   const mazeUnlocked = progress?.wordMaze?.unlocked === true;
   const finalUnlocked = progress?.finalWordBuilder?.unlocked === true;
+  const letterDrawUnlocked = progress?.letterDraw?.unlocked === true;
 
   const handleUnlock = async (gameKey, keyCost) => {
     if (keys < keyCost || finalGloballyLocked) return;
@@ -264,6 +266,9 @@ export default function GameMenu({ user, setUser }) {
               displayFinal={
                 !limitReached && !finalGloballyLocked && finalUnlocked
               }
+                displayLetterDraw={
+    !limitReached && !finalGloballyLocked && letterDrawUnlocked
+  }
               limitReached={limitReached}
               globallyLocked={finalGloballyLocked}
               currentKeys={keys}
@@ -275,6 +280,7 @@ export default function GameMenu({ user, setUser }) {
               purchasedLetterBuild={letterBuildUnlocked}
               purchasedMaze={mazeUnlocked}
               purchasedFinal={finalUnlocked}
+              purchasedLetterDraw={letterDrawUnlocked}
             />
           </div>
         </section>

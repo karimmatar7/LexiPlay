@@ -430,7 +430,25 @@
   "next": "Suivant",
   "finish": "Terminer",
   "showAgain": "Revoir la visite du menu"
+},
+"letterDraw": {
+  "goals": "Buts !",
+  "resultPerfect": "🏆 Ronde parfaite ! Dessin incroyable !",
+  "resultGood": "🌟 Bien joué ! Continue à t'entraîner !",
+  "resultKeepGoing": "💪 Continue, tu vas y arriver !",
+  "saving": "Sauvegarde…",
+  "playAgain": "Rejouer",
+  "backToMenu": "Retour au menu",
+  "round": "Manche",
+  "instruction": "Dessine la lettre",
+  "goal": "But ! 🎉",
+  "miss": "Réessaie !",
+  "clear": "Effacer",
+  "shoot": "Tirer !",
+    "score": "Score"
+
 }
+
 
 
 }

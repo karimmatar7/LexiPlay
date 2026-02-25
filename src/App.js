@@ -20,7 +20,8 @@ import ParentRoute from "./components/ParentRoute";
 import ParentalUnlockPage from "./pages/ParentalUnlockPage";
 import ParentDashboard from "./pages/ParentDashboard";
 import { useTranslation } from "react-i18next";
-import AvatarEditor from "./pages/AvatarEditor"
+import AvatarEditor from "./pages/AvatarEditor";
+import LetterDraw from "./pages/LetterDraw";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -123,6 +124,15 @@ function App() {
             element={
               <ProtectedRoute user={user} requiredUnlock="finalWord">
                 <FinalWordBuilder user={user} setUser={setUser} />
+              </ProtectedRoute>
+            }
+          />
+
+            <Route
+            path="/letterdraw"
+            element={
+              <ProtectedRoute user={user} requiredUnlock="letterDraw">
+                <LetterDraw user={user} setUser={setUser} />
               </ProtectedRoute>
             }
           />

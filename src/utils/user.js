@@ -69,7 +69,16 @@ const defaultProgress = {
     hearts: 5,
     cooldownUntil: null,
     unlocked: false
-  }
+  },
+  
+  letterDraw: {
+  score: 0,
+  rewardsEarned: [false, false, false],
+  hearts: 5,
+  cooldownUntil: null,
+  unlocked: false,
+  highScore: 0,
+}
 };
 
     const defaultSettings = {

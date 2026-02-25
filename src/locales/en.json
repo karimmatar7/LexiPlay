@@ -443,7 +443,25 @@
   "next": "Next",
   "finish": "Finish",
   "showAgain": "Show menu tour again"
+},
+"letterDraw": {
+  "goals": "Goals!",
+  "resultPerfect": "🏆 Perfect round! Amazing drawing!",
+  "resultGood": "🌟 Great job! Keep practicing!",
+  "resultKeepGoing": "💪 Keep going, you'll get it!",
+  "saving": "Saving score…",
+  "playAgain": "Play Again",
+  "backToMenu": "Back to Menu",
+  "round": "Round",
+  "instruction": "Draw the letter",
+  "goal": "Goal! 🎉",
+  "miss": "Try again!",
+  "clear": "Clear",
+  "shoot": "Shoot!",
+    "score": "Score"
+
 }
+
 
 
 }
