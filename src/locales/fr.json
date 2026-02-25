@@ -409,6 +409,28 @@
   "game":           "Jeu",
   "status":         "Statut",
   "footer":         "Confidentiel – à l'usage du thérapeute / accompagnateur"
+},
+"menuTour": {
+  "headerTitle": "Bienvenue sur LexiPlay !",
+  "headerDesc": "Ici tu vois ton prénom et le temps de jeu qu’il te reste pour aujourd’hui.",
+  "headerHint": "Regarde la barre en haut avec le renard et le minuteur.",
+  "xpTitle": "XP et niveaux",
+  "xpDesc": "Chaque bonne réponse donne de l’XP. Quand tu montes de niveau, tu débloques de nouveaux éléments d’avatar.",
+  "xpHint": "Regarde la carte violette d’XP sous ton nom.",
+  "keysTitle": "Clés",
+  "keysDesc": "Les clés servent à débloquer des jeux supplémentaires. Tu les gagnes en jouant bien.",
+  "keysHint": "La carte jaune au milieu montre combien de clés tu as.",
+  "gamesTitle": "Jeux",
+  "gamesDesc": "Appuie sur une carte de jeu pour commencer. Les cartes verrouillées montrent combien de clés il te manque.",
+  "gamesHint": "Regarde les quatre grandes cartes au centre de l’écran.",
+  "settingsTitle": "Réglages et parents",
+  "settingsDesc": "Dans Réglages tu peux changer la police, le son et la langue. Les parents utilisent le bouton violet avec la famille.",
+  "settingsHint": "En bas tu vois le bouton bleu des réglages et le bouton violet pour les parents.",
+  "skip": "Passer",
+  "next": "Suivant",
+  "finish": "Terminer",
+  "showAgain": "Revoir la visite du menu"
 }
+
 
 }

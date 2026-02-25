@@ -78,6 +78,7 @@ const defaultProgress = {
       soundOn: true,
       language: 'en',
       parentalPin: null,
+      hasSeenMenuTour: false,
     };
 
     const defaultParentalControl = {

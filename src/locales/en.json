@@ -422,7 +422,29 @@
   "game":           "Game",
   "status":         "Status",
   "footer":         "Confidential – for therapist / carer use only"
+},
+"menuTour": {
+  "headerTitle": "Welcome to LexiPlay!",
+  "headerDesc": "Here you can see your name and how much playtime you still have today.",
+  "headerHint": "Look at the top bar with your fox avatar and timer.",
+  "xpTitle": "XP and levels",
+  "xpDesc": "Every correct answer gives XP. When you level up, you unlock new avatar items.",
+  "xpHint": "Check the purple XP card under your name.",
+  "keysTitle": "Keys",
+  "keysDesc": "Keys let you unlock extra games. You earn them by playing well.",
+  "keysHint": "The yellow card in the middle shows how many keys you have.",
+  "gamesTitle": "Games",
+  "gamesDesc": "Tap a game card to start. Locked cards show how many keys you still need.",
+  "gamesHint": "Look at the four big cards in the middle of the screen.",
+  "settingsTitle": "Settings and parents",
+  "settingsDesc": "In Settings you can change font, sound and language. Parents use the purple family button.",
+  "settingsHint": "At the bottom you see the blue settings button and the purple family button.",
+  "skip": "Skip",
+  "next": "Next",
+  "finish": "Finish",
+  "showAgain": "Show menu tour again"
 }
+
 
 }
 

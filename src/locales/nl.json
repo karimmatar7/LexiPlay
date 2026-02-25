@@ -420,7 +420,29 @@
   "game":           "Spel",
   "status":         "Status",
   "footer":         "Vertrouwelijk – alleen voor therapeut / begeleider"
+},
+"menuTour": {
+  "headerTitle": "Welkom bij LexiPlay!",
+  "headerDesc": "Hier zie je je naam en hoeveel speeltijd je vandaag nog hebt.",
+  "headerHint": "Kijk naar de balk bovenaan met je vosje en de timer.",
+  "xpTitle": "XP en levels",
+  "xpDesc": "Voor elk goed antwoord krijg je XP. Als je een level stijgt, verdien je nieuwe avatar-onderdelen.",
+  "xpHint": "Bekijk het paarse XP-kaartje onder je naam.",
+  "keysTitle": "Sleutels",
+  "keysDesc": "Met sleutels kun je extra spelletjes ontgrendelen. Je verdient ze door goed te spelen.",
+  "keysHint": "Het gele kaartje in het midden laat zien hoeveel sleutels je hebt.",
+  "gamesTitle": "Spellen",
+  "gamesDesc": "Tik op een spelkaart om te beginnen. Op slot-kaarten zie je hoeveel sleutels je nog nodig hebt.",
+  "gamesHint": "Kijk naar de vier grote kaartjes in het midden van het scherm.",
+  "settingsTitle": "Instellingen en ouders",
+  "settingsDesc": "In Instellingen kun je lettertype, geluid en taal aanpassen. Ouders gebruiken de paarse familie-knop.",
+  "settingsHint": "Onderaan zie je de blauwe instellingenknop en de paarse familie-knop.",
+  "skip": "Overslaan",
+  "next": "Volgende",
+  "finish": "Klaar",
+  "showAgain": "Menu-uitleg opnieuw bekijken"
 }
+
 
 
 }

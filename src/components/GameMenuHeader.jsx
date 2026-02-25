@@ -11,188 +11,97 @@ export default function GameMenuHeader({ fontClass, sizeMap, fontSize, children,
   return (
     <>
       <style>{`
-        @keyframes gmh-logo-float {
-          0%, 100% { transform: translateY(0px) rotate(-2deg); }
-          50%       { transform: translateY(-8px) rotate(2deg); }
+        @keyframes gmh-logo-glow {
+          0%, 100% { box-shadow: 0 8px 32px rgba(251,191,36,0.4); }
+          50% { box-shadow: 0 12px 48px rgba(251,191,36,0.6); }
         }
-        @keyframes gmh-shine {
-          0%   { transform: translateX(-100%); }
-          100% { transform: translateX(250%); }
+        @keyframes gmh-title-slide {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
         }
-        @keyframes gmh-title-pop {
-          0%   { opacity: 0; transform: scale(0.85) translateY(12px); }
-          70%  { transform: scale(1.04) translateY(-2px); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
+        @keyframes gmh-avatar-rise {
+          0% { opacity: 0; transform: translateY(12px) scale(0.9); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes gmh-subtitle-fade {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes gmh-avatar-pop {
-          0%   { opacity: 0; transform: scale(0.7) rotate(-8deg); }
-          70%  { transform: scale(1.08) rotate(3deg); }
-          100% { opacity: 1; transform: scale(1) rotate(0deg); }
-        }
-        @keyframes gmh-avatar-idle {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-5px); }
-        }
-        @keyframes gmh-ring-spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        @keyframes gmh-dash-create {
-          0%   { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        /* Avatar wrapper — fluid square using aspect-ratio */
         .gmh-avatar-wrapper {
-          position: relative;
-          /* fluid: 13vw clamped between 52px and 96px */
-          width: clamp(52px, 13vw, 96px);
-          height: clamp(52px, 13vw, 96px);
+          width: clamp(48px, 10vw, 72px);
+          height: clamp(48px, 10vw, 72px);
           border-radius: 50%;
           overflow: hidden;
           flex-shrink: 0;
+          box-shadow: 0 8px 24px rgba(99,102,241,0.3);
+          transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
         }
-        /* SVG inside always fills the wrapper 100% */
+        .gmh-avatar-wrapper:hover {
+          transform: scale(1.1);
+          box-shadow: 0 12px 32px rgba(99,102,241,0.5);
+        }
         .gmh-avatar-wrapper svg {
-          display: block;
           width: 100% !important;
           height: 100% !important;
         }
       `}</style>
 
-      <div className="text-center flex flex-col items-center gap-4 md:gap-5">
-
-        {/* ── Logo + Avatar row ──────────────────────────────────── */}
-        <div className="flex items-center justify-center gap-4 md:gap-6">
-
+      <div className={`flex items-center justify-between px-6 py-6 gap-6 ${fontClass} ${sizeMap[fontSize]}`}>
+        
+        {/* LEFT: Logo + Title (professional split layout) */}
+        <div className="flex items-center gap-4 min-w-0 flex-1">
           {/* Logo */}
-          <div
-            className="relative overflow-hidden rounded-3xl bg-white shadow-lg border-4 border-yellow-300 flex-shrink-0"
-            style={{
-              padding: "clamp(12px,3vw,20px)",
-              animation: "gmh-logo-float 4s ease-in-out infinite",
-            }}
+          <div 
+            className="relative flex-shrink-0 p-3 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 rounded-2xl shadow-2xl border-4 border-white/80 animate-gmh-logo-glow"
+            style={{ animationDuration: '3s', animationIterationCount: 'infinite' }}
           >
-            <div
-              className="absolute top-0 bottom-0 pointer-events-none"
-              style={{
-                width: "40%",
-                background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent)",
-                animation: "gmh-shine 3s ease-in-out 1s infinite",
-              }}
-            />
             <img
               src="/fox.png"
-              alt="LexiPlay Logo"
-              className="relative z-10 block"
-              style={{
-                width: "clamp(52px,12vw,100px)",
-                height: "clamp(52px,12vw,100px)",
-                objectFit: "contain",
-              }}
+              alt="LexiPlay"
+              className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-lg"
             />
           </div>
-
-          {/* ── Avatar: has one ─────────────────────────────────── */}
-          {avatar && (
-            <button
-              onClick={() => navigate("/avatar")}
-              className="relative group flex flex-col items-center gap-1 focus:outline-none flex-shrink-0"
-              style={{ animation: "gmh-avatar-pop 0.55s cubic-bezier(0.22,1,0.36,1) 0.2s both" }}
-              title={t("avatar.edit") || "Edit avatar"}
-            >
-              {/* Idle float wrapper */}
-              <div style={{ animation: "gmh-avatar-idle 3.5s ease-in-out infinite" }}>
-                {/* Spinning dashed ring — only visible on hover */}
-                <div
-                  className="absolute rounded-full border-4 border-dashed border-indigo-300 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{
-                    inset: -7,
-                    animation: "gmh-ring-spin 4s linear infinite",
-                  }}
-                />
-
-                {/* Avatar circle */}
-                <div
-                  className="gmh-avatar-wrapper border-4 border-white group-hover:border-indigo-300 shadow-lg transition-all duration-200 group-hover:scale-110"
-                >
-                  <AvatarCanvas avatar={avatar} size={96} animated={false} fullBody={false} />
-                </div>
-
-                {/* Edit pencil badge */}
-                <span
-                  className="absolute -bottom-1 -right-1 bg-indigo-500 text-white rounded-full flex items-center justify-center shadow-md border-2 border-white opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-200 pointer-events-none"
-                  style={{ width: "clamp(18px,4vw,24px)", height: "clamp(18px,4vw,24px)", fontSize: "clamp(9px,2vw,12px)" }}
-                >
-                  ✏️
-                </span>
-              </div>
-
-              {/* Label */}
-              <span
-                className="font-bold text-indigo-400 group-hover:text-indigo-600 transition-colors duration-200 leading-none"
-                style={{ fontSize: "clamp(9px,1.8vw,12px)", marginTop: 4 }}
-              >
-                {t("avatar.edit") || "Edit"}
-              </span>
-            </button>
-          )}
-
-          {/* ── Avatar: none yet ────────────────────────────────── */}
-          {!avatar && (
-            <button
-              onClick={() => navigate("/avatar")}
-              className="group flex flex-col items-center gap-1 focus:outline-none flex-shrink-0"
-              style={{ animation: "gmh-avatar-pop 0.55s cubic-bezier(0.22,1,0.36,1) 0.2s both" }}
-            >
-              <div
-                className="relative flex items-center justify-center rounded-full border-4 border-dashed border-indigo-200 group-hover:border-indigo-400 bg-indigo-50 group-hover:bg-indigo-100 transition-all duration-200 group-hover:scale-110 shadow-sm"
-                style={{
-                  width: "clamp(52px,13vw,96px)",
-                  height: "clamp(52px,13vw,96px)",
-                  animation: "gmh-dash-create 12s linear infinite",
-                }}
-              >
-                <span style={{ fontSize: "clamp(22px,5vw,36px)" }}>🎨</span>
-              </div>
-              <span
-                className="font-bold text-indigo-300 group-hover:text-indigo-500 transition-colors duration-200 leading-none"
-                style={{ fontSize: "clamp(9px,1.8vw,12px)", marginTop: 4 }}
-              >
-                {t("avatar.create") || "Create!"}
-              </span>
-            </button>
-          )}
+          
+          {/* Title + Subtitle */}
+          <div className="min-w-0 flex-1 animate-gmh-title-slide" style={{ animationDelay: '0.2s' }}>
+            <h1 className="font-black text-2xl sm:text-3xl lg:text-4xl text-gray-900 leading-tight truncate" style={{ letterSpacing: '-0.025em' }}>
+              {t("gameMenu.title")}
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600 font-medium mt-1 truncate">
+              {t("gameMenu.subtitle", { name })}
+            </p>
+          </div>
         </div>
 
-        {/* ── Title ─────────────────────────────────────────────── */}
-        <h1
-          className="font-black text-purple-700 leading-none"
-          style={{
-            fontSize: "clamp(26px,6.5vw,56px)",
-            letterSpacing: "-0.02em",
-            animation: "gmh-title-pop 0.6s cubic-bezier(0.22,1,0.36,1) 0.05s both",
-          }}
-        >
-          {t("gameMenu.title")}
-        </h1>
+        {/* RIGHT: Avatar + Time (compact professional) */}
+        <div className="flex items-center gap-4 flex-shrink-0">
+          
+          {/* Avatar */}
+          {avatar ? (
+            <button
+              onClick={() => navigate("/avatar")}
+              className="relative group p-1 -m-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/50"
+              title={t("avatar.edit")}
+              style={{ animation: 'gmh-avatar-rise 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.4s both' }}
+            >
+              <div className="gmh-avatar-wrapper bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-3 border-white/50 group-hover:border-indigo-400">
+                <AvatarCanvas avatar={avatar} size={72} animated={false} fullBody={false} />
+              </div>
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg border-2 border-white scale-0 group-hover:scale-100 transition-transform duration-200 origin-top-right">
+                ✏
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/avatar")}
+              className="group relative p-2 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/50"
+              style={{ animation: 'gmh-avatar-rise 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.4s both' }}
+            >
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-indigo-100 to-purple-100 border-3 border-dashed border-indigo-300 rounded-full shadow-lg group-hover:bg-indigo-200 group-hover:border-indigo-400 transition-all duration-300 flex items-center justify-center group-hover:scale-105">
+                <span className="text-2xl">🎨</span>
+              </div>
+            </button>
+          )}
 
-        {/* ── Subtitle ──────────────────────────────────────────── */}
-        <p
-          className="text-gray-600 font-semibold"
-          style={{
-            fontSize: "clamp(13px,2.8vw,22px)",
-            animation: "gmh-subtitle-fade 0.5s ease-out 0.2s both",
-          }}
-        >
-          {t("gameMenu.subtitle", { name })}
-        </p>
-
-        {children}
+          {/* Time Display */}
+          {children}
+        </div>
       </div>
     </>
   )
