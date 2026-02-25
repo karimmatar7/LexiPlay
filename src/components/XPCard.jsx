@@ -23,7 +23,7 @@ export default function XPCard({ xp, level }) {
       `}</style>
 
       <div
-        className="relative overflow-hidden w-full max-w-md bg-white border-2 border-indigo-200 rounded-3xl shadow-lg"
+        className="relative overflow-hidden w-full max-w-md bg-white"
         style={{ padding: "clamp(16px,4vw,24px) clamp(18px,5vw,28px)" }}
       >
         {/* Shimmer sweep */}

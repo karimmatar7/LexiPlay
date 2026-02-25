@@ -211,14 +211,14 @@ export default function GameMenu({ user, setUser }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             <div className="h-full">
               <div className="h-full rounded-3xl bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)] border border-slate-100 flex">
-                <div className="flex-1 px-4 py-3 sm:px-5 sm:py-4">
+                <div className="flex-1 px-4 py-3 sm:px-5 sm:py-4  border-2 border-indigo-200 rounded-3xl shadow-lg">
                   <XPCard xp={userXP} level={userLevel} />
                 </div>
               </div>
             </div>
             <div className="h-full">
               <div className="h-full rounded-3xl bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)] border border-slate-100 flex">
-                <div className="flex-1 px-4 py-3 sm:px-5 sm:py-4">
+                <div className="flex-1 px-4 py-3 sm:px-5 sm:py-4 border-2 border-yellow-300 rounded-3xl shadow-md">
                   <KeysCard
                     keys={keys}
                     thresholds={KEY_THRESHOLDS}

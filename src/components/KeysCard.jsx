@@ -25,7 +25,7 @@ export default function KeysCard({ keys, thresholds, unlocked }) {
       `}</style>
 
       <div
-        className="relative overflow-hidden w-full max-w-md bg-white border-2 border-yellow-300 rounded-3xl shadow-md"
+        className="relative overflow-hidden w-full max-w-md bg-white"
         style={{ padding: "clamp(14px,3.5vw,20px) clamp(16px,4vw,24px)" }}
       >
         {/* Shimmer */}
