@@ -126,6 +126,12 @@
       "desc": "Construis des mots sous pression du temps et deviens un vrai champion !",
       "unlockMsg": "Marque 10 points dans Labyrinthe de mots"
     },
+    "letterDraw": {
+  "title": "Dessin de Lettres",
+  "desc": "Dessine des lettres et marque des buts !",
+  "unlockMsg": "Débloquer pour 10 🗝️"
+}
+,
     "limitReached": "Limite quotidienne atteinte"
   },
   "parentalUnlock": {
@@ -445,7 +451,10 @@
   "miss": "Réessaie !",
   "clear": "Effacer",
   "shoot": "Tirer !",
-    "score": "Score"
+    "score": "Score",
+    "title": "Dessin de Lettres",
+    "desc": "Dessine des lettres et marque des buts !",
+    "unlockMsg": "Débloquer pour 10 🗝️"
 
 }
 

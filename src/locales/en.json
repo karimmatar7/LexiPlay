@@ -135,6 +135,12 @@
   "word": "Word",
   "cancel": "Cancel"
   },
+  "letterDraw": {
+  "title": "Letter Draw",
+  "desc": "Draw letters and score goals!",
+  "unlockMsg": "Unlock for 10 🗝️"
+}
+,
   "limitReached": "Daily limit reached"
 },
 "parentalUnlock": {
@@ -458,7 +464,10 @@
   "miss": "Try again!",
   "clear": "Clear",
   "shoot": "Shoot!",
-    "score": "Score"
+    "score": "Score",
+      "title": "Letter Draw",
+    "desc": "Draw letters and score goals!",
+    "unlockMsg": "Unlock for 10 🗝️"
 
 }
 

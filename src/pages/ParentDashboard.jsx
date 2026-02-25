@@ -12,7 +12,7 @@ import SessionSummary from "../components/dashboard/SessionSummary";
 import PrintButton from "../components/dashboard/PrintButton";
 import PrintReport from "../components/dashboard/PrintReport";
 
-const KNOWN_GAMES = ["letterBuild", "wordMaze", "wordMatch", "finalWordBuilder"];
+const KNOWN_GAMES = ["wordMatch", "letterBuild", "wordMaze", "finalWordBuilder", "letterDraw"];
 
 function calcStreak(history) {
   const dates = Object.keys(history || {}).sort().reverse();

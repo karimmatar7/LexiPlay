@@ -129,6 +129,11 @@
     "unlockMsg": "Scoor 10 punten in Woorden Doolhof"
   
   },
+    "letterDraw": {
+    "title": "Letter Tekenen",
+    "desc": "Teken letters en scoor doelpunten!",
+    "unlockMsg": "Ontgrendel voor 10 🗝️"
+  },
   "limitReached": "Dagelijkse limiet bereikt"
 },
 "parentalUnlock": {
@@ -456,7 +461,10 @@
   "miss": "Probeer opnieuw!",
   "clear": "Wissen",
   "shoot": "Schieten!",
-    "score": "Score"
+    "score": "Score",
+      "title": "Letter Tekenen",
+    "desc": "Teken letters en scoor doelpunten!",
+    "unlockMsg": "Ontgrendel voor 10 🗝️"
 }
 
 
