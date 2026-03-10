@@ -456,7 +456,21 @@
     "desc": "Dessine des lettres et marque des buts !",
     "unlockMsg": "Débloquer pour 10 🗝️"
 
+},
+"leaderboard": {
+  "title": "Classement",
+  "subtitle": "Dessin de Lettres — Meilleurs scores",
+  "button": "Rang",
+  "yourHighScore": "Ton meilleur",
+  "current": "Maintenant",
+  "loading": "Chargement…",
+  "empty": "Pas encore de scores — sois le premier !",
+  "ranked": "Classé par meilleur score",
+  "you": "toi",
+"best": "meilleur"
+
 }
+
 
 
 

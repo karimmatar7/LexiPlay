@@ -469,7 +469,21 @@
     "desc": "Draw letters and score goals!",
     "unlockMsg": "Unlock for 10 🗝️"
 
+},
+"leaderboard": {
+  "title": "Leaderboard",
+  "subtitle": "Letter Draw — High Scores",
+  "button": "Ranks",
+  "yourHighScore": "Your best",
+  "current": "Now",
+  "loading": "Loading…",
+  "empty": "No scores yet — be the first!",
+  "ranked": "Ranked by best score (high score)",
+  "you": "you",
+"best": "best"
+
 }
+
 
 
 

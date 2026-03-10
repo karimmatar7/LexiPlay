@@ -465,6 +465,19 @@
       "title": "Letter Tekenen",
     "desc": "Teken letters en scoor doelpunten!",
     "unlockMsg": "Ontgrendel voor 10 🗝️"
+},
+"leaderboard": {
+  "title": "Ranglijst",
+  "subtitle": "Letter Tekenen — Hoogste scores",
+  "button": "Rang",
+  "yourHighScore": "Jouw beste",
+  "current": "Nu",
+  "loading": "Laden…",
+  "empty": "Nog geen scores — wees de eerste!",
+  "ranked": "Gerangschikt op hoogste score",
+  "you": "jij",
+"best": "beste"
+
 }
 
 
