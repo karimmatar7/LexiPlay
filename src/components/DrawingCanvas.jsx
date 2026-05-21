@@ -16,24 +16,41 @@ const DrawingCanvas = forwardRef(function DrawingCanvas(
   const drawCanvasRef = useRef(null);
   const drawingRef = useRef(false);
   const lastPos = useRef(null);
+  const totalLengthRef = useRef(0);
+  const strokeCountRef = useRef(0);
+
+  const clearDrawing = () => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return;
+    canvas.getContext("2d").clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    totalLengthRef.current = 0;
+    strokeCountRef.current = 0;
+    lastPos.current = null;
+    drawingRef.current = false;
+  };
+
+  const getUserImageData = () => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return null;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    return ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  };
 
   useImperativeHandle(ref, () => ({
-    clear() {
-      const canvas = drawCanvasRef.current;
-      if (!canvas) return;
-      canvas.getContext("2d").clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    },
+    clear: clearDrawing,
 
-    // Return ONLY the user's draw layer (transparent background + strokes)
-    getCompositeImageData() {
-      const canvas = drawCanvasRef.current;
-      if (!canvas) return null;
-      const ctx = canvas.getContext("2d");
-      return ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    },
+    // Old name kept so your current LetterDraw does not break
+getDrawingImageData: getUserImageData,
+getCompositeImageData: getUserImageData,
+getStrokeStats() {
+  return {
+    totalLength: totalLengthRef.current,
+    strokeCount: strokeCountRef.current,
+    lengthRatio: totalLengthRef.current / CANVAS_SIZE,
+  };
+},
   }));
 
-  // Redraw ghost letter whenever letter changes
   useEffect(() => {
     const canvas = ghostCanvasRef.current;
     if (!canvas) return;
@@ -52,17 +69,11 @@ const DrawingCanvas = forwardRef(function DrawingCanvas(
     const rect = canvas.getBoundingClientRect();
     const scaleX = CANVAS_SIZE / rect.width;
     const scaleY = CANVAS_SIZE / rect.height;
-
-    if (e.touches) {
-      return {
-        x: (e.touches[0].clientX - rect.left) * scaleX,
-        y: (e.touches[0].clientY - rect.top) * scaleY,
-      };
-    }
+    const point = e.touches?.[0] || e;
 
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: (point.clientX - rect.left) * scaleX,
+      y: (point.clientY - rect.top) * scaleY,
     };
   };
 
@@ -72,6 +83,7 @@ const DrawingCanvas = forwardRef(function DrawingCanvas(
       e.preventDefault();
 
       drawingRef.current = true;
+      strokeCountRef.current += 1;
       lastPos.current = getPos(e, drawCanvasRef.current);
     },
     [paused, disabled]
@@ -92,6 +104,10 @@ const DrawingCanvas = forwardRef(function DrawingCanvas(
       return;
     }
 
+    const dx = pos.x - lastPos.current.x;
+    const dy = pos.y - lastPos.current.y;
+    totalLengthRef.current += Math.hypot(dx, dy);
+
     ctx.beginPath();
     ctx.moveTo(lastPos.current.x, lastPos.current.y);
     ctx.lineTo(pos.x, pos.y);
@@ -111,7 +127,6 @@ const DrawingCanvas = forwardRef(function DrawingCanvas(
 
   return (
     <div className="relative w-full aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-indigo-200 bg-white">
-      {/* Layer 1 — ghost letter, never cleared */}
       <canvas
         ref={ghostCanvasRef}
         width={CANVAS_SIZE}
@@ -120,7 +135,6 @@ const DrawingCanvas = forwardRef(function DrawingCanvas(
         style={{ background: "transparent" }}
       />
 
-      {/* Layer 2 — user strokes */}
       <canvas
         ref={drawCanvasRef}
         width={CANVAS_SIZE}
@@ -134,9 +148,9 @@ const DrawingCanvas = forwardRef(function DrawingCanvas(
         onTouchStart={startDraw}
         onTouchMove={draw}
         onTouchEnd={stopDraw}
+        onTouchCancel={stopDraw}
       />
 
-      {/* Feedback overlay */}
       {feedback && (
         <div
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-2"
