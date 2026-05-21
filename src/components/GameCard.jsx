@@ -10,14 +10,12 @@ export default function GameCard({
   isUnlocking = false, bgColor = "bg-white", borderColor = "border-gray-300",
 }) {
   const { t } = useTranslation();
-  const Wrapper = active && to ? Link : "div";
   const progressPct = keysRequired > 0 ? Math.min((currentKeys / keysRequired) * 100, 100) : 0;
 
   return (
-    <Wrapper
-      {...(active && to ? { to } : {})}
+    <div
       className={`rounded-2xl border-2 ${borderColor} ${bgColor} p-4 sm:p-3 shadow-sm transition-all duration-200 flex flex-col ${
-        active ? "hover:shadow-md hover:-translate-y-1 cursor-pointer" : "opacity-80 cursor-default"
+        active ? "hover:shadow-md hover:-translate-y-1" : "opacity-80 cursor-default"
       }`}
     >
       {/* Badge row — in normal flow, never overflows */}
@@ -52,10 +50,20 @@ export default function GameCard({
 
         {/* Bottom action */}
         {active ? (
-          <div className="inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 sm:px-4 sm:py-2 rounded-xl text-sm sm:text-xs font-bold shadow-md border-b-4 border-indigo-700 transition-all duration-200 w-full">
-            <span>▶️</span>
-            <span>{t("game.play_now")}</span>
-          </div>
+          to ? (
+            <Link
+              to={to}
+              className="inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 sm:px-4 sm:py-2 rounded-xl text-sm sm:text-xs font-bold shadow-md border-b-4 border-indigo-700 transition-all duration-200 w-full"
+            >
+              <span>▶️</span>
+              <span>{t("game.play_now")}</span>
+            </Link>
+          ) : (
+            <div className="inline-flex items-center justify-center gap-2 bg-indigo-500 text-white px-5 py-2.5 sm:px-4 sm:py-2 rounded-xl text-sm sm:text-xs font-bold shadow-md border-b-4 border-indigo-700 transition-all duration-200 w-full">
+              <span>▶️</span>
+              <span>{t("game.play_now")}</span>
+            </div>
+          )
         ) : (
           <div className="space-y-2 w-full">
             {globallyLocked ? (
@@ -114,6 +122,6 @@ export default function GameCard({
           </div>
         )}
       </div>
-    </Wrapper>
+    </div>
   );
 }
