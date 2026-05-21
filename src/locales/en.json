@@ -482,10 +482,17 @@
   "you": "you",
 "best": "best"
 
+},
+
+"resetpin": {
+  "title": "Reset your PIN",
+  "name": "Name",
+  "recovery_code": "Recovery code",
+  "new_pin": "New PIN",
+  "reset_pin": "🔑 Reset PIN",
+  "close": "Close"
+
 }
-
-
-
 
 }
 

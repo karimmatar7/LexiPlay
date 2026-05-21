@@ -469,6 +469,14 @@
   "you": "toi",
 "best": "meilleur"
 
+},
+"resetpin": {
+  "title": "Réinitialiser ton PIN",
+  "name": "Nom",
+  "recovery_code": "Code de récupération",
+  "new_pin": "Nouveau PIN",
+  "reset_pin": "🔑 Réinitialiser le PIN",
+  "close": "Fermer"
 }
 
 

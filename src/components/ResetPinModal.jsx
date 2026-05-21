@@ -19,7 +19,7 @@ export default function ResetPinModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white p-6 rounded-2xl w-full max-w-sm space-y-4 shadow-lg">
-        <h2 className="text-xl font-bold text-purple-700 text-center">{t("reset_pin")}</h2>
+        <h2 className="text-xl font-bold text-purple-700 text-center">{t("resetpin.title")}</h2>
         
         <input
           type="text"
@@ -31,7 +31,7 @@ export default function ResetPinModal({
         
         <input
           type="text"
-          placeholder={t("recovery_code")}
+          placeholder={t("resetpin.recovery_code")}
           value={recoveryCode}
           onChange={(e) => onRecoveryCodeChange(e.target.value)}
           className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
@@ -39,7 +39,7 @@ export default function ResetPinModal({
         
         <input
           type="password"
-          placeholder={t("new_pin")}
+          placeholder={t("resetpin.new_pin")}
           value={newPin}
           onChange={(e) => onNewPinChange(e.target.value)}
           className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-200"
@@ -52,7 +52,7 @@ export default function ResetPinModal({
             onClick={onReset}
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-xl font-bold"
           >
-            🔑 {t("reset_pin")}
+            🔑 {t("resetpin.reset_pin")}
           </button>
           <button
             onClick={onClose}
