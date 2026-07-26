@@ -5,9 +5,6 @@ import keyIcon from "../assets/icons/key.png";
 import playIcon from "../assets/icons/play.png";
 import pauseIcon from "../assets/icons/pause.png";
 
-
-
-
 export default function HeaderBar({
   keys = 0,
   paused,
@@ -19,48 +16,64 @@ export default function HeaderBar({
 
   return (
     <div className="mb-6">
-      <div className="bg-white rounded-2xl border-2 border-purple-200 p-4 md:p-5 shadow-md">
+      <div className="rounded-2xl border-2 border-purple-200 bg-white p-4 shadow-md md:p-5">
         <div className="flex items-center justify-between">
-
           {/* Left: Home + Keys */}
           <div className="flex items-center gap-3 md:gap-4">
             <button
+              type="button"
               onClick={onHome}
-              className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-pink-400 hover:bg-pink-500 border-2 border-pink-500 rounded-xl shadow-sm hover:shadow-md transform hover:scale-110 transition-all duration-200"
+              className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-pink-500 bg-pink-400 shadow-sm transition-all duration-200 hover:scale-110 hover:bg-pink-500 hover:shadow-md md:h-14 md:w-14"
             >
-              <img src={homeIcon} alt="Home" className="h-6 w-6" />
+              <img
+                src={homeIcon}
+                alt={t("header.home") || "Home"}
+                draggable="false"
+                className="h-6 w-6 object-contain"
+              />
             </button>
 
-            {/* Keys display */}
-            <div className="flex items-center gap-2 bg-yellow-50 border-2 border-yellow-300 px-3 py-2 rounded-xl shadow-sm">
-              <img src={keyIcon} alt="Key" className="h-6 w-6" />
+            {/* Keys display: same height as Home/Pause */}
+            <div className="flex h-12 items-center gap-2 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-3 shadow-sm md:h-14">
+              <img
+                src={keyIcon}
+                alt=""
+                aria-hidden="true"
+                draggable="false"
+                className="h-5 w-5 shrink-0 object-contain md:h-6 md:w-6"
+              />
+
               <div className="flex flex-col leading-none">
-                <span className="text-xs text-gray-500 font-bold uppercase tracking-wide">
+                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
                   {t("header.keys") || "Keys"}
                 </span>
-                <span className="text-2xl md:text-3xl font-black text-yellow-600">
+
+                <span className="text-2xl font-black text-yellow-600 md:text-3xl">
                   {keys}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Right: Pause + Reset */}
+          {/* Right: Pause */}
           <div className="flex items-center gap-3 md:gap-4">
             <button
+              type="button"
               onClick={onPauseToggle}
-              className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl font-bold shadow-sm hover:shadow-md border-2 transform hover:scale-110 transition-all duration-200 ${
+              className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 font-bold shadow-sm transition-all duration-200 hover:scale-110 hover:shadow-md md:h-14 md:w-14 ${
                 paused
-                  ? "bg-green-400 hover:bg-green-500 border-green-500"
-                  : "bg-amber-400 hover:bg-amber-500 border-amber-500"
+                  ? "border-green-500 bg-green-400 hover:bg-green-500"
+                  : "border-amber-500 bg-amber-400 hover:bg-amber-500"
               }`}
             >
-              <span className="text-2xl md:text-3xl text-white">
-                {paused ? <img src={playIcon} alt="Play" className="h-6 w-6" /> : <img src={pauseIcon} alt="Pause" className="h-6 w-6" />}
-              </span>
+              <img
+                src={paused ? playIcon : pauseIcon}
+                alt={paused ? "Play" : "Pause"}
+                draggable="false"
+                className="h-6 w-6 object-contain"
+              />
             </button>
           </div>
-
         </div>
       </div>
     </div>
