@@ -1,6 +1,13 @@
 // src/components/dashboard/ProgressAssistant.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import foxIcon from "../../assets/icons/fox.png";
+import dashboardIcon from "../../assets/icons/dashboard.png";
+import starIcon from "../../assets/icons/star.png";
+import gamesIcon from "../../assets/icons/games.png";
+import plantIcon from "../../assets/icons/plant.png";
+import calendarIcon from "../../assets/icons/calendar.png";
+
 
 const GAME_ORDER = [
   "wordMatch",
@@ -345,7 +352,13 @@ function AnswerPanel({ answer, t }) {
     <div className="rounded-2xl border-2 border-orange-100 bg-orange-50/50 p-4 sm:p-5">
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-500 text-xl shadow-sm">
-          🦊
+          <img
+            src={foxIcon}
+            alt="Fox"
+            aria-hidden="true"
+            className="h-6 w-6 object-contain"
+            draggable="false"
+          />
         </div>
 
         <div className="min-w-0">
@@ -519,27 +532,27 @@ hasActivity:
     () => [
       {
         id: "summary",
-        icon: "📊",
+        icon: <img src={dashboardIcon} alt="Dashboard" className="h-6 w-6" />,
         label: t("progressAssistant.questions.summary"),
       },
       {
         id: "strength",
-        icon: "⭐",
+        icon: <img src={starIcon} alt="Star" className="h-6 w-6" />,
         label: t("progressAssistant.questions.strength"),
       },
       {
         id: "focus",
-        icon: "🌱",
+        icon: <img src={plantIcon} alt="Plant" className="h-6 w-6" />,
         label: t("progressAssistant.questions.focus"),
       },
       {
         id: "routine",
-        icon: "📅",
+        icon: <img src={calendarIcon} alt="Calendar" className="h-6 w-6" />,
         label: t("progressAssistant.questions.routine"),
       },
       {
         id: "session",
-        icon: "🎮",
+        icon: <img src={gamesIcon} alt="Games" className="h-6 w-6" />,
         label: t("progressAssistant.questions.session"),
       },
     ],

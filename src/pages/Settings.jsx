@@ -5,6 +5,15 @@ import { useSettings } from "../context/SettingsContext";
 import SettingCard from "../components/SettingCard";
 import SettingButton from "../components/SettingButton";
 import { supabase } from "../supaBaseClient.js";
+import settingsIcon from "../assets/icons/settings.png";
+import soundIcon from "../assets/icons/sound.png";
+import languagesIcon from "../assets/icons/languages.png";
+import fontSizeIcon from "../assets/icons/font-size.png";
+import fontIcon from "../assets/icons/abc.png";
+import helpIcon from "../assets/icons/sos.png";
+import gamesIcon from "../assets/icons/games.png";
+
+
 
 export default function Settings({ user, setUser }) {
   const { t, i18n } = useTranslation();
@@ -56,7 +65,15 @@ const changeLanguage = async (lng) => {
       <div className="relative max-w-3xl mx-auto">
         <div className="text-center mb-12">
           <div className="inline-block mb-6 bg-white rounded-3xl p-8 shadow-sm border-4 border-rose-300">
-            <span className="text-7xl">⚙️</span>
+            <span className="text-7xl">
+              <img
+                src={settingsIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-12 w-12 object-contain"
+                draggable="false"
+              />
+            </span>
           </div>
           <h1 className="text-5xl md:text-6xl font-black mb-4 text-rose-700" style={{ letterSpacing: '-0.02em' }}>
             {t("settings.title")}
@@ -69,7 +86,15 @@ const changeLanguage = async (lng) => {
         <div className="bg-white rounded-3xl shadow-sm border-2 p-8 mb-10 space-y-8">
           {/* Font Type */}
           <SettingCard 
-            icon="🔤" 
+            icon={
+              <img
+                src={fontIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 object-contain"
+                draggable="false"
+              />
+            }
             title={t("settings.fontType.title")} 
             description={t("settings.fontType.description")}
           >
@@ -89,7 +114,15 @@ const changeLanguage = async (lng) => {
 
           {/* Font Size */}
           <SettingCard 
-            icon="🔠" 
+            icon={
+              <img
+                src={fontSizeIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 object-contain"
+                draggable="false"
+              />
+            }
             title={t("settings.fontSize.title")} 
             description={t("settings.fontSize.description")}
           >
@@ -114,7 +147,15 @@ const changeLanguage = async (lng) => {
 
           {/* Sound Toggle */}
           <SettingCard 
-            icon="🔊" 
+            icon={
+              <img
+                src={soundIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 object-contain"
+                draggable="false"
+              />
+            }
             title={t("settings.sound.title")} 
             description={t("settings.sound.description")}
           >
@@ -142,7 +183,15 @@ const changeLanguage = async (lng) => {
 
           {/* Language Selector */}
           <SettingCard
-            icon="🌐"
+            icon={
+              <img
+                src={languagesIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 object-contain"
+                draggable="false"
+              />
+            }
             title={t("settings.language.title") || "Language"}
             description={t("settings.language.description") || "Choose your preferred language"}
           >
@@ -166,7 +215,15 @@ const changeLanguage = async (lng) => {
           </SettingCard>
 
           <SettingCard
-  icon="🆘"
+  icon={
+    <img
+      src={helpIcon}
+      alt=""
+      aria-hidden="true"
+      className="h-6 w-6 object-contain"
+      draggable="false"
+    />
+  }
   title={t("support.title")}
   description={t("support.description")}
 >
@@ -187,7 +244,15 @@ const changeLanguage = async (lng) => {
             to="/menu"
             className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-5 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
           >
-            <span className="text-2xl">🎮</span>
+           <span className="flex shrink-0 items-center justify-center">
+  <img
+    src={gamesIcon}
+    alt=""
+    aria-hidden="true"
+    className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+    draggable="false"
+  />
+</span>
             <span>{t("settings.buttons.toGames")}</span>
           </Link>
 

@@ -4,6 +4,16 @@ import { getUser, updateParentalControl } from "../utils/user.js";
 import NotificationModal from "../components/NotificationModal";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
+import parentsIcon from "../assets/icons/parents.png";
+import lockIcon from "../assets/icons/lock.png";
+import clockIcon from "../assets/icons/clock.png";
+import saveIcon from "../assets/icons/save.png";
+import dashboardIcon from "../assets/icons/dashboard.png";
+import homeIcon from "../assets/icons/home.png";
+
+
+
+
 
 export default function ParentalControlPage({ user, fetchUser }) {
   const { t } = useTranslation();
@@ -48,7 +58,13 @@ export default function ParentalControlPage({ user, fetchUser }) {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-block mb-6 bg-white rounded-3xl p-8 shadow-sm border-4 border-purple-300">
-            <span className="text-7xl">👨‍👩‍👧</span>
+            <img
+              src={parentsIcon}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+              className="h-16 w-16 object-contain sm:h-20 sm:w-20"
+            />
           </div>
           <h1 className="text-5xl md:text-6xl font-black mb-4 text-purple-700" style={{ letterSpacing: "-0.02em" }}>
             {t("parentalControl.title")}
@@ -63,7 +79,15 @@ export default function ParentalControlPage({ user, fetchUser }) {
           {/* Enable Toggle */}
           <div className="space-y-4">
             <div className="flex items-start gap-4">
-              <span className="text-4xl">🔒</span>
+              <span className="text-4xl">
+                <img
+                  src={lockIcon}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                  className="h-8 w-8 object-contain"
+                />
+              </span>
               <div className="flex-1">
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">{t("parentalControl.enableTitle")}</h3>
                 <p className="text-gray-600 mb-4">{t("parentalControl.enableDesc")}</p>
@@ -98,7 +122,15 @@ export default function ParentalControlPage({ user, fetchUser }) {
           {/* Daily Limit */}
           <div className="space-y-4">
             <div className="flex items-start gap-4">
-              <span className="text-4xl">⏰</span>
+              <span className="text-4xl">
+                <img
+                  src={clockIcon}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                  className="h-8 w-8 object-contain"
+                />
+              </span>
               <div className="flex-1">
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">{t("parentalControl.dailyLimitTitle")}</h3>
                 <p className="text-gray-600 mb-4">{t("parentalControl.dailyLimitDesc")}</p>
@@ -139,7 +171,15 @@ export default function ParentalControlPage({ user, fetchUser }) {
             disabled={saving}
             className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-green-700 transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            <span className="text-2xl">💾</span>
+            <span className="text-2xl">
+              <img
+                src={saveIcon}
+                alt=""
+                aria-hidden="true"
+                draggable="false"
+                className="h-8 w-8 object-contain"
+              />
+            </span>
             <span>{saving ? t("parentalControl.saving") : t("parentalControl.save")}</span>
           </button>
 
@@ -147,7 +187,15 @@ export default function ParentalControlPage({ user, fetchUser }) {
             onClick={() => navigate("/menu")}
             className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-gray-400 hover:bg-gray-500 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-gray-600 transform hover:scale-105 transition-all duration-200"
           >
-            <span className="text-2xl">🏠</span>
+            <span className="text-2xl">
+              <img
+                src={homeIcon}
+                alt=""
+                aria-hidden="true"
+                draggable="false"
+                className="h-8 w-8 object-contain"
+              />
+            </span>
             <span>{t("parentalControl.backToMenu")}</span>
           </button>
 
@@ -155,7 +203,15 @@ export default function ParentalControlPage({ user, fetchUser }) {
             onClick={() => navigate(`/parent-dashboard/${user.id}`)}
             className="flex-1 min-w-0 text-center group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
           >
-            <span className="text-2xl">📊</span>
+            <span className="text-2xl">
+              <img
+                src={dashboardIcon}
+                alt=""
+                aria-hidden="true"
+                draggable="false"
+                className="h-8 w-8 object-contain"
+              />
+            </span>
             <span>{t("parentalControl.viewDashboard")}</span>
           </button>
         </div>

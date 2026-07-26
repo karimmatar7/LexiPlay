@@ -40,8 +40,15 @@ export default function GameMenuTour({
         </div>
 
         <h2 className="text-xl sm:text-2xl font-black text-gray-800 mb-2 flex items-center gap-2">
-          <span className="text-2xl">{step.icon}</span>
-          <span>{step.title}</span>
+<span className="flex h-16 w-16 items-center justify-center">
+  <img
+    src={step.icon}
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    className="h-12 w-12 object-contain"
+  />
+</span>          <span>{step.title}</span>
         </h2>
 
         <p className="text-sm sm:text-base text-gray-600 mb-4">

@@ -234,7 +234,7 @@
 
   "pauseOverlay": {
     "paused": "Gepauzeerd",
-    "clickToContinue": "Klik op ▶️ om verder te gaan"
+    "clickToContinue": "Klik op om verder te gaan"
   },
   "resetModal": {
   "title": "Score resetten?",

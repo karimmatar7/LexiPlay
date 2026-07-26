@@ -226,7 +226,7 @@
   },
   "pauseOverlay": {
     "paused": "Pause",
-    "clickToContinue": "Clique ▶️ pour continuer"
+    "clickToContinue": "Clique pour continuer"
   },
   "resetModal": {
     "title": "Réinitialiser le score ?",

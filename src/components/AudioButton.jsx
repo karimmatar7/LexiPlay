@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import soundIcon from "../assets/icons/sound.png";
 
 export default function AudioButton({ 
   word, 
@@ -42,13 +43,20 @@ export default function AudioButton({
     );
   };
 
-  return (
-    <button
-      onClick={() => playWord(word)}
-      className={`bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-2xl shadow-md border-b-4 border-indigo-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200 ${className}`}
-    >
-      <span className="text-3xl md:text-4xl mr-2 md:mr-3">🔊</span>
-      {t(labelKey)}
-    </button>
-  );
+return (
+  <button
+    onClick={() => playWord(word)}
+    className={`inline-flex w-full items-center justify-center gap-2 bg-indigo-500 text-center font-bold text-white rounded-2xl border-b-4 border-indigo-700 shadow-md transition-all duration-200 hover:scale-105 hover:bg-indigo-600 hover:shadow-lg sm:gap-3 ${className}`}
+  >
+    <img
+      src={soundIcon}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="h-6 w-6 shrink-0 object-contain sm:h-7 sm:w-7 md:h-8 md:w-8"
+    />
+
+    <span>{t(labelKey)}</span>
+  </button>
+);
 }

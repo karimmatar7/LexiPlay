@@ -1,5 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import homeIcon from "../assets/icons/home.png";
+import keyIcon from "../assets/icons/key.png";
+import playIcon from "../assets/icons/play.png";
+import pauseIcon from "../assets/icons/pause.png";
+
+
+
 
 export default function HeaderBar({
   keys = 0,
@@ -21,12 +28,12 @@ export default function HeaderBar({
               onClick={onHome}
               className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-pink-400 hover:bg-pink-500 border-2 border-pink-500 rounded-xl shadow-sm hover:shadow-md transform hover:scale-110 transition-all duration-200"
             >
-              <span className="text-2xl md:text-3xl">🏠</span>
+              <img src={homeIcon} alt="Home" className="h-6 w-6" />
             </button>
 
             {/* Keys display */}
             <div className="flex items-center gap-2 bg-yellow-50 border-2 border-yellow-300 px-3 py-2 rounded-xl shadow-sm">
-              <span className="text-2xl md:text-3xl">🗝️</span>
+              <img src={keyIcon} alt="Key" className="h-6 w-6" />
               <div className="flex flex-col leading-none">
                 <span className="text-xs text-gray-500 font-bold uppercase tracking-wide">
                   {t("header.keys") || "Keys"}
@@ -49,7 +56,7 @@ export default function HeaderBar({
               }`}
             >
               <span className="text-2xl md:text-3xl text-white">
-                {paused ? "▶️" : "⏸️"}
+                {paused ? <img src={playIcon} alt="Play" className="h-6 w-6" /> : <img src={pauseIcon} alt="Pause" className="h-6 w-6" />}
               </span>
             </button>
           </div>

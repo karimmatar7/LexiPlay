@@ -9,6 +9,10 @@ import NotificationModal from "../components/NotificationModal";
 import ResetParentalPinModal from "../components/ResetParentalPinModal.jsx";
 import EyeIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeSlashIcon from "@heroicons/react/24/outline/EyeSlashIcon";
+import lockIcon from "../assets/icons/lock.png";
+import homeIcon from "../assets/icons/home.png";
+import unlockIcon from "../assets/icons/unlock.png";
+import loopIcon from "../assets/icons/loop.png";
 
 export default function ParentalUnlockPage({ user, setUnlocked }) {
   const { t } = useTranslation();
@@ -97,7 +101,13 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
   return (
     <div className={`min-h-screen bg-indigo-50 p-6 relative ${fontClass} ${sizeMap[fontSize]}`}>
       <div className="max-w-2xl mx-auto text-center">
-        <span className="text-7xl">🔐</span>
+        <img
+  src={lockIcon}
+  alt=""
+  aria-hidden="true"
+  draggable="false"
+  className="mx-auto h-14 w-14 object-contain sm:h-16 sm:w-16"
+/>
         <h1 className="text-5xl font-black text-indigo-700 mt-4">
           {existingPin ? t("parentalUnlock.enterPinTitle") : t("parentalUnlock.setPinTitle")}
         </h1>
@@ -140,17 +150,47 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
 
         {existingPin && (
           <button onClick={() => setShowResetModal(true)} className="mb-4 text-sm text-purple-700 underline w-full">
-            🔁 {t("parentalUnlock.forgotPin")}
-          </button>
+<span className="inline-flex items-center justify-center gap-2">
+  <img
+    src={loopIcon}
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+  />
+  <span>{t("parentalUnlock.forgotPin")}</span>
+</span>          </button>
         )}
 
         {/* Buttons */}
         <div className="flex gap-4">
           <button onClick={handleUnlock} disabled={isLocked} className="flex-1 bg-purple-600 text-white py-5 rounded-2xl font-bold">
-            {existingPin ? "🔓" : "✨"} {existingPin ? t("parentalUnlock.buttonUnlock") : t("parentalUnlock.buttonSetPin")}
+           <span className="inline-flex items-center justify-center gap-2">
+  <img
+    src={existingPin ? unlockIcon : lockIcon}
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+  />
+  <span>
+    {existingPin
+      ? t("parentalUnlock.buttonUnlock")
+      : t("parentalUnlock.buttonSetPin")}
+  </span>
+</span>
           </button>
           <button onClick={() => navigate("/menu")} className="flex-1 bg-gray-400 text-white py-5 rounded-2xl font-bold">
-            🏠 {t("parentalUnlock.backToMenu")}
+            <span className="inline-flex items-center justify-center gap-2">
+  <img
+    src={homeIcon}
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+  />
+  <span>{t("parentalUnlock.backToMenu")}</span>
+</span>
           </button>
         </div>
       </div>

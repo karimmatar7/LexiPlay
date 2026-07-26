@@ -1,5 +1,12 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
+import calendarIcon from "../../assets/icons/calendar.png";
+import clockIcon from "../../assets/icons/clock.png";
+import checkIcon from "../../assets/icons/check.png";
+import sandclockIcon from "../../assets/icons/sandclock.png";
+
+
+
 
 export default function SessionSummary({ dates, totalPlaytime, avgPerDay, lastActive, readyToPlay, refilling, t }) {
   return (
@@ -9,7 +16,7 @@ export default function SessionSummary({ dates, totalPlaytime, avgPerDay, lastAc
       </h2>
       <ul className="text-sm text-gray-700 space-y-2">
         <li className="flex items-start gap-2">
-          <span className="shrink-0">📆</span>
+          <img src={calendarIcon} alt="Calendar" className="h-6 w-6 shrink-0" />
           <span>
             <strong>{t("parentDashboard.activeDays")}:</strong>{" "}
             {t("parentDashboard.activeDaysValue", { count: dates.length })}
@@ -17,7 +24,7 @@ export default function SessionSummary({ dates, totalPlaytime, avgPerDay, lastAc
           </span>
         </li>
         <li className="flex items-start gap-2">
-          <span className="shrink-0">⏱️</span>
+          <img src={clockIcon} alt="Clock" className="h-6 w-6 shrink-0" />
           <span>
             <strong>{t("parentDashboard.totalTime")}:</strong>{" "}
             {Math.round(totalPlaytime)} min · {t("parentDashboard.avg")} {avgPerDay} min/{t("parentDashboard.day")}
@@ -25,7 +32,7 @@ export default function SessionSummary({ dates, totalPlaytime, avgPerDay, lastAc
         </li>
         {readyToPlay.length > 0 && (
           <li className="flex items-start gap-2 text-emerald-700">
-            <span className="shrink-0">✅</span>
+            <img src={checkIcon} alt="Check" className="h-6 w-6 shrink-0" />
             <span>
               <strong>{t("parentDashboard.readyToPlay")}:</strong>{" "}
               {readyToPlay.map(([k]) => t(`gameCards.${k}.title`)).join(", ")}
@@ -34,7 +41,7 @@ export default function SessionSummary({ dates, totalPlaytime, avgPerDay, lastAc
         )}
         {refilling.length > 0 && (
           <li className="flex items-start gap-2 text-rose-600">
-            <span className="shrink-0">⏳</span>
+            <img src={sandclockIcon} alt="Clock" className="h-6 w-6 shrink-0" />
             <span>
               <strong>{t("parentDashboard.waitingGames")}:</strong>{" "}
               {refilling.map(([k]) => t(`gameCards.${k}.title`)).join(", ")}

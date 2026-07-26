@@ -13,6 +13,8 @@ import PrintButton from "../components/dashboard/PrintButton";
 import PrintReport from "../components/dashboard/PrintReport";
 import ProgressAssistant from "../components/dashboard/ProgressAssistant";
 import StatCards from "../components/dashboard/StatCards";
+import streakIcon from "../assets/icons/fire.png";
+
 
 const KNOWN_GAMES = [
   "wordMatch",
@@ -241,6 +243,13 @@ return {
     ? format(parseISO(lastActive), "dd MMM yyyy")
     : null;
 
+  const streakValue = (
+    <span className="inline-flex items-center gap-1">
+      {streak}
+      <img src={streakIcon} alt="" className="h-4 w-4" />
+    </span>
+  );
+
   const statCards = [
     {
       label: t("parentDashboard.totalPlaytime"),
@@ -256,7 +265,7 @@ return {
     },
     {
       label: t("parentDashboard.streak"),
-      value: `${streak} 🔥`,
+      value: streakValue,
       sub:
         streak >= 3
           ? t("parentDashboard.streakGreat")

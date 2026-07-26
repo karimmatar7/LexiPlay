@@ -15,6 +15,12 @@ import KeysCard from "../components/KeysCard";
 import GlobalLockBanner from "../components/GlobalLockBanner";
 import GameMenuTour from "../components/GameMenuTour";
 import { getUser, unlockGame, updateSettings } from "../utils/user.js";
+import parentsIcon from "../assets/icons/parents.png";
+import foxIcon from "../assets/icons/fox.png";
+import starIcon from "../assets/icons/star.png";
+import keyIcon from "../assets/icons/key.png";
+import gamesIcon from "../assets/icons/games.png";
+import settingsIcon from "../assets/icons/settings.png";
 
 const KEY_THRESHOLDS = { letterBuild: 5, maze: 15, final: 30, letterDraw: 10
  };
@@ -141,13 +147,58 @@ export default function GameMenu({ user, setUser }) {
     setUnlocking(null);
   };
 
-  const tourSteps = [
-    { key: "header",  icon: "🦊", title: t("menuTour.headerTitle"),  description: t("menuTour.headerDesc"),  hint: t("menuTour.headerHint"),  skipLabel: t("menuTour.skip"),  nextLabel: t("menuTour.next"),  finishLabel: t("menuTour.finish") },
-    { key: "xp",      icon: "⭐", title: t("menuTour.xpTitle"),      description: t("menuTour.xpDesc"),      hint: t("menuTour.xpHint"),      skipLabel: t("menuTour.skip"),  nextLabel: t("menuTour.next"),  finishLabel: t("menuTour.finish") },
-    { key: "keys",    icon: "🗝️",title: t("menuTour.keysTitle"),    description: t("menuTour.keysDesc"),    hint: t("menuTour.keysHint"),    skipLabel: t("menuTour.skip"),  nextLabel: t("menuTour.next"),  finishLabel: t("menuTour.finish") },
-    { key: "games",   icon: "🎮", title: t("menuTour.gamesTitle"),   description: t("menuTour.gamesDesc"),   hint: t("menuTour.gamesHint"),   skipLabel: t("menuTour.skip"),  nextLabel: t("menuTour.next"),  finishLabel: t("menuTour.finish") },
-    { key: "settings",icon: "⚙️", title: t("menuTour.settingsTitle"),description: t("menuTour.settingsDesc"),hint: t("menuTour.settingsHint"),skipLabel: t("menuTour.skip"),  nextLabel: t("menuTour.next"),  finishLabel: t("menuTour.finish") }
-  ];
+const tourSteps = [
+  {
+    key: "header",
+    icon: foxIcon,
+    title: t("menuTour.headerTitle"),
+    description: t("menuTour.headerDesc"),
+    hint: t("menuTour.headerHint"),
+    skipLabel: t("menuTour.skip"),
+    nextLabel: t("menuTour.next"),
+    finishLabel: t("menuTour.finish"),
+  },
+  {
+    key: "xp",
+    icon: starIcon,
+    title: t("menuTour.xpTitle"),
+    description: t("menuTour.xpDesc"),
+    hint: t("menuTour.xpHint"),
+    skipLabel: t("menuTour.skip"),
+    nextLabel: t("menuTour.next"),
+    finishLabel: t("menuTour.finish"),
+  },
+  {
+    key: "keys",
+    icon: keyIcon,
+    title: t("menuTour.keysTitle"),
+    description: t("menuTour.keysDesc"),
+    hint: t("menuTour.keysHint"),
+    skipLabel: t("menuTour.skip"),
+    nextLabel: t("menuTour.next"),
+    finishLabel: t("menuTour.finish"),
+  },
+  {
+    key: "games",
+    icon: gamesIcon,
+    title: t("menuTour.gamesTitle"),
+    description: t("menuTour.gamesDesc"),
+    hint: t("menuTour.gamesHint"),
+    skipLabel: t("menuTour.skip"),
+    nextLabel: t("menuTour.next"),
+    finishLabel: t("menuTour.finish"),
+  },
+  {
+    key: "settings",
+    icon: settingsIcon,
+    title: t("menuTour.settingsTitle"),
+    description: t("menuTour.settingsDesc"),
+    hint: t("menuTour.settingsHint"),
+    skipLabel: t("menuTour.skip"),
+    nextLabel: t("menuTour.next"),
+    finishLabel: t("menuTour.finish"),
+  },
+];
 
   useEffect(() => {
     if (!user) return;
@@ -291,7 +342,15 @@ export default function GameMenu({ user, setUser }) {
             to="/settings"
             className="inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 active:scale-100 transition-all duration-200 px-7 py-3 text-sm sm:text-base"
           >
-            <span className="text-lg sm:text-xl">⚙️</span>
+            <span className="text-lg sm:text-xl">
+              <img
+                src={settingsIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 object-contain"
+                draggable="false"
+              />
+            </span>
             <span>{t("gameMenu.settings")}</span>
           </Link>
 
@@ -316,7 +375,13 @@ export default function GameMenu({ user, setUser }) {
         }}
         title={t("gameMenu.parentalControl")}
       >
-        👨‍👩‍👧
+        <img
+  src={parentsIcon}
+  alt=""
+  aria-hidden="true"
+  draggable="false"
+  className="h-7 w-7 object-contain sm:h-8 sm:w-8"
+/>
       </button>
 
       <ParentalControlModal

@@ -1,5 +1,8 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import cupIcon from "../assets/icons/cup.png";
+import starIcon from "../assets/icons/star.png";
+
 
 export default function XPCard({ xp, level }) {
   const { t } = useTranslation()
@@ -66,7 +69,7 @@ export default function XPCard({ xp, level }) {
                 className="font-black text-indigo-700 leading-none"
                 style={{ fontSize: "clamp(13px,3vw,17px)" }}
               >
-                {t("gameMenu.adventurer") || "Adventurer"} 🏆
+                {t("gameMenu.adventurer") || "Adventurer"} <img src={cupIcon} alt="Cup" className="h-5 w-5" />
               </p>
             </div>
           </div>
@@ -105,7 +108,8 @@ export default function XPCard({ xp, level }) {
 
         <div className="flex justify-between mt-2 gap-2">
           <p className="text-xs font-semibold text-indigo-300">
-            ⭐ {t("gameMenu.totalXP") || "Total XP"}: {xp}
+            <img src={starIcon} alt="Star" className="h-4 w-4 inline mr-1" />
+            {t("gameMenu.totalXP") || "Total XP"}: {xp}
           </p>
           <p className="text-xs font-bold text-gray-400">
             {100 - xpIntoLevel} XP {t("gameMenu.toNextLevel") || "to next level"}

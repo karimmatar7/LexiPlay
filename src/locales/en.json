@@ -237,7 +237,7 @@
 
   "pauseOverlay": {
     "paused": "Paused",
-    "clickToContinue": "Click ▶️ to continue"
+    "clickToContinue": "Click to continue"
   },
   "resetModal": {
   "title": "Reset score?",
