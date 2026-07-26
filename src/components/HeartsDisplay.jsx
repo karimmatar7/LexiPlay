@@ -1,4 +1,5 @@
 import React from "react";
+import heartIcon from "../assets/icons/heart.png";
 
 export function HeartsDisplay({ hearts, heartAnimating, maxHearts }) {
   return (
@@ -15,21 +16,26 @@ export function HeartsDisplay({ hearts, heartAnimating, maxHearts }) {
         }
       `}</style>
 
-      <div className="flex justify-center items-center gap-2 sm:gap-3 mb-5 sm:mb-6 flex-wrap">
-        {Array.from({ length: maxHearts }).map((_, i) => (
-          <span
-            key={i}
-            className={`
-              text-2xl sm:text-3xl md:text-4xl select-none transition-colors duration-300
-              ${i < hearts ? "text-red-500 drop-shadow-sm" : "opacity-20 grayscale"}
-              ${heartAnimating === i ? "heart-losing" : ""}
-            `}
-            style={{ display: "inline-block", lineHeight: 1 }}
-          >
-            ❤️
-          </span>
-        ))}
-      </div>
+     <div className="mb-5 flex flex-wrap items-center justify-center gap-2 sm:mb-6 sm:gap-3">
+  {Array.from({ length: maxHearts }).map((_, i) => (
+    <span
+      key={i}
+      className={`
+        inline-block leading-none transition-all duration-300
+        ${i < hearts ? "drop-shadow-sm" : "opacity-20 grayscale"}
+        ${heartAnimating === i ? "heart-losing" : ""}
+      `}
+    >
+      <img
+        src={heartIcon}
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+        className="h-6 w-6 object-contain sm:h-8 sm:w-8 md:h-10 md:w-10"
+      />
+    </span>
+  ))}
+</div>
     </>
   );
 }

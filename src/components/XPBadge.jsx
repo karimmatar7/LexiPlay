@@ -1,5 +1,6 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
+import starIcon from "../assets/icons/star.png"
 
 export default function XPBadge({ xp, level }) {
   const { t } = useTranslation()
@@ -8,7 +9,13 @@ export default function XPBadge({ xp, level }) {
   return (
     <div className="flex justify-center mb-2">
       <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-full px-4 py-1.5">
-        <span className="text-base">⭐</span>
+        <img
+          src={starIcon}
+          alt="Star"
+          aria-hidden="true"
+          draggable="false"
+          className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+        />
         <span className="text-sm font-black text-indigo-600">
           {t("gameMenu.level") || "Level"} {level}
         </span>

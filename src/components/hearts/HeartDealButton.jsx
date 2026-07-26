@@ -1,4 +1,5 @@
 import React from "react"
+import heartIcon from "../../assets/icons/heart.png"
 
 export default function HeartDealButton({ deal, onBuy, buying, t }) {
   const label = deal.hearts === 5 ? t("hearts.deal5") : t("hearts.deal3")
@@ -19,7 +20,14 @@ export default function HeartDealButton({ deal, onBuy, buying, t }) {
     >
       <span className="flex items-center gap-1.5 text-base sm:text-lg min-w-0 flex-1 mr-3">
         {Array.from({ length: deal.hearts }).map((_, i) => (
-          <span key={i} className="shrink-0">❤️</span>
+          <img
+            key={i}
+            src={heartIcon}
+            alt="Heart"
+            aria-hidden="true"
+            draggable="false"
+            className="h-4 w-4 object-contain"
+          />
         ))}
         <span className="ml-1 truncate">{label}</span>
       </span>

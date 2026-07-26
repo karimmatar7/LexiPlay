@@ -20,6 +20,8 @@ import { useGameProgress } from "../hooks/useGameProgress"
 import { useGameTimer } from "../hooks/useGameTimer"
 import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
 import { getUser, addKeysAndXP } from "../supabaseFunctions.js"
+import clockIcon from "../assets/icons/clock.png"
+import writingIcon from "../assets/icons/writing.png"
 
 const TOTAL_WORDS  = 20
 const GAME_TIME    = 400
@@ -405,8 +407,19 @@ const isPlaying = loaded && !paused && !gameOver && !showResetModal && !showWarn
               <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold shadow-md border-2 ${
                 isWarningTime ? "bg-red-100 border-red-400 text-red-600 animate-pulse" : "bg-white border-sky-300 text-sky-700"
               }`}>
-                <span className="text-xl">{isWarningTime ? "⚠️" : "⏱️"}</span>
-                <span className="text-lg tabular-nums">{timeLeft}s</span>
+<span className="flex h-5 w-5 items-center justify-center">
+  {isWarningTime ? (
+    <span className="text-xl">⚠️</span>
+  ) : (
+    <img
+      src={clockIcon}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+    />
+  )}
+</span>                <span className="text-lg tabular-nums">{timeLeft}s</span>
               </div>
             </div>
 
@@ -420,7 +433,13 @@ const isPlaying = loaded && !paused && !gameOver && !showResetModal && !showWarn
 
             <div className="text-center">
               <div className="inline-flex items-center gap-2 bg-white px-6 py-3 rounded-full shadow-md border-2 border-sky-300">
-                <span className="text-2xl">📝</span>
+                <img
+                  src={writingIcon}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                  className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+                />
                 <span className="text-lg font-bold text-gray-700">
                   {t("finalWordBuilder.word")}{" "}
                   <span className="text-sky-600">{currentIndex + 1}</span> / {TOTAL_WORDS}

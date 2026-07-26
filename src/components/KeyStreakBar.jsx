@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
+import keyIcon from "../assets/icons/key.png"
 
 export default function KeyStreakBar({ keyStreak, keyEveryN = 4, justEarned = false, soundOn = true }) {
   const { t } = useTranslation()
@@ -26,14 +27,24 @@ export default function KeyStreakBar({ keyStreak, keyEveryN = 4, justEarned = fa
             : "bg-yellow-50 border-yellow-200"
         }`}
       >
-        <span
-          className={`text-sm font-bold text-yellow-600 transition-transform duration-500 ${
-            justEarned ? "animate-spin" : ""
-          }`}
-          style={justEarned ? { animationIterationCount: 1, animationDuration: "0.5s" } : {}}
-        >
-          🗝️
-        </span>
+      <span
+  className={`inline-flex items-center justify-center transition-transform duration-500 ${
+    justEarned ? "animate-spin" : ""
+  }`}
+  style={
+    justEarned
+      ? { animationIterationCount: 1, animationDuration: "0.5s" }
+      : {}
+  }
+>
+  <img
+    src={keyIcon}
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+  />
+</span>
 
         {Array.from({ length: keyEveryN }).map((_, i) => (
           <div

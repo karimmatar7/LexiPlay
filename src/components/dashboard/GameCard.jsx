@@ -1,6 +1,7 @@
 import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { heartStatus } from "../../utils/heartStatus.js";
+import heartIcon from "../../assets/icons/heart.png";
 
 const MAX_HEARTS = 5;
 
@@ -15,7 +16,16 @@ function HeartsRow({ count = 5, max = MAX_HEARTS }) {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: max }).map((_, i) => (
-        <span key={i} className={`text-base ${i < count ? "opacity-100" : "opacity-15"}`}>❤️</span>
+        <img
+          key={i}
+          src={heartIcon}
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+          className={`h-4 w-4 object-contain transition-opacity sm:h-5 sm:w-5 ${
+            i < count ? "opacity-100" : "opacity-15 grayscale"
+          }`}
+        />
       ))}
     </div>
   );
