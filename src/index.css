@@ -41,3 +41,243 @@ body {
   color: var(--text-primary);
 }
 
+@keyframes ball-idle {
+  0%,
+  100% {
+    left: calc(50% - 22px);
+    bottom: 8px;
+    transform: rotate(-4deg) scale(1);
+  }
+
+  50% {
+    left: calc(50% - 22px);
+    bottom: 13px;
+    transform: rotate(4deg) scale(1.04);
+  }
+}
+
+@keyframes ball-shoot {
+  0% {
+    left: calc(50% - 22px);
+    bottom: 8px;
+    transform: rotate(0deg) scale(1);
+  }
+
+  100% {
+    left: calc(50% - 22px);
+    bottom: 104px;
+    transform: rotate(540deg) scale(0.7);
+  }
+}
+
+@keyframes ball-goal {
+  0% {
+    left: calc(50% - 22px);
+    bottom: 104px;
+    transform: rotate(540deg) scale(0.7);
+  }
+
+  55% {
+    left: calc(50% - 22px);
+    bottom: 74px;
+    transform: rotate(720deg) scale(0.62);
+  }
+
+  100% {
+    left: calc(50% - 22px);
+    bottom: 80px;
+    transform: rotate(760deg) scale(0.67);
+  }
+}
+
+@keyframes ball-miss {
+  0% {
+    left: calc(50% - 22px);
+    bottom: 104px;
+    transform: rotate(360deg) scale(0.72);
+  }
+
+  100% {
+    left: 7%;
+    bottom: 8px;
+    transform: rotate(900deg) scale(1);
+  }
+}
+
+@keyframes net-bounce {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+
+  35% {
+    transform: translateX(-50%) scale(1.05, 0.88);
+  }
+
+  65% {
+    transform: translateX(-50%) scale(0.98, 1.06);
+  }
+}
+
+@keyframes stadium-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.018);
+  }
+}
+
+@keyframes goal-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.72);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.7);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(195px) rotate(540deg) scale(1);
+  }
+}
+
+@keyframes cloud-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(13px);
+  }
+}
+
+@keyframes crowd-wave {
+  0%,
+  100% {
+    transform: translateX(-8px) translateY(0);
+  }
+
+  50% {
+    transform: translateX(4px) translateY(-3px);
+  }
+}
+
+@keyframes feedback-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.75);
+  }
+
+  70% {
+    transform: translateY(-2px) scale(1.06);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ball-idle {
+  left: calc(50% - 22px);
+  bottom: 8px;
+}
+
+.ball-shoot {
+  left: calc(50% - 22px);
+  bottom: 8px;
+  animation: ball-shoot 0.32s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.ball-goal {
+  left: calc(50% - 22px);
+  bottom: 104px;
+  animation: ball-goal 0.6s ease-out forwards;
+}
+
+.ball-miss {
+  left: calc(50% - 22px);
+  bottom: 104px;
+  animation: ball-miss 0.55s cubic-bezier(0.4, 0, 0.7, 1) forwards;
+}
+
+.animate-net-bounce {
+  animation: net-bounce 0.55s ease-out;
+}
+
+.animate-stadium-pop {
+  animation: stadium-pop 0.45s ease-out;
+}
+
+.animate-goal-ring {
+  animation: goal-ring 0.7s ease-out forwards;
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall 1s ease-out forwards;
+}
+
+.animate-cloud-drift {
+  animation: cloud-drift 5s ease-in-out infinite;
+}
+
+.animate-crowd-wave {
+  animation: crowd-wave 1.1s ease-in-out infinite;
+}
+
+.animate-feedback-pop {
+  animation: feedback-pop 0.32s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ball-idle,
+  .ball-shoot,
+  .ball-goal,
+  .ball-miss,
+  .animate-net-bounce,
+  .animate-stadium-pop,
+  .animate-goal-ring,
+  .animate-confetti-fall,
+  .animate-cloud-drift,
+  .animate-crowd-wave,
+  .animate-feedback-pop {
+    animation: none !important;
+  }
+}
+
+@keyframes star-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-8deg) scale(1);
+  }
+
+  50% {
+    transform: translateY(-7px) rotate(8deg) scale(1.12);
+  }
+}
+
+.animate-star-float {
+  animation: star-float 2s ease-in-out infinite;
+}
+
+.animate-flag-wave {
+  animation: flag-wave 1.1s ease-in-out infinite;
+}

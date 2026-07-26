@@ -29,7 +29,6 @@ export const AVATAR_PARTS = {
     { id: "curly",   emoji: "🧒", label: { en: "Curly",  fr: "Bouclé",    nl: "Krullend" }, locked: true, keyCost: 3 },
     { id: "bun",     emoji: "💁", label: { en: "Bun",    fr: "Chignon",   nl: "Knot"     }, locked: true, keyCost: 3 },
     { id: "cap",     emoji: "🧢", label: { en: "Cap",    fr: "Casquette", nl: "Pet"      }, locked: true, keyCost: 4 },
-    { id: "crown",   emoji: "👑", label: { en: "Crown",  fr: "Couronne",  nl: "Kroon"    }, locked: true, keyCost: 6 },
   ],
 
   outfit: [
@@ -50,6 +49,7 @@ export const AVATAR_PARTS = {
     { id: "horn",    emoji: "🦄", label: { en: "Horn",    fr: "Corne",    nl: "Hoorn"  }, locked: true, keyCost: 4 },
     { id: "halo",    emoji: "😇", label: { en: "Halo",    fr: "Halo",     nl: "Halo"   }, locked: true, keyCost: 5 },
     { id: "mask",    emoji: "🦸", label: { en: "Hero",    fr: "Héros",    nl: "Held"   }, locked: true, keyCost: 5 },
+        { id: "crown",   emoji: "👑", label: { en: "Crown",  fr: "Couronne",  nl: "Kroon"    }, locked: true, keyCost: 6 },
   ],
 
   bg: [

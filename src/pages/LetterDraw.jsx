@@ -23,10 +23,10 @@ import LeaderboardOverlay from "../components/LeaderboardOverlay";
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 const PASS_COVERAGE = 0.42;
-const PASS_PRECISION = 0.50;
+const PASS_PRECISION = 0.5;
 const PASS_F1 = 0.46;
 const MIN_DRAWN_INK = 0.012;
-const MAX_DRAWN_INK = 0.30;
+const MAX_DRAWN_INK = 0.3;
 const MAX_CENTER_GAP = 0.25;
 
 const MAX_HEARTS = 5;
@@ -62,6 +62,7 @@ function getInkStats(imageData) {
   }
 
   const { data, width, height } = imageData;
+
   let count = 0;
   let sumX = 0;
   let sumY = 0;
@@ -70,12 +71,12 @@ function getInkStats(imageData) {
   let maxX = 0;
   let maxY = 0;
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
       const alpha = data[(y * width + x) * 4 + 3];
 
       if (alpha > 80) {
-        count++;
+        count += 1;
         sumX += x;
         sumY += y;
         minX = Math.min(minX, x);
@@ -109,6 +110,7 @@ function getInkStats(imageData) {
 
 function getF1Score(coverage, precision) {
   if (coverage + precision === 0) return 0;
+
   return (2 * coverage * precision) / (coverage + precision);
 }
 
@@ -152,204 +154,180 @@ function isStrongLetterMatch({
   );
 }
 
-/* ─── Goal Net ──────────────────────────────────────────────────────── */
-function GoalNet({ ballState }) {
-  const netShake = ballState === "goal";
+/* ─── Stadium visuals ──────────────────────────────────────────────── */
+
+function GoalConfetti() {
+  const colors = [
+    "bg-yellow-300",
+    "bg-pink-400",
+    "bg-purple-400",
+    "bg-orange-400",
+    "bg-emerald-300",
+    "bg-cyan-300",
+  ];
 
   return (
-    <div className="relative w-full select-none" style={{ height: 110 }}>
+    <div className="pointer-events-none absolute inset-0 z-30 overflow-hidden">
+      {Array.from({ length: 28 }).map((_, index) => (
+        <span
+          key={index}
+          className={`absolute h-2.5 w-2.5 rounded-sm ${
+            colors[index % colors.length]
+          } animate-confetti-fall`}
+          style={{
+            left: `${4 + ((index * 19) % 92)}%`,
+            top: `${-10 - (index % 5) * 10}px`,
+            animationDelay: `${(index % 8) * 0.055}s`,
+            animationDuration: `${0.85 + (index % 4) * 0.12}s`,
+            transform: `rotate(${index * 33}deg)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Ball({ state }) {
+  let animationClass = "ball-idle";
+
+  if (state === "shooting") animationClass = "ball-shoot";
+  if (state === "goal") animationClass = "ball-goal";
+  if (state === "miss") animationClass = "ball-miss";
+
+  return (
+    <div
+      className={`absolute z-20 flex h-11 w-11 items-center justify-center text-[42px] leading-none drop-shadow-[0_6px_4px_rgba(15,23,42,0.28)] ${animationClass}`}
+      aria-hidden="true"
+    >
+      ⚽
+    </div>
+  );
+}
+
+function GoalNet({ ballState }) {
+  const isGoal = ballState === "goal";
+
+  return (
+    <div
+      className={`relative h-[190px] w-full select-none overflow-hidden rounded-[22px] ${
+        isGoal ? "animate-stadium-pop" : ""
+      }`}
+    >
+      {/* Sky */}
+      <div className="absolute inset-0 bg-gradient-to-b from-sky-300 via-sky-200 to-cyan-100" />
+
+      {/* Decorative sky */}
+      <div className="absolute -right-6 -top-7 h-20 w-20 rounded-full border-4 border-yellow-200 bg-yellow-300 shadow-[0_0_22px_rgba(250,204,21,0.72)]" />
+
+      <div className="absolute left-6 top-7 text-3xl opacity-95 animate-cloud-drift">
+        ☁️
+      </div>
+
       <div
-        className={`absolute inset-x-0 top-0 transition-transform duration-100 ${
-          netShake ? "animate-net-shake" : ""
-        }`}
-        style={{ height: 90 }}
+        className="absolute right-20 top-11 text-2xl opacity-80 animate-cloud-drift"
+        style={{ animationDelay: "-2.5s" }}
       >
-        <svg
-          viewBox="0 0 360 90"
-          width="100%"
-          height="90"
-          xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-lg"
-        >
-          <rect
-            x="10"
-            y="4"
-            width="340"
-            height="76"
-            rx="2"
-            fill="rgba(255,255,255,0.07)"
-            stroke="none"
-          />
-          <rect
-            x="8"
-            y="4"
-            width="344"
-            height="6"
-            rx="3"
-            fill="#e2e8f0"
-            stroke="#94a3b8"
-            strokeWidth="1"
-          />
-          <rect
-            x="8"
-            y="4"
-            width="6"
-            height="82"
-            rx="3"
-            fill="#e2e8f0"
-            stroke="#94a3b8"
-            strokeWidth="1"
-          />
-          <rect
-            x="346"
-            y="4"
-            width="6"
-            height="82"
-            rx="3"
-            fill="#e2e8f0"
-            stroke="#94a3b8"
-            strokeWidth="1"
-          />
-          <rect x="8" y="82" width="344" height="5" rx="2" fill="#94a3b8" />
+        ☁️
+      </div>
 
-          {Array.from({ length: 17 }).map((_, i) => (
-            <line
-              key={`v${i}`}
-              x1={28 + i * 20}
-              y1="10"
-              x2={28 + i * 20}
-              y2="82"
-              stroke="rgba(255,255,255,0.55)"
-              strokeWidth="1"
-            />
-          ))}
+      <div className="absolute left-4 top-[76px] text-lg animate-star-float">
+        ⭐
+      </div>
 
-          {Array.from({ length: 7 }).map((_, i) => (
-            <line
-              key={`h${i}`}
-              x1="14"
-              y1={16 + i * 10}
-              x2="346"
-              y2={16 + i * 10}
-              stroke="rgba(255,255,255,0.55)"
-              strokeWidth="1"
-            />
-          ))}
+      <div
+        className="absolute right-6 top-[73px] text-base animate-star-float"
+        style={{ animationDelay: "-1.2s" }}
+      >
+        ✨
+      </div>
 
-          <rect x="14" y="74" width="332" height="10" fill="rgba(0,0,0,0.08)" />
+      {/* Crowd */}
+      <div className="absolute bottom-9 inset-x-0 h-9 overflow-hidden bg-indigo-700/90">
+        <div className="absolute -top-1 whitespace-nowrap text-lg tracking-[5px] animate-crowd-wave">
+          🧒🏽 👧🏻 🧒🏼 👧🏾 🧒🏻 👧🏼 🧒🏿 👧🏽 🧒🏾 👧🏻 🧒🏼 👧🏿
+        </div>
+      </div>
 
-          {ballState === "goal" && (
-            <rect
-              x="14"
-              y="10"
-              width="332"
-              height="72"
-              rx="2"
-              fill="rgba(250,204,21,0.22)"
-              className="animate-pulse"
-            />
+      {/* Goal */}
+      <div
+        className={`absolute bottom-8 left-1/2 h-[106px] w-[84%] max-w-[340px] -translate-x-1/2 ${
+          isGoal ? "animate-net-bounce" : ""
+        }`}
+      >
+        <div className="absolute inset-x-3 bottom-1 top-3 overflow-hidden rounded-md border border-white/40 bg-white/20">
+          <div
+            className="absolute inset-0 opacity-80"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255,255,255,0.62) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.62) 1px, transparent 1px)
+              `,
+              backgroundSize: "17px 13px",
+            }}
+          />
+
+          {isGoal && (
+            <div className="absolute inset-0 bg-yellow-300/30 animate-pulse" />
           )}
-        </svg>
+        </div>
+
+        <div className="absolute inset-x-0 top-0 h-3 rounded-full border-2 border-slate-300 bg-gradient-to-b from-white to-slate-200 shadow-md" />
+
+        <div className="absolute bottom-0 left-0 top-0 w-3 rounded-full border-2 border-slate-300 bg-gradient-to-r from-white to-slate-200 shadow-md" />
+
+        <div className="absolute bottom-0 right-0 top-0 w-3 rounded-full border-2 border-slate-300 bg-gradient-to-l from-white to-slate-200 shadow-md" />
+
+        {isGoal && (
+          <div className="pointer-events-none absolute -inset-4 rounded-3xl border-4 border-yellow-300 animate-goal-ring" />
+        )}
       </div>
 
       <Ball state={ballState} />
 
-      <div
-        className="absolute bottom-0 inset-x-0 rounded-b-xl"
-        style={{
-          height: 22,
-          background: "linear-gradient(to bottom, #4ade80, #16a34a)",
-          borderTop: "3px solid #15803d",
-        }}
-      >
-        <div className="absolute left-1/2 -translate-x-1/2 top-1 w-8 h-1 bg-white/30 rounded-full" />
+      {isGoal && <GoalConfetti />}
+
+      {/* Pitch */}
+      <div className="absolute bottom-0 inset-x-0 h-10 border-t-4 border-emerald-600 bg-gradient-to-b from-emerald-400 to-green-600">
+        <div className="absolute left-1/2 top-3 h-1 w-14 -translate-x-1/2 rounded-full bg-white/70" />
       </div>
     </div>
   );
 }
 
-/* ─── Animated Ball ─────────────────────────────────────────────────── */
-function Ball({ state }) {
-  const baseStyle = {
-    position: "absolute",
-    width: 28,
-    height: 28,
-    borderRadius: "50%",
-    background: "radial-gradient(circle at 35% 35%, #ffffff, #d1d5db)",
-    border: "2px solid #374151",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.35)",
-    transition: "all 0.55s cubic-bezier(0.22, 1, 0.36, 1)",
-    zIndex: 20,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 16,
-    pointerEvents: "none",
-  };
-
-  let style = { ...baseStyle };
-
-  if (!state) {
-    style = {
-      ...style,
-      bottom: 4,
-      left: "calc(50% - 14px)",
-      transform: "scale(1)",
-      opacity: 1,
-    };
-  } else if (state === "shooting") {
-    style = {
-      ...style,
-      bottom: 55,
-      left: "calc(50% - 14px)",
-      transform: "scale(0.85)",
-      opacity: 1,
-    };
-  } else if (state === "goal") {
-    style = {
-      ...style,
-      bottom: 40,
-      left: "calc(50% - 14px)",
-      transform: "scale(0.7)",
-      opacity: 1,
-    };
-  } else if (state === "miss") {
-    style = {
-      ...style,
-      bottom: 2,
-      left: "calc(10% - 14px)",
-      transform: "scale(1.1) rotate(180deg)",
-      opacity: 0.7,
-    };
-  }
-
-  return <div style={style}>⚽</div>;
-}
-
-/* ─── Feedback Pill ─────────────────────────────────────────────────── */
 function FeedbackPill({ feedback, goalLabel, missLabel }) {
   return (
-    <div className="w-full flex justify-center items-center" style={{ height: 44 }}>
+    <div
+      className="flex w-full items-center justify-center"
+      style={{ height: 52 }}
+      aria-live="polite"
+    >
       {feedback && (
         <div
-          className={`
-            inline-flex items-center gap-2 px-5 py-2 rounded-full font-black text-base
-            shadow-lg border-2 animate-fade-in
-            ${
-              feedback === "goal"
-                ? "bg-green-400 border-green-600 text-white"
-                : "bg-red-400 border-red-600 text-white"
-            }
-          `}
+          className={`inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 text-base font-black shadow-lg animate-feedback-pop ${
+            feedback === "goal"
+              ? "border-yellow-200 bg-gradient-to-r from-emerald-400 to-green-500 text-white"
+              : "border-red-200 bg-gradient-to-r from-rose-400 to-red-500 text-white"
+          }`}
         >
-          {feedback === "goal" ? `⚽ ${goalLabel}` : `❌ ${missLabel}`}
+          <span className="text-xl">
+            {feedback === "goal" ? "🎉" : "💪"}
+          </span>
+
+          <span>
+            {feedback === "goal" ? `${goalLabel}!` : `${missLabel}!`}
+          </span>
+
+          <span className="text-xl">
+            {feedback === "goal" ? "⚽" : "✏️"}
+          </span>
         </div>
       )}
     </div>
   );
 }
 
-/* ─── Main Component ────────────────────────────────────────────────── */
+/* ─── Main component ───────────────────────────────────────────────── */
+
 export default function LetterDraw({ user, setUser }) {
   usePlaytimeTracker(user);
 
@@ -381,7 +359,7 @@ export default function LetterDraw({ user, setUser }) {
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [ballState, setBallState] = useState(null);
-  const [justLeveledUp, setJustLeveledUp] = useState(false);
+  const [justLeveledUp, setJustLeledUp] = useState(false);
   const [keyStreak, setKeyStreak] = useState(0);
   const [keyJustEarned, setKeyJustEarned] = useState(false);
 
@@ -390,7 +368,7 @@ export default function LetterDraw({ user, setUser }) {
   const keys = user?.progress?.currency?.keys || 0;
 
   useEffect(() => {
-    const load = async () => {
+    async function loadGameProgress() {
       if (!user?.id) return;
 
       const { data } = await supabase
@@ -405,9 +383,9 @@ export default function LetterDraw({ user, setUser }) {
       setCooldownInit(progress.cooldownUntil ?? null);
       setScore(progress.score ?? 0);
       setLoaded(true);
-    };
+    }
 
-    load();
+    loadGameProgress();
   }, [user?.id]);
 
   const {
@@ -441,7 +419,7 @@ export default function LetterDraw({ user, setUser }) {
         .single();
 
       const existing = data?.progress || {};
-      const prevHigh = existing?.letterDraw?.highScore || 0;
+      const previousHighScore = existing?.letterDraw?.highScore || 0;
 
       await supabase
         .from("users")
@@ -451,7 +429,7 @@ export default function LetterDraw({ user, setUser }) {
             letterDraw: {
               ...(existing.letterDraw || {}),
               score: newScore,
-              highScore: Math.max(newScore, prevHigh),
+              highScore: Math.max(newScore, previousHighScore),
             },
           },
         })
@@ -500,10 +478,10 @@ export default function LetterDraw({ user, setUser }) {
       setTimeout(() => setBallState("goal"), 300);
       setFeedback("goal");
 
-      let nextScore;
+      let nextScore = score + 1;
 
-      setScore((prev) => {
-        nextScore = prev + 1;
+      setScore((previousScore) => {
+        nextScore = previousScore + 1;
         return nextScore;
       });
 
@@ -513,8 +491,8 @@ export default function LetterDraw({ user, setUser }) {
       const result = await addKeysAndXP(user.id, earnKey ? 1 : 0, 10);
 
       if (result) {
-        setUser((prev) => ({
-          ...prev,
+        setUser((previousUser) => ({
+          ...previousUser,
           progress: {
             ...result.user.progress,
             letterDraw: {
@@ -525,8 +503,8 @@ export default function LetterDraw({ user, setUser }) {
         }));
 
         if (result.leveledUp) {
-          setJustLeveledUp(true);
-          setTimeout(() => setJustLeveledUp(false), 3000);
+          setJustLeledUp(true);
+          setTimeout(() => setJustLeledUp(false), 3000);
         }
       }
 
@@ -543,14 +521,15 @@ export default function LetterDraw({ user, setUser }) {
       setTimeout(() => setBallState("miss"), 300);
       setFeedback("miss");
 
-      let nextScore;
+      let nextScore = Math.max(0, score - 1);
 
-      setScore((prev) => {
-        nextScore = Math.max(0, prev - 1);
+      setScore((previousScore) => {
+        nextScore = Math.max(0, previousScore - 1);
         return nextScore;
       });
 
       setKeyStreak(0);
+
       await loseHeart();
       await saveScore(nextScore);
     }
@@ -560,17 +539,18 @@ export default function LetterDraw({ user, setUser }) {
       setBallState(null);
       setCurrentLetter(getRandomLetter());
       processingRef.current = false;
-    }, 1400);
+    }, 1700);
   }, [
+    currentLetter,
     feedback,
     hearts,
-    paused,
-    currentLetter,
     keyStreak,
     loseHeart,
-    user?.id,
-    setUser,
+    paused,
     saveScore,
+    score,
+    setUser,
+    user?.id,
   ]);
 
   const handleReset = useCallback(async () => {
@@ -581,6 +561,7 @@ export default function LetterDraw({ user, setUser }) {
     setCurrentLetter(getRandomLetter());
     processingRef.current = false;
     setShowResetModal(false);
+
     canvasRef.current?.clear();
 
     await updateProgress(user?.id, {
@@ -602,9 +583,10 @@ export default function LetterDraw({ user, setUser }) {
         userId={user.id}
         gameKey="letterDraw"
         onHeartsRefilled={(updatedUser) => {
-          const g = updatedUser.progress.letterDraw;
-          setHearts(g.hearts);
-          setCooldownUntil(g.cooldownUntil);
+          const gameProgress = updatedUser.progress.letterDraw;
+
+          setHearts(gameProgress.hearts);
+          setCooldownUntil(gameProgress.cooldownUntil);
           setUser(updatedUser);
         }}
       />
@@ -624,7 +606,7 @@ export default function LetterDraw({ user, setUser }) {
         paused={paused}
         progress={0}
         feedback={feedback}
-        onPauseToggle={() => setPaused((p) => !p)}
+        onPauseToggle={() => setPaused((isPaused) => !isPaused)}
         onHome={() => navigate("/menu")}
         onReset={() => setShowResetModal(true)}
       >
@@ -643,48 +625,34 @@ export default function LetterDraw({ user, setUser }) {
           soundOn={soundOn}
         />
 
-        <div className="flex items-center justify-between w-full mt-1 mb-2">
-          <span className="text-sm font-bold text-slate-500">
-            {t("letterDraw.score")}:{" "}
-            <span className="text-indigo-600 text-base font-extrabold">
+        <div className="mt-1 mb-3 flex w-full items-center justify-between gap-2">
+          <div className="rounded-xl border border-indigo-100 bg-white px-3 py-1.5 shadow-sm">
+            <span className="text-sm font-bold text-slate-500">
+              {t("letterDraw.score")}:{" "}
+            </span>
+
+            <span className="text-base font-extrabold text-indigo-600">
               {score}
             </span>
-          </span>
+          </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400">
+            <span className="hidden text-xs font-semibold text-slate-400 sm:inline">
               +1 {t("letterDraw.goal")} / -1 {t("letterDraw.miss")}
             </span>
 
             <button
+              type="button"
               onClick={() => setShowLeaderboard(true)}
-              className="flex items-center gap-1 px-3 py-1 bg-indigo-100 hover:bg-indigo-200
-                text-indigo-700 font-bold text-xs rounded-xl border border-indigo-200
-                transition-all active:scale-95 shrink-0"
+              className="flex min-h-10 shrink-0 items-center gap-1 rounded-xl border border-indigo-200 bg-indigo-100 px-3 py-2 text-xs font-bold text-indigo-700 transition-all hover:bg-indigo-200 active:scale-95"
             >
               🏆 {t("leaderboard.button", "Ranks")}
             </button>
           </div>
         </div>
 
-        <div className="w-full max-w-[min(100%,380px)] mx-auto mb-0">
-          <div
-            className="rounded-2xl overflow-hidden shadow-xl border-2 border-slate-300"
-            style={{
-              background:
-                "linear-gradient(180deg, #1e3a5f 0%, #1e4d8c 40%, #2563eb 70%, #3b82f6 100%)",
-              padding: "10px 10px 0 10px",
-            }}
-          >
-            <div className="flex justify-around mb-1 px-4 opacity-40">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-1.5 h-1.5 rounded-full bg-white/70"
-                />
-              ))}
-            </div>
-
+        <div className="mx-auto mb-1 w-full max-w-[min(100%,400px)]">
+          <div className="overflow-hidden rounded-[28px] border-[3px] border-white bg-sky-100 p-2 shadow-[0_10px_0_#93c5fd,0_18px_30px_rgba(30,64,175,0.22)]">
             <GoalNet ballState={ballState} />
           </div>
         </div>
@@ -695,43 +663,51 @@ export default function LetterDraw({ user, setUser }) {
           missLabel={t("letterDraw.miss")}
         />
 
-        <div className="w-full flex justify-center">
-          <div className="w-full max-w-[min(100%,360px)] sm:max-w-sm">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-slate-500 text-sm">
+        <div className="flex w-full justify-center">
+          <div className="w-full max-w-[min(100%,380px)] rounded-[28px] border-[3px] border-indigo-100 bg-white p-3 shadow-[0_8px_0_#c7d2fe,0_16px_25px_rgba(99,102,241,0.12)] sm:max-w-sm">
+            <div className="mb-3 flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-3 py-2.5">
+              <span className="text-2xl" aria-hidden="true">
+                ✏️
+              </span>
+
+              <span className="text-sm font-bold text-slate-600">
                 {t("letterDraw.instruction")}
               </span>
 
-              <span className="text-4xl font-black text-indigo-600 leading-none">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-200 bg-white text-4xl font-black leading-none text-indigo-600 shadow-sm">
                 {currentLetter}
-              </span>
+              </div>
             </div>
 
-            <DrawingCanvas
-              ref={canvasRef}
-              letter={currentLetter}
-              feedback={feedback}
-              feedbackGoalLabel={t("letterDraw.goal")}
-              feedbackMissLabel={t("letterDraw.miss")}
-              paused={paused}
-              disabled={!!feedback}
-            />
+            <div className="rounded-2xl border-2 border-dashed border-indigo-200 bg-gradient-to-b from-indigo-50/80 to-white p-2">
+              <DrawingCanvas
+                ref={canvasRef}
+                letter={currentLetter}
+                feedback={feedback}
+                feedbackGoalLabel={t("letterDraw.goal")}
+                feedbackMissLabel={t("letterDraw.miss")}
+                paused={paused}
+                disabled={!!feedback}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-3 w-full max-w-[min(100%,360px)] sm:max-w-sm mx-auto mt-3">
+        <div className="mx-auto mt-4 flex w-full max-w-[min(100%,380px)] gap-3 sm:max-w-sm">
           <button
+            type="button"
             onClick={() => canvasRef.current?.clear()}
             disabled={!!feedback || paused}
-            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-2xl border border-slate-200 disabled:opacity-40 transition-all"
+            className="min-h-12 flex-1 rounded-2xl border-2 border-slate-200 bg-slate-100 py-3 font-bold text-slate-700 transition-all hover:bg-slate-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
             🧹 {t("letterDraw.clear")}
           </button>
 
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={!!feedback || paused}
-            className="flex-[2] bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-2xl shadow border-b-4 border-indigo-700 disabled:opacity-40 transition-all active:scale-95"
+            className="min-h-12 flex-[1.65] rounded-2xl border-b-4 border-indigo-700 bg-gradient-to-r from-indigo-500 to-violet-500 py-3 font-black text-white shadow-md transition-all hover:from-indigo-600 hover:to-violet-600 active:translate-y-0.5 active:scale-95 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40"
           >
             ⚽ {t("letterDraw.shoot")}
           </button>
