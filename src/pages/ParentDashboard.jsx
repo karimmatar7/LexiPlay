@@ -14,6 +14,7 @@ import PrintReport from "../components/dashboard/PrintReport";
 import ProgressAssistant from "../components/dashboard/ProgressAssistant";
 import StatCards from "../components/dashboard/StatCards";
 import streakIcon from "../assets/icons/fire.png";
+import keyIcon from "../assets/icons/key.png";
 
 
 const KNOWN_GAMES = [
@@ -274,7 +275,12 @@ return {
     },
     {
       label: t("parentDashboard.keys"),
-      value: `🗝️ ${keys}`,
+      value: (
+        <span className="inline-flex items-center gap-1">
+          <img src={keyIcon} alt="Key" className="h-5 w-5" />
+          {keys}
+        </span>
+      ),
       color: "bg-white border-slate-200",
     },
   ];
