@@ -1,189 +1,417 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getChildStats } from "../utils/parent.js";
-import { format, parseISO, differenceInDays } from "date-fns";
+// src/pages/ParentDashboard.jsx
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { differenceInDays, format, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "../context/SettingsContext";
+
+import { getChildStats } from "../utils/parent.js";
 import { heartStatus } from "../utils/heartStatus.js";
+import { useSettings } from "../context/SettingsContext";
+
 import GameCard from "../components/dashboard/GameCard";
-import StatCards from "../components/dashboard/StatCards";
-import PlaytimeChart from "../components/dashboard/PlaytimeChart";
-import SessionSummary from "../components/dashboard/SessionSummary";
 import PrintButton from "../components/dashboard/PrintButton";
 import PrintReport from "../components/dashboard/PrintReport";
+import ProgressAssistant from "../components/dashboard/ProgressAssistant";
+import StatCards from "../components/dashboard/StatCards";
 
-const KNOWN_GAMES = ["wordMatch", "letterBuild", "wordMaze", "finalWordBuilder", "letterDraw"];
+const KNOWN_GAMES = [
+  "wordMatch",
+  "letterBuild",
+  "wordMaze",
+  "finalWordBuilder",
+  "letterDraw",
+];
 
-function calcStreak(history) {
-  const dates = Object.keys(history || {}).sort().reverse();
+function safeNumber(value, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : fallback;
+}
+
+function calcStreak(history = {}) {
+  const dates = Object.keys(history)
+    .filter((date) => !Number.isNaN(parseISO(date).getTime()))
+    .sort((a, b) => parseISO(b).getTime() - parseISO(a).getTime());
+
   if (!dates.length) return 0;
+
   let streak = 0;
-  let cursor = new Date();
-  cursor.setHours(0, 0, 0, 0);
-  for (const d of dates) {
-    const day = parseISO(d);
-    day.setHours(0, 0, 0, 0);
-    if (differenceInDays(cursor, day) <= 1) { streak++; cursor = day; }
-    else break;
+  let expectedDate = new Date();
+  expectedDate.setHours(0, 0, 0, 0);
+
+  for (const dateString of dates) {
+    const activityDate = parseISO(dateString);
+    activityDate.setHours(0, 0, 0, 0);
+
+    const difference = differenceInDays(expectedDate, activityDate);
+
+    if (difference >= 0 && difference <= 1) {
+      streak += 1;
+      expectedDate = activityDate;
+    } else {
+      break;
+    }
   }
+
   return streak;
 }
 
 export default function ParentDashboard() {
   const { t } = useTranslation();
   const { fontType } = useSettings();
-  const fontClass = fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
-
-  const [stats, setStats] = useState(null);
   const { childId } = useParams();
   const navigate = useNavigate();
 
+  const [stats, setStats] = useState(null);
+  const [hasError, setHasError] = useState(false);
+
+  const fontClass =
+    fontType === "dyslexic" ? "font-dyslexic" : "font-sans";
+
   useEffect(() => {
-    getChildStats(childId).then(setStats);
+    let active = true;
+
+    async function loadStats() {
+      setHasError(false);
+      setStats(null);
+
+      try {
+        const result = await getChildStats(childId);
+
+        if (!active) return;
+
+        if (!result) {
+          setHasError(true);
+          return;
+        }
+
+        setStats(result);
+      } catch (error) {
+        console.error("Failed to load parent dashboard:", error);
+
+        if (active) {
+          setHasError(true);
+        }
+      }
+    }
+
+    loadStats();
+
+    return () => {
+      active = false;
+    };
   }, [childId]);
 
   const derived = useMemo(() => {
     if (!stats) return null;
 
-    const rawProgress = stats.progress || {};
-    const xp      = rawProgress.xp             || 0;
-    const xpLevel = rawProgress.level          || 1;
-    const keys    = rawProgress.currency?.keys || 0;
+    const rawProgress =
+      stats.progress && typeof stats.progress === "object"
+        ? stats.progress
+        : {};
 
     const progress = Object.fromEntries(
-      Object.entries(rawProgress).filter(([k]) => KNOWN_GAMES.includes(k))
+      Object.entries(rawProgress).filter(([key]) =>
+        KNOWN_GAMES.includes(key)
+      )
     );
 
-    const history       = stats.playtimeHistory || {};
-    const dates         = Object.keys(history).sort();
-    const minutes       = dates.map((d) => history[d]);
-    const totalPlaytime = stats.totalPlaytime || 0;
-    const streak        = calcStreak(history);
-    const lastActive    = dates.length ? dates[dates.length - 1] : null;
-    const avgPerDay     = dates.length ? (totalPlaytime / dates.length).toFixed(1) : 0;
+    const history =
+      stats.playtimeHistory && typeof stats.playtimeHistory === "object"
+        ? stats.playtimeHistory
+        : {};
 
-    const refilling   = Object.entries(progress).filter(([, g]) => heartStatus(g)?.isRefilling);
-    const readyToPlay = Object.entries(progress).filter(([, g]) => {
-      const hs = heartStatus(g);
-      return g?.unlocked && hs?.hearts > 0 && !hs?.isRefilling;
+    const dates = Object.keys(history)
+      .filter((date) => !Number.isNaN(parseISO(date).getTime()))
+      .sort((a, b) => parseISO(a).getTime() - parseISO(b).getTime());
+
+    const totalPlaytime = Math.max(
+      0,
+      safeNumber(stats.totalPlaytime)
+    );
+
+    const xp = Math.max(0, safeNumber(rawProgress.xp));
+    const xpLevel = Math.max(1, safeNumber(rawProgress.level, 1));
+    const keys = Math.max(
+      0,
+      safeNumber(rawProgress.currency?.keys)
+    );
+
+    const streak = calcStreak(history);
+    const lastActive = dates.length ? dates[dates.length - 1] : null;
+    const avgPerDay = dates.length
+      ? Number((totalPlaytime / dates.length).toFixed(1))
+      : 0;
+
+    const refilling = Object.entries(progress).filter(([, game]) => {
+      return heartStatus(game)?.isRefilling;
     });
 
-    return { progress, dates, minutes, totalPlaytime, streak, lastActive, avgPerDay, refilling, readyToPlay, xp, xpLevel, keys };
+    const readyToPlay = Object.entries(progress).filter(([, game]) => {
+      const status = heartStatus(game);
+
+      return (
+        game?.unlocked &&
+        status?.hearts > 0 &&
+        !status?.isRefilling
+      );
+    });
+return {
+  progress,
+  dates,
+  minutes: dates.map((date) => Math.max(0, safeNumber(history[date]))),
+  totalPlaytime,
+  xp,
+  xpLevel,
+  keys,
+  streak,
+  lastActive,
+  avgPerDay,
+  refilling,
+  readyToPlay,
+};
   }, [stats]);
 
-  if (!stats || !derived)
+  if (hasError) {
     return (
-      <div className="min-h-screen bg-sky-50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="inline-block animate-spin rounded-full h-14 w-14 border-4 border-indigo-500 border-t-transparent" />
-          <p className="text-lg font-semibold text-gray-600">{t("parentDashboard.loading")}</p>
-        </div>
-      </div>
-    );
+      <main
+        className={`flex min-h-screen items-center justify-center bg-slate-50 p-4 ${fontClass}`}
+      >
+        <div className="max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+          <span className="text-3xl" aria-hidden="true">
+            ⚠️
+          </span>
 
-  const { progress, dates, minutes, totalPlaytime, streak, lastActive, avgPerDay, refilling, readyToPlay, xp, xpLevel, keys } = derived;
+          <p className="mt-3 text-sm font-semibold text-slate-700">
+            {t("parentDashboard.loadError", {
+              defaultValue: "We could not load this dashboard.",
+            })}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="mt-5 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
+          >
+            {t("parentDashboard.back")}
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (!stats || !derived) {
+    return (
+      <main
+        className={`flex min-h-screen items-center justify-center bg-slate-50 ${fontClass}`}
+      >
+        <div className="text-center">
+          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-violet-100 border-t-violet-600" />
+
+          <p className="mt-3 text-sm font-medium text-slate-500">
+            {t("parentDashboard.loading")}
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  const {
+    progress,
+    dates,
+    totalPlaytime,
+    xp,
+    xpLevel,
+    keys,
+    streak,
+    lastActive,
+    avgPerDay,
+    refilling,
+    readyToPlay,
+  } = derived;
+
+  const childName =
+    typeof stats.name === "string" && stats.name.trim()
+      ? stats.name.trim()
+      : t("parentDashboard.thisChild", {
+          defaultValue: "Child",
+        });
+
+  const lastActiveLabel = lastActive
+    ? format(parseISO(lastActive), "dd MMM yyyy")
+    : null;
 
   const statCards = [
-    { label: t("parentDashboard.totalPlaytime"), value: `${Math.round(totalPlaytime)} min`, sub: `≈ ${(totalPlaytime / 60).toFixed(1)}h`, color: "bg-indigo-50 border-indigo-200" },
-    { label: t("parentDashboard.dailyAvg"),      value: `${avgPerDay} min`, sub: `${dates.length} ${t("parentDashboard.daysTracked")}`,   color: "bg-sky-50 border-sky-200"     },
-    { label: t("parentDashboard.streak"),         value: `${streak} 🔥`,    sub: streak >= 3 ? t("parentDashboard.streakGreat") : t("parentDashboard.streakKeepGoing"), color: "bg-amber-50 border-amber-200" },
-    { label: t("parentDashboard.keys"),           value: `🗝️ ${keys}`,                                                                   color: "bg-yellow-50 border-yellow-200" },
+    {
+      label: t("parentDashboard.totalPlaytime"),
+      value: `${Math.round(totalPlaytime)} min`,
+      sub: `${(totalPlaytime / 60).toFixed(1)}h total`,
+      color: "bg-white border-slate-200",
+    },
+    {
+      label: t("parentDashboard.dailyAvg"),
+      value: `${avgPerDay} min`,
+      sub: `${dates.length} ${t("parentDashboard.daysTracked")}`,
+      color: "bg-white border-slate-200",
+    },
+    {
+      label: t("parentDashboard.streak"),
+      value: `${streak} 🔥`,
+      sub:
+        streak >= 3
+          ? t("parentDashboard.streakGreat")
+          : t("parentDashboard.streakKeepGoing"),
+      color: "bg-white border-slate-200",
+    },
+    {
+      label: t("parentDashboard.keys"),
+      value: `🗝️ ${keys}`,
+      color: "bg-white border-slate-200",
+    },
   ];
 
-  return (
-    <div className={`min-h-screen bg-sky-50 p-3 sm:p-6 md:p-8 ${fontClass}`}>
+    return (
+  <>
+    <main className={`min-h-screen bg-slate-50 ${fontClass}`}>
+      <div className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            <span aria-hidden="true">←</span>
+            {t("parentDashboard.back")}
+          </button>
 
-      <div className="hidden sm:block fixed top-0 left-0 w-72 h-72 bg-purple-100 rounded-full opacity-30 blur-3xl pointer-events-none -z-10" />
-      <div className="hidden sm:block fixed bottom-0 right-0 w-96 h-96 bg-sky-100 rounded-full opacity-30 blur-3xl pointer-events-none -z-10" />
-
-      <div className="relative max-w-4xl mx-auto space-y-4 sm:space-y-6">
-
-        {/* HEADER */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border-2 border-purple-200 p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <button
-              onClick={() => navigate(-1)}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold rounded-xl border-2 border-purple-300 transition-all hover:scale-105 text-xs sm:text-sm shrink-0"
-            >
-              {t("parentDashboard.back")}
-            </button>
-
-                      <PrintButton />
-          
-            <div className="flex items-center gap-3 flex-1 min-w-0 justify-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#7E22CE] text-white rounded-full flex items-center justify-center text-lg sm:text-xl shadow-md shrink-0">👤</div>
-              <div className="min-w-0">
-                <h1 className="text-base sm:text-xl font-bold text-gray-800 truncate">{stats.name}</h1>
-                <p className="text-xs text-purple-600 font-medium truncate">
-                  {lastActive
-                    ? `${t("parentDashboard.lastSeen")}: ${format(parseISO(lastActive), "dd MMM yyyy")}`
-                    : t("parentDashboard.neverPlayed")}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center bg-purple-50 rounded-2xl px-3 py-2 sm:px-4 border-2 border-purple-200 min-w-[70px] sm:min-w-[80px] text-center shrink-0">
-              <span className="text-xs text-purple-500 font-semibold">{t("parentDashboard.xpLevel")}</span>
-              <span className="text-xl sm:text-2xl font-black text-[#7E22CE] leading-tight">{xpLevel}</span>
-              <span className="text-xs text-gray-400">{xp} XP</span>
-            </div>
-          </div>
-
-
-{/* Hidden on screen, visible only when printing */}
-<div className="print-only">
-  <PrintReport stats={stats} derived={derived} />
-</div>
+          <PrintButton />
         </div>
+      </div>
 
-        {/* HEARTS ALERT */}
-        {refilling.length > 0 && (
-          <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-3 sm:p-4 flex items-start gap-3">
-            <span className="text-xl sm:text-2xl shrink-0">⚠️</span>
-            <div>
-              <p className="font-bold text-rose-700 text-sm">{t("parentDashboard.heartsRefillingTitle")}</p>
-              <p className="text-rose-600 text-xs mt-0.5">
-                {refilling.map(([k]) => t(`gameCards.${k}.title`)).join(", ")}
-                {" — "}{t("parentDashboard.heartsRefillingDesc")}
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-600 text-xl text-white shadow-sm"
+              aria-hidden="true"
+            >
+              👤
+            </div>
+
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                {childName}
+              </h1>
+
+              <p className="mt-0.5 text-sm text-slate-500">
+                {lastActiveLabel
+                  ? `${t("parentDashboard.lastSeen")}: ${lastActiveLabel}`
+                  : t("parentDashboard.neverPlayed")}
               </p>
             </div>
           </div>
+
+          <div className="rounded-xl border border-violet-100 bg-violet-50 px-4 py-2 text-right">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-violet-500">
+              {t("parentDashboard.xpLevel")}
+            </p>
+
+            <p className="text-lg font-black text-violet-700">
+              {xpLevel}
+              <span className="ml-1 text-xs font-semibold text-violet-500">
+                · {xp} XP
+              </span>
+            </p>
+          </div>
+        </header>
+
+        {refilling.length > 0 && (
+          <div className="mt-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <span className="text-base" aria-hidden="true">
+              💛
+            </span>
+
+            <p className="text-xs leading-relaxed text-amber-800">
+              <strong>{t("parentDashboard.heartsRefillingTitle")}</strong>
+              {" — "}
+              {refilling
+                .map(([gameKey]) => t(`gameCards.${gameKey}.title`))
+                .join(", ")}
+              {". "}
+              {t("parentDashboard.heartsRefillingDesc")}
+            </p>
+          </div>
         )}
 
-        <StatCards cards={statCards} />
+        <section className="mt-6">
+          <StatCards cards={statCards} />
+        </section>
 
-        <PlaytimeChart dates={dates} minutes={minutes} avgPerDay={avgPerDay} t={t} />
+        <section className="mt-6">
+          <ProgressAssistant
+            childName={childName}
+            progress={progress}
+            totalPlaytime={totalPlaytime}
+            streak={streak}
+            avgPerDay={avgPerDay}
+            dates={dates}
+            readyToPlay={readyToPlay}
+            refilling={refilling}
+          />
+        </section>
 
-        {/* GAME CARDS */}
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-            🎮 {t("parentDashboard.gameProgress")}
-          </h2>
-          {Object.keys(progress).length ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {KNOWN_GAMES.filter((k) => progress[k]).map((gameKey) => (
-                <GameCard key={gameKey} gameKey={gameKey} data={progress[gameKey]} t={t} />
-              ))}
+        <section className="mt-8">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                {t("parentDashboard.gameProgress")}
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {t("parentDashboard.gameProgressDescription", {
+                  defaultValue: "Progress recorded in each activity.",
+                })}
+              </p>
+            </div>
+
+            {Object.keys(progress).length > 0 && (
+              <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-bold text-slate-600">
+                {Object.keys(progress).length}
+              </span>
+            )}
+          </div>
+
+          {Object.keys(progress).length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {KNOWN_GAMES.filter((gameKey) => progress[gameKey]).map(
+                (gameKey) => (
+                  <GameCard
+                    key={gameKey}
+                    gameKey={gameKey}
+                    data={progress[gameKey]}
+                    t={t}
+                  />
+                )
+              )}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border-2 border-purple-200 p-8 sm:p-10 text-center">
-              <span className="text-4xl block mb-3">🎯</span>
-              <p className="text-gray-500 font-semibold text-sm">{t("parentDashboard.noProgress")}</p>
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
+              <span className="text-3xl" aria-hidden="true">
+                🎯
+              </span>
+
+              <p className="mt-3 text-sm font-semibold text-slate-600">
+                {t("parentDashboard.noProgress")}
+              </p>
             </div>
           )}
-        </div>
-
-        <SessionSummary
-          dates={dates}
-          totalPlaytime={totalPlaytime}
-          avgPerDay={avgPerDay}
-          lastActive={lastActive}
-          readyToPlay={readyToPlay}
-          refilling={refilling}
-          t={t}
-        />
-
+        </section>
       </div>
+    </main>
+
+    <div className="print-only">
+      <PrintReport stats={stats} derived={derived} />
     </div>
-  );
+  </>
+);
 }

@@ -412,19 +412,25 @@
 
 },
 "print": {
-  "title":          "Voortgangsrapport",
-  "button":         "Afdrukken / Opslaan als PDF",
-  "generated":      "Gegenereerd op",
-  "playerOverview": "Spelersoverzicht",
-  "totalXP":        "Totaal XP",
-  "playtimeSummary":"Speeltijdoverzicht",
-  "engagement":     "Betrokkenheid",
-  "dailyHistory":   "Dagelijkse speeltijd",
-  "date":           "Datum",
-  "minutesPlayed":  "Gespeelde minuten",
-  "game":           "Spel",
-  "status":         "Status",
-  "footer":         "Vertrouwelijk – alleen voor therapeut / begeleider"
+  "title": "Leervoortgangsrapport",
+  "generated": "Gegenereerd op",
+  "playerOverview": "Overzicht van het kind",
+  "totalXP": "Totaal XP",
+  "playtimeSummary": "Overzicht van speeltijd",
+  "engagement": "Betrokkenheid",
+  "dailyHistory": "Dagelijkse speeltijd",
+  "date": "Datum",
+  "minutesPlayed": "Gespeelde minuten",
+  "game": "Spel",
+  "status": "Status",
+  "footer": "Vertrouwelijk – alleen voor therapeut / begeleider",
+
+  "monthlyActivity": "Maandelijkse activiteit",
+  "month": "Maand",
+  "activeDays": "Actieve dagen",
+  "recentActivity": "Recente activiteit",
+  "latestSessions": "Laatste {{count}} sessies",
+    "button": "Printen"
 },
 "menuTour": {
   "headerTitle": "Welkom bij LexiPlay!",
@@ -488,7 +494,87 @@
   "reset_pin": "🔑 Reset PIN",
   "close": "Sluiten"
 
-}
+},
 
 
+  "progressAssistant": {
+    "ariaLabel": "LexiFox voortgangshulp",
+    "openFox": "Open LexiFox hulp",
+    "title": "LexiFox",
+    "badge": "Begeleide hulp",
+    "greeting": "Hallo! Kies een vraag en ik leg alleen uit wat de geregistreerde LexiPlay-activiteit ondersteunt.",
+    "hide": "Verbergen",
+    "show": "Vraag LexiFox",
+    "foxSays": "LexiFox zegt",
+    "chooseQuestion": "Kies een vraag",
+    "helpfulIdeas": "Handige ideeën",
+    "thisChild": "Dit kind",
+    "note": "LexiFox legt alleen geregistreerde LexiPlay-activiteit uit. Het stelt geen leerproblemen vast en vervangt geen professionele beoordeling.",
+
+    "questions": {
+      "summary": "Hoe gaat het in het algemeen met mijn kind?",
+      "strength": "Wat gaat er goed?",
+      "focus": "Wat kunnen we hierna oefenen?",
+      "routine": "Hoe kunnen we een goede routine opbouwen?",
+      "session": "Wat kunnen we in de volgende sessie doen?"
+    },
+
+    "answers": {
+      "summaryEmptyTitle": "Klaar om te beginnen",
+      "summaryEmptyBody": "Er is nog geen activiteit geregistreerd. Begin samen met één kort spel en maak de ervaring positief.",
+      "summaryEmptyTip1": "Kies een spel dat leuk of vertrouwd lijkt.",
+      "summaryEmptyTip2": "Houd de eerste sessie ongeveer 5 minuten lang.",
+
+      "summaryTitle": "Activiteit wordt geregistreerd",
+      "summaryBody": "{{name}} heeft {{minutes}} minuten geregistreerde activiteit verdeeld over {{days}} actieve dag(en) en {{games}} spel(len).",
+      "streakTip": "Huidige oefenreeks: {{days}} dag(en). Korte, herhaalbare sessies zijn waardevol.",
+      "noStreakTip": "Een kort en voorspelbaar oefenmoment kan helpen om een routine op te bouwen.",
+      "averageTip": "Het huidige gemiddelde is {{minutes}} minuten per actieve dag.",
+      "activityRecordedTip": "Activiteit is geregistreerd. Meer speeltijd maakt het overzicht uitgebreider.",
+
+      "strengthTitle": "Een mogelijke kracht",
+      "strengthBody": "{{game}} heeft de hoogste geregistreerde score: {{score}}% over {{sessions}} voltooide sessie(s).",
+      "strengthTip1": "Gebruik dit spel als een zelfverzekerde start van een sessie.",
+      "strengthTip2": "Prijs inzet en strategieën, niet alleen de score.",
+
+      "progressTitle": "Vooruitgang is al zichtbaar",
+      "progressBody": "{{game}} toont momenteel de verste geregistreerde voortgang op niveau {{level}}, woord {{word}}. Er zijn nog geen nauwkeurigheidsscores, dus LexiFox kan sterke kanten nog niet eerlijk vergelijken.",
+      "progressTip1": "Vier het terugkomen naar het spel en het stap voor stap vooruitgaan.",
+      "progressTip2": "Blijf vertrouwde activiteiten gebruiken om zelfvertrouwen op te bouwen.",
+
+      "activityTitle": "Een positieve start",
+      "activityBody": "{{name}} heeft geregistreerde activiteit. Zodra meer rondes zijn voltooid, kan LexiFox spelpatronen duidelijker beschrijven.",
+      "activityTip": "Prijs proberen, luisteren en terugkomen om te oefenen.",
+
+      "focusTitle": "Een rustige volgende stap",
+      "focusBody": "{{game}} heeft een geregistreerde score van {{score}}% over {{sessions}} voltooide sessie(s). Probeer enkele ontspannen pogingen voordat de moeilijkheid wordt verhoogd.",
+      "focusTip1": "Herhaal een vertrouwd niveau voordat je het moeilijker maakt.",
+      "focusTip2": "Stop terwijl het kind zich nog succesvol en betrokken voelt.",
+
+      "focusProgressTitle": "Bouw voort op vertrouwde vooruitgang",
+      "focusProgressBody": "{{game}} heeft de verste geregistreerde voortgang en is daarom een goede vertrouwde activiteit voor de volgende oefening. Er zijn nog geen scoregegevens, dus dit is geen oordeel over vaardigheid.",
+      "focusProgressTip1": "Begin met één vertrouwde ronde voordat je iets nieuws probeert.",
+      "focusProgressTip2": "Laat het kind kiezen om door te gaan of van spel te wisselen.",
+
+      "focusStartTitle": "Kies één prettige activiteit",
+      "focusStartBody": "Er is activiteit geregistreerd, maar nog geen spelvoortgang beschikbaar. Een vertrouwd en leuk spel is de beste volgende stap.",
+      "focusStartTip": "Houd de volgende sessie kort en eindig met aanmoediging.",
+
+      "routineTitle": "Een prettige routine opbouwen",
+      "routineGreatBody": "Een reeks van {{days}} dagen laat een sterke routine zien. Bescherm dit rustige, voorspelbare leermoment.",
+      "routineGrowingBody": "{{days}} dagen achter elkaar is een veelbelovende start. Een kort dagelijks ritme kan oefenen gemakkelijker maken.",
+      "routineBody": "Er is activiteit geregistreerd, maar nog geen vaste reeks. Korte, regelmatige sessies zijn meestal makkelijker vol te houden dan af en toe lange sessies.",
+      "routineTip1": "Streef naar 5–10 minuten op een rustig, voorspelbaar moment van de dag.",
+      "routineTip2": "Bied een keuze tussen twee spellen, zodat het kind invloed heeft.",
+      "routineTip3": "Neem een korte beweeg- of waterpauze als oefenen vermoeiend wordt.",
+
+      "sessionTitle": "Een eenvoudige volgende sessie",
+      "sessionBody": "Begin de volgende sessie met {{game}}. Houd het kort, laat {{name}} het tempo bepalen en eindig met een specifiek compliment.",
+      "sessionNoGameBody": "Laat het kind voor de volgende sessie één beschikbaar spel kiezen. Houd het kort, rustig en bemoedigend.",
+      "sessionTip1": "Begin bijvoorbeeld met: “Laten we samen één kleine uitdaging proberen.”",
+      "sessionTip2": "Eindig met een duidelijk compliment over inzet, luisteren of doorzetten.",
+      "sessionHeartsTip": "Sommige spellen rusten nog, kies daarom een ander beschikbaar spel of neem een pauze."
+    }
+  }
 }
+

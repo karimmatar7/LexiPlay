@@ -402,19 +402,25 @@
   }
 },
 "print": {
-  "title":          "Rapport de progression",
-  "button":         "Imprimer / Enregistrer PDF",
-  "generated":      "Généré le",
-  "playerOverview": "Aperçu du joueur",
-  "totalXP":        "XP total",
-  "playtimeSummary":"Résumé du temps de jeu",
-  "engagement":     "Engagement",
-  "dailyHistory":   "Historique quotidien",
-  "date":           "Date",
-  "minutesPlayed":  "Minutes jouées",
-  "game":           "Jeu",
-  "status":         "Statut",
-  "footer":         "Confidentiel – à l'usage du thérapeute / accompagnateur"
+  "title": "Rapport de progression",
+  "generated": "Généré le",
+  "playerOverview": "Aperçu de l’enfant",
+  "totalXP": "XP total",
+  "playtimeSummary": "Résumé du temps de jeu",
+  "engagement": "Engagement",
+  "dailyHistory": "Historique quotidien du temps de jeu",
+  "date": "Date",
+  "minutesPlayed": "Minutes jouées",
+  "game": "Jeu",
+  "status": "Statut",
+  "footer": "Confidentiel – réservé au thérapeute / accompagnant",
+
+  "monthlyActivity": "Activité mensuelle",
+  "month": "Mois",
+  "activeDays": "Jours actifs",
+  "recentActivity": "Activité récente",
+  "latestSessions": "Les {{count}} dernières séances",
+  "button": "Télécharger le rapport"
 },
 "menuTour": {
   "headerTitle": "Bienvenue sur LexiPlay !",
@@ -477,9 +483,86 @@
   "new_pin": "Nouveau PIN",
   "reset_pin": "🔑 Réinitialiser le PIN",
   "close": "Fermer"
-}
+},
 
+  "progressAssistant": {
+    "ariaLabel": "Assistant de progression LexiFox",
+    "openFox": "Ouvrir l’assistant LexiFox",
+    "title": "LexiFox",
+    "badge": "Assistant guidé",
+    "greeting": "Bonjour ! Choisissez une question et je n’expliquerai que ce que l’activité LexiPlay enregistrée permet d’affirmer.",
+    "hide": "Masquer",
+    "show": "Demander à LexiFox",
+    "foxSays": "LexiFox dit",
+    "chooseQuestion": "Choisissez une question",
+    "helpfulIdeas": "Conseils utiles",
+    "thisChild": "Cet enfant",
+    "note": "LexiFox explique uniquement l’activité enregistrée dans LexiPlay. Il ne diagnostique pas les difficultés d’apprentissage et ne remplace pas une évaluation professionnelle.",
 
+    "questions": {
+      "summary": "Comment va mon enfant dans l’ensemble ?",
+      "strength": "Qu’est-ce qui se passe bien ?",
+      "focus": "Que pourrions-nous pratiquer ensuite ?",
+      "routine": "Comment créer une bonne routine ?",
+      "session": "Que faire lors de la prochaine séance ?"
+    },
 
+    "answers": {
+      "summaryEmptyTitle": "Prêt à commencer",
+      "summaryEmptyBody": "Aucune activité n’est encore enregistrée. Commencez ensemble par un jeu court et rendez l’expérience positive.",
+      "summaryEmptyTip1": "Choisissez un jeu qui semble amusant ou familier.",
+      "summaryEmptyTip2": "Limitez la première séance à environ 5 minutes.",
+
+      "summaryTitle": "L’activité est enregistrée",
+      "summaryBody": "{{name}} a {{minutes}} minutes d’activité enregistrée sur {{days}} jour(s) actif(s) et {{games}} jeu(x).",
+      "streakTip": "Série d’entraînement actuelle : {{days}} jour(s). Les séances courtes et répétables sont précieuses.",
+      "noStreakTip": "Un court moment de pratique prévisible peut aider à créer une routine.",
+      "averageTip": "La moyenne actuelle est de {{minutes}} minutes par jour actif.",
+      "activityRecordedTip": "L’activité est enregistrée. Davantage de temps de jeu rendra l’aperçu plus détaillé.",
+
+      "strengthTitle": "Un point fort possible",
+      "strengthBody": "{{game}} présente le meilleur score enregistré : {{score}} % sur {{sessions}} séance(s) terminée(s).",
+      "strengthTip1": "Utilisez ce jeu pour commencer une séance avec confiance.",
+      "strengthTip2": "Félicitez les efforts et les stratégies, pas seulement le score.",
+
+      "progressTitle": "Les progrès sont déjà visibles",
+      "progressBody": "{{game}} montre actuellement la progression enregistrée la plus avancée : niveau {{level}}, mot {{word}}. Il n’y a pas encore de scores de précision, donc LexiFox ne peut pas comparer équitablement les points forts.",
+      "progressTip1": "Célébrez le retour au jeu et les progrès réalisés étape par étape.",
+      "progressTip2": "Continuez à utiliser des activités familières pour développer la confiance.",
+
+      "activityTitle": "Un début positif",
+      "activityBody": "{{name}} a une activité enregistrée. Lorsque davantage de manches seront terminées, LexiFox pourra décrire plus clairement les tendances par jeu.",
+      "activityTip": "Félicitez les essais, l’écoute et le retour à la pratique.",
+
+      "focusTitle": "Un prochain objectif en douceur",
+      "focusBody": "{{game}} a un score enregistré de {{score}} % sur {{sessions}} séance(s) terminée(s). Essayez quelques tentatives détendues avant d’augmenter la difficulté.",
+      "focusTip1": "Répétez un niveau familier avant d’augmenter la difficulté.",
+      "focusTip2": "Arrêtez-vous pendant que l’enfant se sent encore capable et engagé.",
+
+      "focusProgressTitle": "S’appuyer sur des progrès familiers",
+      "focusProgressBody": "{{game}} présente la progression enregistrée la plus avancée ; c’est donc une activité familière pertinente pour la prochaine pratique. Il n’y a pas encore de données de score : ce n’est pas un jugement sur les capacités.",
+      "focusProgressTip1": "Commencez par une manche familière avant d’essayer quelque chose de nouveau.",
+      "focusProgressTip2": "Laissez l’enfant choisir de continuer ou de changer de jeu.",
+
+      "focusStartTitle": "Choisir une activité confortable",
+      "focusStartBody": "Une activité est enregistrée, mais aucune progression de jeu n’est encore disponible. Un jeu familier et agréable est la meilleure prochaine étape.",
+      "focusStartTip": "Gardez la prochaine séance courte et terminez par des encouragements.",
+
+      "routineTitle": "Créer une routine confortable",
+      "routineGreatBody": "Une série de {{days}} jours montre une bonne routine. Préservez ce moment d’apprentissage calme et prévisible.",
+      "routineGrowingBody": "{{days}} jours consécutifs constituent un début prometteur. Un rythme quotidien court peut rendre la pratique plus facile.",
+      "routineBody": "De l’activité est enregistrée, mais il n’y a pas encore de série régulière. Les séances courtes et régulières sont généralement plus faciles à maintenir que de longues séances occasionnelles.",
+      "routineTip1": "Visez 5 à 10 minutes à un moment calme et prévisible de la journée.",
+      "routineTip2": "Proposez un choix entre deux jeux afin que l’enfant garde une part de contrôle.",
+      "routineTip3": "Faites une courte pause pour bouger ou boire si la pratique devient fatigante.",
+
+      "sessionTitle": "Une prochaine séance simple",
+      "sessionBody": "Pour la prochaine séance, commencez par {{game}}. Gardez l’activité courte, laissez {{name}} donner le rythme et terminez par un compliment précis.",
+      "sessionNoGameBody": "Pour la prochaine séance, laissez l’enfant choisir un jeu disponible. Gardez le moment court, calme et encourageant.",
+      "sessionTip1": "Vous pouvez commencer par : « Essayons ensemble un petit défi. »",
+      "sessionTip2": "Terminez par un compliment clair sur l’effort, l’écoute ou la persévérance.",
+      "sessionHeartsTip": "Certains jeux sont en pause ; choisissez un autre jeu disponible ou faites une pause."
+    }
+  }
 
 }

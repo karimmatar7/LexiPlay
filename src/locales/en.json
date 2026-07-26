@@ -414,20 +414,26 @@
     "female": "Girl"
   }
   },
-  "print": {
-  "title":          "Progress Report",
-  "button":         "Print / Save PDF",
-  "generated":      "Generated",
-  "playerOverview": "Player Overview",
-  "totalXP":        "Total XP",
-  "playtimeSummary":"Playtime Summary",
-  "engagement":     "Engagement",
-  "dailyHistory":   "Daily Playtime History",
-  "date":           "Date",
-  "minutesPlayed":  "Minutes Played",
-  "game":           "Game",
-  "status":         "Status",
-  "footer":         "Confidential – for therapist / carer use only"
+"print": {
+  "title": "Learning Progress Report",
+  "generated": "Generated",
+  "playerOverview": "Player overview",
+  "totalXP": "Total XP",
+  "playtimeSummary": "Playtime summary",
+  "engagement": "Engagement",
+  "dailyHistory": "Daily playtime history",
+  "date": "Date",
+  "minutesPlayed": "Minutes played",
+  "game": "Game",
+  "status": "Status",
+  "footer": "Confidential – for therapist / carer use only",
+
+  "monthlyActivity": "Monthly activity",
+  "month": "Month",
+  "activeDays": "Active days",
+  "recentActivity": "Recent activity",
+  "latestSessions": "Latest {{count}} sessions",
+  "button": "Print Report"
 },
 "menuTour": {
   "headerTitle": "Welcome to LexiPlay!",
@@ -492,7 +498,88 @@
   "reset_pin": "🔑 Reset PIN",
   "close": "Close"
 
-}
+},
+
+
+  "progressAssistant": {
+    "ariaLabel": "LexiFox progress helper",
+    "openFox": "Open LexiFox helper",
+    "title": "LexiFox",
+    "badge": "Guided helper",
+    "greeting": "Hi! Choose a question and I’ll explain only what the recorded LexiPlay activity supports.",
+    "hide": "Hide",
+    "show": "Ask Fox",
+    "foxSays": "LexiFox says",
+    "chooseQuestion": "Choose a question",
+    "helpfulIdeas": "Helpful ideas",
+    "thisChild": "This child",
+    "note": "LexiFox explains recorded LexiPlay activity only. It does not diagnose learning differences or replace professional assessment.",
+
+    "questions": {
+      "summary": "How is my child doing overall?",
+      "strength": "What is going well?",
+      "focus": "What could we practise next?",
+      "routine": "How can we build a good routine?",
+      "session": "What should we do in the next session?"
+    },
+
+    "answers": {
+      "summaryEmptyTitle": "Ready to begin",
+      "summaryEmptyBody": "There is no recorded activity yet. Start with one short game together and focus on making the experience positive.",
+      "summaryEmptyTip1": "Choose a game that looks fun or familiar.",
+      "summaryEmptyTip2": "Keep the first session to around 5 minutes.",
+
+      "summaryTitle": "Activity is being recorded",
+      "summaryBody": "{{name}} has {{minutes}} minutes of recorded activity across {{days}} active day(s) and {{games}} game(s).",
+      "streakTip": "Current practice streak: {{days}} day(s). Short, repeatable sessions are valuable.",
+      "noStreakTip": "A short predictable practice moment can help build a routine.",
+      "averageTip": "The current average is {{minutes}} minutes per active day.",
+      "activityRecordedTip": "Activity is recorded. More playtime will make the overview more detailed.",
+
+      "strengthTitle": "A possible strength",
+      "strengthBody": "{{game}} has the strongest recorded score: {{score}}% across {{sessions}} completed session(s).",
+      "strengthTip1": "Use this game as a confidence-building start to a session.",
+      "strengthTip2": "Praise effort and strategies, not only the score.",
+
+      "progressTitle": "Progress is already visible",
+      "progressBody": "{{game}} currently shows the furthest recorded progress at level {{level}}, word {{word}}. There are no accuracy scores yet, so LexiFox cannot compare strengths fairly.",
+      "progressTip1": "Celebrate returning to the game and moving forward one step at a time.",
+      "progressTip2": "Keep using familiar activities to build confidence.",
+
+      "activityTitle": "A positive start",
+      "activityBody": "{{name}} has recorded activity. As more rounds are completed, LexiFox can describe game-specific patterns more clearly.",
+      "activityTip": "Praise trying, listening, and returning to practice.",
+
+      "focusTitle": "A gentle next focus",
+      "focusBody": "{{game}} has a recorded score of {{score}}% across {{sessions}} completed session(s). Try a few relaxed attempts before increasing difficulty.",
+      "focusTip1": "Repeat one familiar level before making it harder.",
+      "focusTip2": "Stop while the child still feels successful and engaged.",
+
+      "focusProgressTitle": "Build on familiar progress",
+      "focusProgressBody": "{{game}} has the furthest recorded progress, so it is a sensible familiar activity for the next practice. No score data is available yet, so this is not a judgement about ability.",
+      "focusProgressTip1": "Begin with one familiar round before trying something new.",
+      "focusProgressTip2": "Let the child choose whether to continue or switch games.",
+
+      "focusStartTitle": "Choose one comfortable activity",
+      "focusStartBody": "Activity has been recorded, but no game progress is available yet. A familiar, enjoyable game is the best next step.",
+      "focusStartTip": "Keep the next session short and finish with encouragement.",
+
+      "routineTitle": "Building a comfortable routine",
+      "routineGreatBody": "A {{days}}-day streak shows a strong routine. Keep protecting this calm, predictable learning moment.",
+      "routineGrowingBody": "{{days}} days in a row is a promising start. A short daily rhythm can make practice feel easier.",
+      "routineBody": "There is recorded activity, but not a consistent streak yet. Short, regular sessions are usually easier to sustain than occasional long sessions.",
+      "routineTip1": "Aim for 5–10 minutes at a calm, predictable time of day.",
+      "routineTip2": "Offer a choice between two games so the child has some control.",
+      "routineTip3": "Take a short movement or water break if practice becomes tiring.",
+
+      "sessionTitle": "A simple next session",
+      "sessionBody": "For the next session, begin with {{game}}. Keep it short, let {{name}} set the pace, and finish with a specific compliment.",
+      "sessionNoGameBody": "For the next session, let the child choose one available game. Keep it short, calm, and encouraging.",
+      "sessionTip1": "Start by saying: “Let’s try one small challenge together.”",
+      "sessionTip2": "Finish with a clear compliment about effort, listening, or persistence.",
+      "sessionHeartsTip": "Some games are resting, so choose another available game or take a break."
+    }
+  }
 
 }
 

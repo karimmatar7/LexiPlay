@@ -1,157 +1,487 @@
+// src/components/dashboard/PrintReport.jsx
 import React from "react";
 import { format, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { heartStatus } from "../../utils/heartStatus.js";
 
-const KNOWN_GAMES = ["letterBuild", "wordMaze", "wordMatch", "finalWordBuilder"];
+const GAMES = [
+  "letterBuild",
+  "wordMaze",
+  "wordMatch",
+  "finalWordBuilder",
+  "letterDraw",
+];
 
-export default function PrintReport({ stats, derived }) {
+const number = (value, fallback = 0) =>
+  typeof value === "number" && Number.isFinite(value)
+    ? value
+    : fallback;
+
+const getDate = (value) => {
+  if (!value || typeof value !== "string") return null;
+
+  const parsed = parseISO(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const formatDate = (value, pattern = "dd MMM yyyy") => {
+  const parsed = getDate(value);
+  return parsed ? format(parsed, pattern) : "—";
+};
+
+function SectionTitle({ children }) {
+  return (
+    <h2 className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-violet-700">
+      {children}
+    </h2>
+  );
+}
+
+function TableHeader({ children, className = "" }) {
+  return (
+    <th
+      className={`px-3 py-2 text-center text-[10px] font-bold uppercase tracking-wide text-slate-600 ${className}`}
+    >
+      {children}
+    </th>
+  );
+}
+
+export default function PrintReport({ stats = {}, derived = {} }) {
   const { t } = useTranslation();
-  const { progress, dates, minutes, totalPlaytime, streak, lastActive, avgPerDay, xp, xpLevel, keys } = derived;
+
+  const progress =
+    derived.progress && typeof derived.progress === "object"
+      ? derived.progress
+      : {};
+
+  const dates = Array.isArray(derived.dates)
+    ? derived.dates.filter(getDate)
+    : [];
+
+  const minutes = Array.isArray(derived.minutes)
+    ? derived.minutes
+    : [];
+
+  const totalPlaytime = Math.max(0, number(derived.totalPlaytime));
+  const avgPerDay = Math.max(0, number(Number(derived.avgPerDay)));
+  const streak = Math.max(0, number(derived.streak));
+  const xp = Math.max(0, number(derived.xp));
+  const xpLevel = Math.max(1, number(derived.xpLevel, 1));
+  const keys = Math.max(0, number(derived.keys));
+
+  const childName =
+    typeof stats.name === "string" && stats.name.trim()
+      ? stats.name.trim()
+      : t("parentDashboard.thisChild", {
+          defaultValue: "Child",
+        });
+
   const today = format(new Date(), "dd MMMM yyyy");
 
+  const sessions = dates
+    .map((day, index) => ({
+      day,
+      date: getDate(day),
+      minutes: Math.max(0, number(minutes[index])),
+    }))
+    .filter((session) => session.date)
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  const recentSessions = sessions.slice(0, 7);
+
+  const monthlyActivity = Object.values(
+    sessions.reduce((months, session) => {
+      const key = format(session.date, "yyyy-MM");
+
+      if (!months[key]) {
+        months[key] = {
+          key,
+          label: format(session.date, "MMMM yyyy"),
+          days: 0,
+          minutes: 0,
+        };
+      }
+
+      months[key].days += 1;
+      months[key].minutes += session.minutes;
+
+      return months;
+    }, {})
+  );
+
+  const games = GAMES.filter((key) => progress[key]).map((key) => {
+    const game = progress[key];
+    const hearts = heartStatus(game);
+    const status = hearts?.isRefilling
+      ? "refilling"
+      : hearts?.outOfHearts
+      ? "out"
+      : "ready";
+
+    return {
+      key,
+      level: number(game.level),
+      word: number(game.levelIndex) + 1,
+      hearts: Math.min(5, Math.max(0, number(hearts?.hearts, 5))),
+      status,
+    };
+  });
+
+  const engagement =
+    avgPerDay >= 15
+      ? t("parentDashboard.engagementHigh")
+      : avgPerDay >= 5
+      ? t("parentDashboard.engagementMedium")
+      : t("parentDashboard.engagementLow");
+
+  const overview = [
+    [t("parentDashboard.xpLevel"), xpLevel],
+    [t("print.totalXP"), xp],
+    [t("parentDashboard.keys"), keys],
+    [t("parentDashboard.streak"), streak],
+  ];
+
+  const activityStats = [
+    [
+      t("parentDashboard.totalPlaytime"),
+      `${Math.round(totalPlaytime)} min`,
+      `≈ ${(totalPlaytime / 60).toFixed(1)}h`,
+    ],
+    [
+      t("parentDashboard.dailyAvg"),
+      `${avgPerDay.toFixed(1)} min`,
+      `${dates.length} ${t("parentDashboard.daysTracked")}`,
+    ],
+    [t("print.engagement"), engagement, ""],
+  ];
+
   return (
-    <div id="print-report" className="font-sans text-gray-800 p-8 max-w-3xl mx-auto">
+    <div
+      id="print-report"
+      className="print-report mx-auto max-w-3xl bg-white font-sans text-slate-800"
+    >
+<style>{`
+  @page {
+    size: A4;
+    margin: 13mm;
+  }
 
-      {/* Header */}
-      <div className="border-b-2 border-purple-400 pb-4 mb-6 flex justify-between items-start">
+  @media print {
+    html,
+    body,
+    #root {
+      width: auto !important;
+      min-height: 0 !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
+      background: #ffffff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Hide the normal dashboard completely from print layout */
+    #root > main {
+      display: none !important;
+    }
+
+    /* Show only the separate print report */
+    #root > .print-only {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+
+    #print-report {
+      display: block !important;
+      width: 100% !important;
+      max-width: none !important;
+      min-height: 0 !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
+      background: #ffffff !important;
+      color: #1e293b !important;
+      font-size: 10pt;
+      line-height: 1.35;
+    }
+
+    .print-no-break,
+    .print-section,
+    .print-footer {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .print-table {
+      break-inside: auto;
+      page-break-inside: auto;
+    }
+
+    .print-table thead {
+      display: table-header-group;
+    }
+
+    .print-table tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .print-footer {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  }
+`}</style>
+
+      <header className="print-no-break flex items-start justify-between border-b-2 border-violet-600 pb-4">
         <div>
-          <h1 className="text-2xl font-black text-purple-800">{t("print.title")}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{t("print.generated")}: {today}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-lg font-bold text-gray-800">{stats.name}</p>
-          {lastActive && (
-            <p className="text-xs text-gray-400">
-              {t("parentDashboard.lastSeen")}: {format(parseISO(lastActive), "dd MMM yyyy")}
-            </p>
-          )}
-        </div>
-      </div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-600">
+            LexiPlay
+          </p>
 
-      {/* Player Overview */}
-      <div className="mb-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-purple-600 mb-2">
-          {t("print.playerOverview")}
-        </h2>
-        <div className="grid grid-cols-4 gap-3 border border-gray-200 rounded-xl p-4">
-          {[
-            { label: t("parentDashboard.xpLevel"), value: xpLevel },
-            { label: t("print.totalXP"),           value: `${xp} XP` },
-            { label: t("parentDashboard.keys"),     value: keys },
-            { label: t("parentDashboard.streak"),   value: `${streak} 🔥` },
-          ].map((item, i) => (
-            <div key={i} className="text-center">
-              <p className="text-xs text-gray-400 font-medium">{item.label}</p>
-              <p className="text-xl font-black text-purple-700">{item.value}</p>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
+            {t("print.title")}
+          </h1>
+
+          <p className="mt-1 text-xs text-slate-500">
+            {t("print.generated")}: {today}
+          </p>
+        </div>
+
+        <div className="text-right">
+          <p className="text-lg font-bold text-slate-900">{childName}</p>
+
+          <p className="mt-1 text-xs text-slate-500">
+            {derived.lastActive
+              ? `${t("parentDashboard.lastSeen")}: ${formatDate(
+                  derived.lastActive
+                )}`
+              : t("parentDashboard.neverPlayed")}
+          </p>
+        </div>
+      </header>
+
+      <section className="print-section mt-5">
+        <SectionTitle>{t("print.playerOverview")}</SectionTitle>
+
+        <div className="grid grid-cols-4 divide-x divide-slate-200 rounded-xl border border-slate-200 bg-slate-50">
+          {overview.map(([label, value]) => (
+            <div key={label} className="px-3 py-3 text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                {label}
+              </p>
+
+              <p className="mt-1 text-xl font-black text-violet-700">
+                {value}
+              </p>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Playtime Summary */}
-      <div className="mb-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-purple-600 mb-2">
-          {t("print.playtimeSummary")}
-        </h2>
-        <div className="border border-gray-200 rounded-xl p-4 grid grid-cols-3 gap-4">
-          <div>
-            <p className="text-xs text-gray-400 font-medium">{t("parentDashboard.totalPlaytime")}</p>
-            <p className="text-xl font-black text-purple-700">{Math.round(totalPlaytime)} min</p>
-            <p className="text-xs text-gray-400">≈ {(totalPlaytime / 60).toFixed(1)}h</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 font-medium">{t("parentDashboard.dailyAvg")}</p>
-            <p className="text-xl font-black text-purple-700">{avgPerDay} min</p>
-            <p className="text-xs text-gray-400">{dates.length} {t("parentDashboard.daysTracked")}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 font-medium">{t("print.engagement")}</p>
-            <p className="text-lg font-black text-purple-700">
-              {Number(avgPerDay) >= 15
-                ? t("parentDashboard.engagementHigh")
-                : Number(avgPerDay) >= 5
-                ? t("parentDashboard.engagementMedium")
-                : t("parentDashboard.engagementLow")}
-            </p>
-          </div>
+      <section className="print-section mt-5">
+        <SectionTitle>{t("print.playtimeSummary")}</SectionTitle>
+
+        <div className="grid grid-cols-3 divide-x divide-slate-200 rounded-xl border border-slate-200">
+          {activityStats.map(([label, value, helper]) => (
+            <div key={label} className="px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                {label}
+              </p>
+
+              <p className="mt-1 text-xl font-black text-slate-900">
+                {value}
+              </p>
+
+              {helper && (
+                <p className="text-xs text-slate-500">{helper}</p>
+              )}
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* Daily History Table */}
-      {dates.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-purple-600 mb-2">
-            {t("print.dailyHistory")}
-          </h2>
-          <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
-            <thead className="bg-purple-50">
+      {games.length > 0 && (
+        <section className="print-section mt-5">
+          <SectionTitle>{t("parentDashboard.gameProgress")}</SectionTitle>
+
+          <table className="print-table w-full overflow-hidden rounded-xl border border-slate-200 text-sm">
+            <thead className="bg-violet-50">
               <tr>
-                <th className="text-left px-3 py-2 font-semibold text-gray-600">{t("print.date")}</th>
-                <th className="text-right px-3 py-2 font-semibold text-gray-600">{t("print.minutesPlayed")}</th>
+                <TableHeader className="text-left">
+                  {t("print.game")}
+                </TableHeader>
+
+                <TableHeader>
+                  {t("parentDashboard.level")}
+                </TableHeader>
+
+                <TableHeader>
+                  {t("parentDashboard.wordNumber")}
+                </TableHeader>
+
+                <TableHeader>
+                  {t("parentDashboard.hearts")}
+                </TableHeader>
+
+                <TableHeader>{t("print.status")}</TableHeader>
               </tr>
             </thead>
+
             <tbody>
-              {dates.map((d, i) => (
-                <tr key={d} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-3 py-1.5 text-gray-700">{format(parseISO(d), "dd MMM yyyy")}</td>
-                  <td className="px-3 py-1.5 text-right font-medium text-purple-700">{minutes[i]} min</td>
+              {games.map((game, index) => (
+                <tr
+                  key={game.key}
+                  className={index % 2 ? "bg-slate-50" : "bg-white"}
+                >
+                  <td className="px-3 py-2 font-semibold text-slate-800">
+                    {t(`gameCards.${game.key}.title`)}
+                  </td>
+
+                  <td className="px-3 py-2 text-center font-bold text-violet-700">
+                    {game.level}
+                  </td>
+
+                  <td className="px-3 py-2 text-center font-bold text-violet-700">
+                    {game.word}
+                  </td>
+
+                  <td className="whitespace-nowrap px-3 py-2 text-center text-[11px]">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <span
+                        key={index}
+                        style={{ opacity: index < game.hearts ? 1 : 0.2 }}
+                      >
+                        ♥
+                      </span>
+                    ))}
+                  </td>
+
+                  <td className="px-3 py-2 text-center text-xs font-semibold">
+                    <span
+                      className={
+                        game.status === "ready"
+                          ? "text-emerald-700"
+                          : game.status === "refilling"
+                          ? "text-amber-700"
+                          : "text-rose-600"
+                      }
+                    >
+                      {t(
+                        game.status === "ready"
+                          ? "parentDashboard.heartsReady"
+                          : game.status === "refilling"
+                          ? "parentDashboard.refilling"
+                          : "parentDashboard.outOfHearts"
+                      )}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       )}
 
-      {/* Game Progress Table */}
-      <div className="mb-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-purple-600 mb-2">
-          {t("parentDashboard.gameProgress")}
-        </h2>
-        <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
-          <thead className="bg-purple-50">
-            <tr>
-              <th className="text-left px-3 py-2 font-semibold text-gray-600">{t("print.game")}</th>
-              <th className="text-center px-3 py-2 font-semibold text-gray-600">{t("parentDashboard.level")}</th>
-              <th className="text-center px-3 py-2 font-semibold text-gray-600">{t("parentDashboard.wordNumber")}</th>
-              <th className="text-center px-3 py-2 font-semibold text-gray-600">{t("parentDashboard.hearts")}</th>
-              <th className="text-center px-3 py-2 font-semibold text-gray-600">{t("print.status")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {KNOWN_GAMES.filter((k) => progress[k]).map((k, i) => {
-              const data = progress[k];
-              const hs   = heartStatus(data);
-              return (
-                <tr key={k} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-3 py-2 font-medium text-gray-800">{t(`gameCards.${k}.title`)}</td>
-                  <td className="px-3 py-2 text-center text-purple-700 font-bold">{data?.level ?? 0}</td>
-                  <td className="px-3 py-2 text-center text-purple-700 font-bold">{(data?.levelIndex ?? 0) + 1}</td>
-                  <td className="px-3 py-2 text-center">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <span key={j} style={{ opacity: j < (hs?.hearts ?? 5) ? 1 : 0.2 }}>❤️</span>
-                    ))}
+      {monthlyActivity.length > 0 && (
+        <section className="print-section mt-5">
+          <SectionTitle>{t("print.monthlyActivity")}</SectionTitle>
+
+          <table className="print-table w-full overflow-hidden rounded-xl border border-slate-200 text-sm">
+            <thead className="bg-violet-50">
+              <tr>
+                <TableHeader className="text-left">
+                  {t("print.month")}
+                </TableHeader>
+
+                <TableHeader>{t("print.activeDays")}</TableHeader>
+
+                <TableHeader className="text-right">
+                  {t("parentDashboard.totalPlaytime")}
+                </TableHeader>
+              </tr>
+            </thead>
+
+            <tbody>
+              {monthlyActivity.map((month, index) => (
+                <tr
+                  key={month.key}
+                  className={index % 2 ? "bg-slate-50" : "bg-white"}
+                >
+                  <td className="px-3 py-2 font-semibold text-slate-700">
+                    {month.label}
                   </td>
-                  <td className="px-3 py-2 text-center text-xs font-semibold">
-                    {hs?.isRefilling
-                      ? <span className="text-rose-500">⏳ {t("parentDashboard.refilling")}</span>
-                      : hs?.outOfHearts
-                      ? <span className="text-rose-500">💔 {t("parentDashboard.outOfHearts")}</span>
-                      : <span className="text-emerald-600">✅ {t("parentDashboard.heartsReady")}</span>
-                    }
+
+                  <td className="px-3 py-2 text-center font-bold text-violet-700">
+                    {month.days}
+                  </td>
+
+                  <td className="px-3 py-2 text-right font-bold text-violet-700">
+                    {Math.round(month.minutes)} min
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
 
-      {/* Footer */}
-      <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 flex justify-between">
+      {recentSessions.length > 0 && (
+        <section className="print-section mt-5">
+          <div className="mb-2 flex items-center justify-between">
+            <SectionTitle>{t("print.recentActivity")}</SectionTitle>
+
+            <span className="text-[10px] text-slate-400">
+              {t("print.latestSessions", {
+                count: recentSessions.length,
+              })}
+            </span>
+          </div>
+
+          <table className="print-table w-full overflow-hidden rounded-xl border border-slate-200 text-sm">
+            <thead className="bg-violet-50">
+              <tr>
+                <TableHeader className="text-left">
+                  {t("print.date")}
+                </TableHeader>
+
+                <TableHeader className="text-right">
+                  {t("print.minutesPlayed")}
+                </TableHeader>
+              </tr>
+            </thead>
+
+            <tbody>
+              {recentSessions.map((session, index) => (
+                <tr
+                  key={session.day}
+                  className={index % 2 ? "bg-slate-50" : "bg-white"}
+                >
+                  <td className="px-3 py-1.5 text-slate-700">
+                    {format(session.date, "dd MMM yyyy")}
+                  </td>
+
+                  <td className="px-3 py-1.5 text-right font-semibold text-violet-700">
+                    {session.minutes.toFixed(1)} min
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      <footer className="print-footer mt-6 flex justify-between border-t border-slate-200 pt-3 text-[10px] text-slate-400">
         <span>{t("print.footer")}</span>
         <span>{today}</span>
-      </div>
+      </footer>
     </div>
   );
 }
