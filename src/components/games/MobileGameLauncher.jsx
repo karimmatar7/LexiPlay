@@ -1,4 +1,5 @@
 import React from "react";
+import playIcon from "../../assets/icons/play.png";
 
 export default function MobileGameLauncher({ games, onOpen, labels }) {
   return (
@@ -43,12 +44,17 @@ export default function MobileGameLauncher({ games, onOpen, labels }) {
               </p>
             </div>
 
-            <span
-              aria-hidden="true"
-              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500 text-base font-black text-white shadow-md transition-transform duration-200 group-active:scale-90"
-            >
-              ▶
-            </span>
+           <span
+  aria-hidden="true"
+  className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500 shadow-md transition-transform duration-200 group-active:scale-90"
+>
+  <img
+    src={playIcon}
+    alt=""
+    draggable="false"
+    className="h-5 w-5 object-contain"
+  />
+</span>
           </div>
         </div>
       </button>
