@@ -55,36 +55,6 @@ export async function updateProgress(userId, newProgress) {
   }
 }
 
-
-// Update user's settings
-export async function updateSettings(userId, newSettings) {
-  try {
-    const { data: user, error: fetchError } = await supabase
-      .from("users")
-      .select("settings")
-      .eq("id", userId)
-      .single();
-
-    if (fetchError) throw fetchError;
-
-    const mergedSettings = { ...(user.settings || {}), ...newSettings };
-
-    const { data, error: updateError } = await supabase
-      .from("users")
-      .update({ settings: mergedSettings })
-      .eq("id", userId)
-      .select()
-      .single();
-
-    if (updateError) throw updateError;
-
-    return data; // full user object with updated settings
-  } catch (err) {
-    console.error("Error updating settings:", err);
-    return null;
-  }
-}
-
 export const addReward = async (userId, stars = 3) => {
   // Get current rewards
   const { data, error } = await supabase
@@ -182,70 +152,6 @@ export async function addPlaytime(userId, minutesPlayed) {
     console.error("Error adding playtime:", err);
     return null;
   }
-}
-
-
-export async function addKeys(userId, amount = 1) {
-  const { data: user } = await supabase
-    .from("users")
-    .select("progress")
-    .eq("id", userId)
-    .single();
-
-  const currentKeys = user.progress?.currency?.keys || 0;
-
-  const updatedProgress = {
-    ...user.progress,
-    currency: {
-      ...user.progress.currency,
-      keys: currentKeys + amount,
-    },
-  };
-
-  const { data } = await supabase
-    .from("users")
-    .update({ progress: updatedProgress })
-    .eq("id", userId)
-    .select()
-    .single();
-
-  return data;
-}
-
-
-export async function unlockGame(userId, gameKey, cost) {
-  const { data: user } = await supabase
-    .from("users")
-    .select("progress")
-    .eq("id", userId)
-    .single();
-
-  const currentKeys = user.progress?.currency?.keys || 0;
-
-  if (currentKeys < cost) {
-    return { success: false, message: "Not enough keys" };
-  }
-
-  const updatedProgress = {
-    ...user.progress,
-    currency: {
-      ...user.progress.currency,
-      keys: currentKeys - cost,
-    },
-    [gameKey]: {
-      ...user.progress[gameKey],
-      unlocked: true,
-    },
-  };
-
-  const { data } = await supabase
-    .from("users")
-    .update({ progress: updatedProgress })
-    .eq("id", userId)
-    .select()
-    .single();
-
-  return { success: true, data };
 }
 
 export async function addKeysAndXP(userId, keyAmount = 1, xpAmount = 10) {

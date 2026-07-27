@@ -229,36 +229,6 @@ export async function updateProgress(userId, newProgressPart) {
 }
 
 /* =========================
-   ADD REWARD
-========================= */
-export async function addReward(userId, stars = 1) {
-  try {
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('rewards')
-      .eq('id', userId)
-      .single();
-
-    if (error) throw error;
-
-    const newRewards = (user.rewards || 0) + stars;
-
-    const { data, error: updateError } = await supabase
-      .from('users')
-      .update({ rewards: newRewards })
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (updateError) throw updateError;
-    return data.rewards;
-  } catch (err) {
-    console.error('Error adding reward:', err);
-    return null;
-  }
-}
-
-/* =========================
    UPDATE SETTINGS
 ========================= */
 export async function updateSettings(userId, newSettings) {
@@ -324,54 +294,6 @@ export async function updateParentalControl(userId, newControl) {
   }
 }
 
-/* =========================
-   RESET PARENTAL PIN (FIXED & HASHED)
-========================= */
-export async function resetParentalPinWithCode(name, recoveryCode, newPin) {
-  try {
-    // 1️⃣ Fetch user by name
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("name", name)
-      .single();
-
-    if (error || !user) return { success: false, message: "Incorrect recovery code or name" };
-
-    // 2️⃣ Hash input recovery code
-    const hashedInput = sha256(recoveryCode);
-
-    // 3️⃣ Compare with hashed recovery code stored in column
-    if (hashedInput !== user.recovery_code) {
-      return { success: false, message: "Incorrect recovery code or name" };
-    }
-
-    // 4️⃣ Hash the new PIN
-    const hashedPin = sha256(newPin);
-
-    // 5️⃣ Update user PIN (and optionally reset attempts/lock)
-    const { data: updated, error: updateError } = await supabase
-      .from("users")
-      .update({
-        pin: hashedPin,
-        parentalAttempts: 0,
-        parentalLockUntil: null,
-      })
-      .eq("id", user.id)
-      .select()
-      .single();
-
-    if (updateError) {
-      return { success: false, message: "Failed to reset PIN" };
-    }
-
-    return { success: true, user: updated };
-  } catch (err) {
-    console.error(err);
-    return { success: false, message: "Something went wrong" };
-  }
-}
-
 
 /* =========================
    UNLOCK GAME WITH KEYS
@@ -420,47 +342,6 @@ export async function unlockGame(userId, gameKey, keyCost) {
   }
 }
 
-
-/* =========================
-   ADD XP + LEVEL UP
-========================= */
-export async function addXP(userId, amount = 10) {
-  try {
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("progress")
-      .eq("id", userId)
-      .single()
-
-    if (error) throw error
-
-    const progress = user.progress || {}
-    const currentXP = (progress.xp || 0) + amount
-    const currentLevel = progress.level || 1
-
-    // Every 100 XP = 1 level (10 correct answers × 10 XP each)
-    const newLevel = Math.floor(currentXP / 100) + 1
-
-    const updatedProgress = {
-      ...progress,
-      xp: currentXP,
-      level: newLevel,
-    }
-
-    const { data, error: updateError } = await supabase
-      .from("users")
-      .update({ progress: updatedProgress })
-      .eq("id", userId)
-      .select()
-      .single()
-
-    if (updateError) throw updateError
-    return { xp: currentXP, level: newLevel, leveledUp: newLevel > currentLevel, user: data }
-  } catch (err) {
-    console.error("Error adding XP:", err)
-    return null
-  }
-}
 
 /* =========================
    BUY HEARTS WITH KEYS
