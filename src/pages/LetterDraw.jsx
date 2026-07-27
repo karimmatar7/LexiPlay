@@ -693,25 +693,25 @@ export default function LetterDraw({ user, setUser }) {
           </div>
         </div>
 
-        <div className="mx-auto mt-4 flex w-full max-w-[min(100%,380px)] gap-3 sm:max-w-sm">
-          <button
-            type="button"
-            onClick={() => canvasRef.current?.clear()}
-            disabled={!!feedback || paused}
-            className="min-h-12 flex-1 rounded-2xl border-2 border-slate-200 bg-slate-100 py-3 font-bold text-slate-700 transition-all hover:bg-slate-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            🧹 {t("letterDraw.clear")}
-          </button>
+   <div className="mx-auto mt-4 flex w-full max-w-[min(100%,380px)] gap-3 sm:max-w-sm">
+  <button
+    type="button"
+    onClick={() => canvasRef.current?.clear()}
+    disabled={!!feedback || paused}
+    className="min-h-12 flex-1 rounded-2xl bg-slate-200 py-3 font-bold text-slate-700 shadow-[0_8px_20px_rgba(100,116,139,0.25)] transition-all duration-200 hover:bg-slate-300 hover:shadow-[0_10px_24px_rgba(100,116,139,0.35)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+  >
+    🧹 {t("letterDraw.clear")}
+  </button>
 
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!!feedback || paused}
-            className="min-h-12 flex-[1.65] rounded-2xl border-b-4 border-indigo-700 bg-gradient-to-r from-indigo-500 to-violet-500 py-3 font-black text-white shadow-md transition-all hover:from-indigo-600 hover:to-violet-600 active:translate-y-0.5 active:scale-95 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            ⚽ {t("letterDraw.shoot")}
-          </button>
-        </div>
+  <button
+    type="button"
+    onClick={handleSubmit}
+    disabled={!!feedback || paused}
+    className="min-h-12 flex-[1.65] rounded-2xl bg-indigo-500 py-3 font-black text-white shadow-[0_8px_20px_rgba(99,102,241,0.4)] transition-all duration-200 hover:bg-indigo-600 hover:shadow-[0_10px_24px_rgba(99,102,241,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+  >
+    ⚽ {t("letterDraw.shoot")}
+  </button>
+</div>
       </GameContainer>
 
       <LevelUpToast level={level} show={justLeveledUp} />
