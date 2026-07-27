@@ -14,80 +14,110 @@ export default function GameMenuTour({
   if (!open) return null;
   const step = steps[stepIndex];
   const isLast = stepIndex === steps.length - 1;
+  const isFirst = stepIndex === 0;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       aria-modal="true"
       role="dialog"
     >
       <div className="absolute inset-0" onClick={onSkip} aria-hidden="true" />
 
       <div
-        className={`relative z-10 max-w-lg w-[90%] sm:w-[420px] bg-white rounded-3xl border-4 border-indigo-300 shadow-2xl p-6 sm:p-7 ${fontClass}`}
+        className={`relative z-10 max-w-lg w-full sm:w-[420px] bg-white rounded-3xl border border-indigo-100 shadow-[0_25px_60px_rgba(15,23,42,0.25)] p-6 sm:p-7 ${fontClass}`}
       >
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-xs font-black text-indigo-500 bg-indigo-50 px-3 py-1 rounded-full">
-            {stepIndex + 1} / {steps.length}
-          </span>
+        {/* Top bar: progress dots + close */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-1.5">
+            {steps.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === stepIndex
+                    ? "w-6 bg-indigo-500"
+                    : i < stepIndex
+                    ? "w-1.5 bg-indigo-300"
+                    : "w-1.5 bg-gray-200"
+                }`}
+              />
+            ))}
+          </div>
           <button
             onClick={onSkip}
-            className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+            className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="Close"
           >
-            ×
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-black text-gray-800 mb-2 flex items-center gap-2">
-<span className="flex h-16 w-16 items-center justify-center">
-  <img
-    src={step.icon}
-    alt=""
-    aria-hidden="true"
-    draggable="false"
-    className="h-12 w-12 object-contain"
-  />
-</span>          <span>{step.title}</span>
-        </h2>
+        {/* Icon + title */}
+        <div className="flex items-center gap-3 mb-3">
+          <span className="flex-shrink-0 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center bg-indigo-50 rounded-2xl border border-indigo-100">
+            <img
+              src={step.icon}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+              className="h-8 w-8 sm:h-9 sm:w-9 object-contain"
+            />
+          </span>
+          <h2 className="text-lg sm:text-2xl font-black text-gray-900 leading-tight">
+            {step.title}
+          </h2>
+        </div>
 
         <p className="text-sm sm:text-base text-gray-600 mb-4">
           {step.description}
         </p>
 
         {step.hint && (
-          <p className="text-xs text-indigo-500 font-semibold mb-4">
-            {step.hint}
-          </p>
+          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-2.5 mb-5">
+            <p className="text-xs sm:text-sm text-indigo-600 font-semibold">
+              {step.hint}
+            </p>
+          </div>
         )}
 
+        {/* Nav buttons */}
         <div className="flex items-center justify-between gap-2 mt-2">
           <button
             onClick={onPrev}
-            disabled={stepIndex === 0}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border-2 transition
-              ${
-                stepIndex === 0
-                  ? "border-gray-200 text-gray-300 cursor-default"
-                  : "border-gray-300 text-gray-600 hover:bg-gray-100"
-              }`}
+            disabled={isFirst}
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold border transition-all duration-200 ${
+              isFirst
+                ? "border-gray-100 text-gray-300 cursor-default"
+                : "border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+            }`}
           >
-            ← {stepIndex === 0 ? "" : "Prev"}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <span className="hidden sm:inline">Prev</span>
           </button>
 
           <div className="flex gap-2">
             <button
               onClick={onSkip}
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border-2 border-gray-200 text-gray-500 hover:bg-gray-50"
+              className="px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold border border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
             >
               {step.skipLabel}
             </button>
 
             <button
               onClick={isLast ? onFinish : onNext}
-              className="px-5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-indigo-500 hover:bg-indigo-600 text-white shadow-md border-b-4 border-indigo-700 transform hover:scale-105 transition"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold bg-indigo-500 hover:bg-indigo-600 text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200"
             >
-              {isLast ? step.finishLabel : step.nextLabel}
+              <span>{isLast ? step.finishLabel : step.nextLabel}</span>
+              {!isLast && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              )}
             </button>
           </div>
         </div>

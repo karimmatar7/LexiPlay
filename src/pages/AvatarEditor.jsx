@@ -16,9 +16,6 @@ import checkIcon from "../assets/icons/check.png";
 import saveIcon from "../assets/icons/save.png";
 import wavingIcon from "../assets/icons/waving.png";
 
-
-
-
 const TABS = ["bg", "skin", "hair", "eyes", "mouth", "outfit", "accessory"];
 
 export default function AvatarEditor({ user, setUser }) {
@@ -75,7 +72,7 @@ export default function AvatarEditor({ user, setUser }) {
   const isOutfitTab = activeTab === "outfit";
 
   return (
-    <div className={`min-h-screen bg-sky-50 ${fontClass} relative overflow-hidden`}
+    <div className={`min-h-screen bg-gradient-to-b from-sky-50 via-sky-50 to-indigo-50 ${fontClass} relative overflow-hidden`}
       style={{ padding: "clamp(16px,4vw,32px)" }}>
 
       <style>{`
@@ -135,7 +132,7 @@ export default function AvatarEditor({ user, setUser }) {
         <div className="ae-s1 flex items-center justify-between gap-2">
           <button
             onClick={() => navigate("/menu")}
-            className="inline-flex items-center gap-2 bg-white border-2 border-gray-200 rounded-2xl font-bold text-gray-600 hover:bg-gray-50 hover:scale-105 transition-all duration-200 shadow-sm flex-shrink-0"
+            className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm transition-all duration-200 flex-shrink-0"
             style={{ padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)", fontSize:"clamp(12px,2.5vw,15px)" }}
           >
             {t("avatar.back")}
@@ -146,24 +143,24 @@ export default function AvatarEditor({ user, setUser }) {
             style={{ fontSize:"clamp(16px,4vw,26px)" }}
           >
             <span className="inline-flex items-center justify-center gap-2">
-  {t("avatar.title")}
-  <img
-    src={paletteIcon}
-    alt=""
-    aria-hidden="true"
-    draggable="false"
-    className="h-5 w-5 object-contain sm:h-6 sm:w-6"
-  />
-</span>
+              {t("avatar.title")}
+              <img
+                src={paletteIcon}
+                alt=""
+                aria-hidden="true"
+                draggable="false"
+                className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+              />
+            </span>
           </h1>
 
           <button
             onClick={handleSave}
             disabled={saving}
-            className={`inline-flex items-center gap-1.5 font-black rounded-2xl shadow-md border-b-4 transition-all duration-200 hover:scale-105 flex-shrink-0
+            className={`inline-flex items-center gap-1.5 font-black rounded-full transition-all duration-200 flex-shrink-0
               ${saved
-                ? "bg-green-400 border-green-600 text-white"
-                : "bg-indigo-500 hover:bg-indigo-600 border-indigo-700 text-white"
+                ? "bg-emerald-500 text-white shadow-[0_8px_20px_rgba(16,185,129,0.4)]"
+                : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)]"
               }`}
             style={{
               padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)",
@@ -172,39 +169,39 @@ export default function AvatarEditor({ user, setUser }) {
             }}
           >
             {saving ? (
-  <>
-    <img
-      src={saveIcon}
-      alt=""
-      aria-hidden="true"
-      draggable="false"
-      className="h-4 w-4 animate-pulse object-contain sm:h-5 sm:w-5"
-    />
-    <span>…</span>
-  </>
-) : saved ? (
-  <>
-    <img
-      src={checkIcon}
-      alt=""
-      aria-hidden="true"
-      draggable="false"
-      className="h-4 w-4 object-contain sm:h-5 sm:w-5"
-    />
-    <span>{t("avatar.saved")}</span>
-  </>
-) : (
-  <>
-    <img
-      src={saveIcon}
-      alt=""
-      aria-hidden="true"
-      draggable="false"
-      className="h-4 w-4 object-contain sm:h-5 sm:w-5"
-    />
-    <span>{t("avatar.save")}</span>
-  </>
-)}
+              <>
+                <img
+                  src={saveIcon}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                  className="h-4 w-4 animate-pulse object-contain sm:h-5 sm:w-5"
+                />
+                <span>…</span>
+              </>
+            ) : saved ? (
+              <>
+                <img
+                  src={checkIcon}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                  className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+                />
+                <span>{t("avatar.saved")}</span>
+              </>
+            ) : (
+              <>
+                <img
+                  src={saveIcon}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                  className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+                />
+                <span>{t("avatar.save")}</span>
+              </>
+            )}
           </button>
         </div>
 
@@ -229,20 +226,19 @@ export default function AvatarEditor({ user, setUser }) {
               <AvatarCanvas avatar={avatar} size={190} animated={false} fullBody={false} />
             </div>
           )}
-      <p
-  className="flex items-center justify-center gap-1.5 font-black text-indigo-600"
-  style={{ fontSize: "clamp(14px, 3vw, 18px)" }}
->
-  <span>{user?.name}</span>
-
-  <img
-    src={wavingIcon}
-    alt=""
-    aria-hidden="true"
-    draggable="false"
-    className="h-5 w-5 shrink-0 object-contain sm:h-6 sm:w-6"
-  />
-</p>
+          <p
+            className="flex items-center justify-center gap-1.5 font-black text-indigo-600"
+            style={{ fontSize: "clamp(14px, 3vw, 18px)" }}
+          >
+            <span>{user?.name}</span>
+            <img
+              src={wavingIcon}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+              className="h-5 w-5 shrink-0 object-contain sm:h-6 sm:w-6"
+            />
+          </p>
         </div>
 
         {/* ── TAB BAR ── */}
@@ -251,10 +247,10 @@ export default function AvatarEditor({ user, setUser }) {
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`flex-shrink-0 font-bold rounded-2xl border-2 transition-all duration-200 hover:scale-105
+              className={`flex-shrink-0 font-bold rounded-full border transition-all duration-200
                 ${activeTab === key
-                  ? "bg-indigo-500 border-indigo-600 text-white shadow-md scale-105"
-                  : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300"
+                  ? "bg-indigo-500 border-indigo-500 text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)]"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50"
                 }`}
               style={{ padding:"clamp(6px,1.5vw,10px) clamp(9px,2.2vw,15px)", fontSize:"clamp(11px,2vw,14px)" }}
             >
@@ -266,7 +262,7 @@ export default function AvatarEditor({ user, setUser }) {
         {/* ── OPTIONS GRID ── */}
         <div
           key={activeTab}
-          className="ae-s4 ae-grid-in bg-white border-2 border-indigo-100 rounded-3xl shadow-md w-full"
+          className="ae-s4 ae-grid-in bg-white/95 backdrop-blur-sm border border-indigo-100 rounded-3xl shadow-[0_20px_45px_rgba(15,23,42,0.06)] w-full"
           style={{ padding:"clamp(12px,3vw,22px)" }}
         >
           {activeTab === "bg" ? (
@@ -278,8 +274,8 @@ export default function AvatarEditor({ user, setUser }) {
                     key={opt.id}
                     onClick={() => select("bg", opt.id)}
                     title={getLabel(opt, i18n.language)}
-                    className={`relative rounded-2xl border-4 transition-all duration-200 hover:scale-110
-                      ${isSel ? "border-indigo-500 scale-110 shadow-lg" : "border-transparent hover:border-indigo-300"}`}
+                    className={`relative rounded-2xl border-4 transition-all duration-200
+                      ${isSel ? "border-indigo-500 shadow-lg" : "border-transparent hover:border-indigo-300"}`}
                     style={{ background: opt.color, aspectRatio:"1 / 1" }}
                   >
                     {isSel && (
@@ -333,17 +329,17 @@ export default function AvatarEditor({ user, setUser }) {
               }));
               setSaved(false);
             }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-black rounded-2xl shadow-md border-b-4 border-purple-700 hover:scale-105 transition-all duration-200"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-black rounded-full shadow-[0_8px_20px_rgba(192,132,252,0.4)] hover:shadow-[0_10px_24px_rgba(192,132,252,0.5)] transition-all duration-200"
             style={{ padding:"clamp(10px,2.5vw,14px) clamp(20px,5vw,32px)", fontSize:"clamp(13px,2.5vw,16px)" }}
           >
             <img
-  src={diceIcon}
-  alt=""
-  aria-hidden="true"
-  draggable="false"
-  className="h-5 w-5 object-contain sm:h-6 sm:w-6"
-/>
-<span>{t("avatar.randomise")}</span>
+              src={diceIcon}
+              alt=""
+              aria-hidden="true"
+              draggable="false"
+              className="h-5 w-5 object-contain sm:h-6 sm:w-6"
+            />
+            <span>{t("avatar.randomise")}</span>
           </button>
         </div>
 

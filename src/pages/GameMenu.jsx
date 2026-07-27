@@ -22,8 +22,7 @@ import keyIcon from "../assets/icons/key.png";
 import gamesIcon from "../assets/icons/games.png";
 import settingsIcon from "../assets/icons/settings.png";
 
-const KEY_THRESHOLDS = { letterBuild: 5, maze: 15, final: 30, letterDraw: 10
- };
+const KEY_THRESHOLDS = { letterBuild: 5, maze: 15, final: 30, letterDraw: 10 };
 const MAX_HEARTS = 5;
 
 export default function GameMenu({ user, setUser }) {
@@ -147,58 +146,58 @@ export default function GameMenu({ user, setUser }) {
     setUnlocking(null);
   };
 
-const tourSteps = [
-  {
-    key: "header",
-    icon: foxIcon,
-    title: t("menuTour.headerTitle"),
-    description: t("menuTour.headerDesc"),
-    hint: t("menuTour.headerHint"),
-    skipLabel: t("menuTour.skip"),
-    nextLabel: t("menuTour.next"),
-    finishLabel: t("menuTour.finish"),
-  },
-  {
-    key: "xp",
-    icon: starIcon,
-    title: t("menuTour.xpTitle"),
-    description: t("menuTour.xpDesc"),
-    hint: t("menuTour.xpHint"),
-    skipLabel: t("menuTour.skip"),
-    nextLabel: t("menuTour.next"),
-    finishLabel: t("menuTour.finish"),
-  },
-  {
-    key: "keys",
-    icon: keyIcon,
-    title: t("menuTour.keysTitle"),
-    description: t("menuTour.keysDesc"),
-    hint: t("menuTour.keysHint"),
-    skipLabel: t("menuTour.skip"),
-    nextLabel: t("menuTour.next"),
-    finishLabel: t("menuTour.finish"),
-  },
-  {
-    key: "games",
-    icon: gamesIcon,
-    title: t("menuTour.gamesTitle"),
-    description: t("menuTour.gamesDesc"),
-    hint: t("menuTour.gamesHint"),
-    skipLabel: t("menuTour.skip"),
-    nextLabel: t("menuTour.next"),
-    finishLabel: t("menuTour.finish"),
-  },
-  {
-    key: "settings",
-    icon: settingsIcon,
-    title: t("menuTour.settingsTitle"),
-    description: t("menuTour.settingsDesc"),
-    hint: t("menuTour.settingsHint"),
-    skipLabel: t("menuTour.skip"),
-    nextLabel: t("menuTour.next"),
-    finishLabel: t("menuTour.finish"),
-  },
-];
+  const tourSteps = [
+    {
+      key: "header",
+      icon: foxIcon,
+      title: t("menuTour.headerTitle"),
+      description: t("menuTour.headerDesc"),
+      hint: t("menuTour.headerHint"),
+      skipLabel: t("menuTour.skip"),
+      nextLabel: t("menuTour.next"),
+      finishLabel: t("menuTour.finish"),
+    },
+    {
+      key: "xp",
+      icon: starIcon,
+      title: t("menuTour.xpTitle"),
+      description: t("menuTour.xpDesc"),
+      hint: t("menuTour.xpHint"),
+      skipLabel: t("menuTour.skip"),
+      nextLabel: t("menuTour.next"),
+      finishLabel: t("menuTour.finish"),
+    },
+    {
+      key: "keys",
+      icon: keyIcon,
+      title: t("menuTour.keysTitle"),
+      description: t("menuTour.keysDesc"),
+      hint: t("menuTour.keysHint"),
+      skipLabel: t("menuTour.skip"),
+      nextLabel: t("menuTour.next"),
+      finishLabel: t("menuTour.finish"),
+    },
+    {
+      key: "games",
+      icon: gamesIcon,
+      title: t("menuTour.gamesTitle"),
+      description: t("menuTour.gamesDesc"),
+      hint: t("menuTour.gamesHint"),
+      skipLabel: t("menuTour.skip"),
+      nextLabel: t("menuTour.next"),
+      finishLabel: t("menuTour.finish"),
+    },
+    {
+      key: "settings",
+      icon: settingsIcon,
+      title: t("menuTour.settingsTitle"),
+      description: t("menuTour.settingsDesc"),
+      hint: t("menuTour.settingsHint"),
+      skipLabel: t("menuTour.skip"),
+      nextLabel: t("menuTour.next"),
+      finishLabel: t("menuTour.finish"),
+    },
+  ];
 
   useEffect(() => {
     if (!user) return;
@@ -209,8 +208,8 @@ const tourSteps = [
     }
   }, [user]);
 
-  const startTour  = () => { setTourStep(0); setShowTour(true); };
-  const skipTour   = () => setShowTour(false);
+  const startTour = () => { setTourStep(0); setShowTour(true); };
+  const skipTour = () => setShowTour(false);
   const finishTour = async () => {
     setShowTour(false);
     if (!user) return;
@@ -238,52 +237,55 @@ const tourSteps = [
         .gm-s5 { animation: gm-fade-up 0.45s cubic-bezier(0.22,1,0.36,1) 0.25s both; }
       `}</style>
 
+      {/* Fox watermark — large, soft, tucked in the corner so it reads even behind cards */}
+      <div
+        className="absolute -bottom-16 -right-16 md:-bottom-24 md:-right-24 z-0 pointer-events-none"
+        style={{
+          width: "min(60vw, 560px)",
+          height: "min(60vw, 560px)",
+          backgroundImage: "url(/fox.png)",
+          backgroundSize: "contain",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          filter: "blur(6px)",
+          opacity: 0.4,
+        }}
+        aria-hidden="true"
+      />
+
       <AnimatedBlobs />
       <FloatingBgEmojis />
 
       <div className="relative max-w-5xl mx-auto flex flex-col gap-4 md:gap-6 z-10">
 
-        {/* HEADER CARD: logo on top, avatar row below for better hierarchy */}
-    <section className="gm-s1">
-  <div className="rounded-3xl bg-white/95 backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.1)] border border-white/50 px-0 py-0 overflow-hidden">
-    <GameMenuHeader
-      avatar={user?.avatar}
-      fontClass={fontClass}
-      sizeMap={sizeMap}
-      fontSize={fontSize}
-      name={user?.name}
-    >
-      <TimeLeftDisplay timeLeft={timeLeft} limitReached={limitReached} formatTime={formatTime} />
-    </GameMenuHeader>
-  </div>
-</section>
+        {/* HEADER */}
+        <section className="gm-s1 rounded-3xl bg-white/90 backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.08)] border border-white/60 overflow-hidden">
+          <GameMenuHeader
+            avatar={user?.avatar}
+            fontClass={fontClass}
+            sizeMap={sizeMap}
+            fontSize={fontSize}
+            name={user?.name}
+          >
+            <TimeLeftDisplay timeLeft={timeLeft} limitReached={limitReached} formatTime={formatTime} />
+          </GameMenuHeader>
+        </section>
 
-
-        {/* XP + Keys: same width, same height, aligned to games card width */}
-        <section className="gm-s2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-            <div className="h-full">
-              <div className="h-full rounded-3xl bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)] border border-slate-100 flex">
-                <div className="flex-1 px-4 py-3 sm:px-5 sm:py-4  border-2 border-indigo-200 rounded-3xl shadow-lg">
-                  <XPCard xp={userXP} level={userLevel} />
-                </div>
-              </div>
-            </div>
-            <div className="h-full">
-              <div className="h-full rounded-3xl bg-white shadow-[0_14px_30px_rgba(15,23,42,0.06)] border border-slate-100 flex">
-                <div className="flex-1 px-4 py-3 sm:px-5 sm:py-4 border-2 border-yellow-300 rounded-3xl shadow-md">
-                  <KeysCard
-                    keys={keys}
-                    thresholds={KEY_THRESHOLDS}
-                    unlocked={{
-                      letterBuild: letterBuildUnlocked,
-                      maze: mazeUnlocked,
-                      final: finalUnlocked,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+        {/* XP + Keys — single flat cards, no nested boxes */}
+        <section className="gm-s2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+          <div className="rounded-3xl bg-white/90 backdrop-blur-sm shadow-[0_14px_30px_rgba(15,23,42,0.06)] border border-indigo-100 px-4 py-3 sm:px-5 sm:py-4">
+            <XPCard xp={userXP} level={userLevel} />
+          </div>
+          <div className="rounded-3xl bg-white/90 backdrop-blur-sm shadow-[0_14px_30px_rgba(15,23,42,0.06)] border border-yellow-100 px-4 py-3 sm:px-5 sm:py-4">
+            <KeysCard
+              keys={keys}
+              thresholds={KEY_THRESHOLDS}
+              unlocked={{
+                letterBuild: letterBuildUnlocked,
+                maze: mazeUnlocked,
+                final: finalUnlocked,
+              }}
+            />
           </div>
         </section>
 
@@ -303,86 +305,99 @@ const tourSteps = [
           </section>
         )}
 
-        {/* Games grid in full-width card */}
+        {/* Games grid — no extra card wrapper, GamesGrid's own cards carry the visual weight */}
         <section className="gm-s4">
-          <div className="rounded-3xl bg-white/95 backdrop-blur-sm shadow-[0_18px_40px_rgba(15,23,42,0.08)] border border-slate-100 px-3 py-4 sm:px-5 sm:py-5">
-            <GamesGrid
-              displayWordMatch={!limitReached}
-              displayLetterBuild={
-                !limitReached && !finalGloballyLocked && letterBuildUnlocked
-              }
-              displayMaze={
-                !limitReached && !finalGloballyLocked && mazeUnlocked
-              }
-              displayFinal={
-                !limitReached && !finalGloballyLocked && finalUnlocked
-              }
-                displayLetterDraw={
-    !limitReached && !finalGloballyLocked && letterDrawUnlocked
-  }
-              limitReached={limitReached}
-              globallyLocked={finalGloballyLocked}
-              currentKeys={keys}
-              keyThresholds={KEY_THRESHOLDS}
-              onUnlock={
-                limitReached || finalGloballyLocked ? null : handleUnlock
-              }
-              unlocking={unlocking}
-              purchasedLetterBuild={letterBuildUnlocked}
-              purchasedMaze={mazeUnlocked}
-              purchasedFinal={finalUnlocked}
-              purchasedLetterDraw={letterDrawUnlocked}
-            />
-          </div>
+          <GamesGrid
+            displayWordMatch={!limitReached}
+            displayLetterBuild={
+              !limitReached && !finalGloballyLocked && letterBuildUnlocked
+            }
+            displayMaze={
+              !limitReached && !finalGloballyLocked && mazeUnlocked
+            }
+            displayFinal={
+              !limitReached && !finalGloballyLocked && finalUnlocked
+            }
+            displayLetterDraw={
+              !limitReached && !finalGloballyLocked && letterDrawUnlocked
+            }
+            limitReached={limitReached}
+            globallyLocked={finalGloballyLocked}
+            currentKeys={keys}
+            keyThresholds={KEY_THRESHOLDS}
+            onUnlock={
+              limitReached || finalGloballyLocked ? null : handleUnlock
+            }
+            unlocking={unlocking}
+            purchasedLetterBuild={letterBuildUnlocked}
+            purchasedMaze={mazeUnlocked}
+            purchasedFinal={finalUnlocked}
+            purchasedLetterDraw={letterDrawUnlocked}
+          />
         </section>
 
-        {/* Settings + tour link */}
-        <section className="gm-s5 flex flex-col items-center gap-2 pb-2">
-          <Link
-            to="/settings"
-            className="inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 active:scale-100 transition-all duration-200 px-7 py-3 text-sm sm:text-base"
-          >
-            <span className="text-lg sm:text-xl">
-              <img
-                src={settingsIcon}
-                alt=""
-                aria-hidden="true"
-                className="h-6 w-6 object-contain"
-                draggable="false"
-              />
-            </span>
-            <span>{t("gameMenu.settings")}</span>
-          </Link>
+     {/* Settings + tour — two balanced pill buttons, responsive */}
+<section className="gm-s5 pb-2">
+  <div className="max-w-md mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+    <Link
+      to="/settings"
+      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200 px-6 py-3 text-sm sm:text-base"
+    >
+      <img
+        src={settingsIcon}
+        alt=""
+        aria-hidden="true"
+        className="h-5 w-5 object-contain"
+        draggable="false"
+      />
+      <span>{t("gameMenu.settings")}</span>
+    </Link>
 
-          <button
-            type="button"
-            onClick={startTour}
-            className="text-[11px] sm:text-xs font-semibold text-purple-600 hover:text-purple-800 underline decoration-dotted"
-          >
-            {t("menuTour.showAgain")}
-          </button>
-        </section>
+    <button
+      type="button"
+      onClick={startTour}
+      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white hover:bg-purple-50 text-purple-700 rounded-full font-semibold border border-purple-200 hover:border-purple-300 shadow-sm transition-all duration-200 px-6 py-3 text-sm sm:text-base"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-4.5 w-4.5 flex-shrink-0"
+        style={{ height: 18, width: 18 }}
+        aria-hidden="true"
+      >
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+        <path d="M21 3v5h-5" />
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+        <path d="M3 21v-5h5" />
+      </svg>
+      <span>{t("menuTour.showAgain")}</span>
+    </button>
+  </div>
+</section>
       </div>
 
-      {/* parental FAB */}
-      <button
-        onClick={() => navigate("/unlock-parental")}
-        className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 bg-purple-600 text-white rounded-full shadow-lg border-2 border-purple-400 hover:bg-purple-700 hover:scale-110 active:scale-95 transition-transform duration-200 z-50 flex items-center justify-center"
-        style={{
-          width: "clamp(44px,11vw,56px)",
-          height: "clamp(44px,11vw,56px)",
-          fontSize: "clamp(18px,4vw,24px)",
-        }}
-        title={t("gameMenu.parentalControl")}
-      >
-        <img
-  src={parentsIcon}
-  alt=""
-  aria-hidden="true"
-  draggable="false"
-  className="h-7 w-7 object-contain sm:h-8 sm:w-8"
-/>
-      </button>
+   {/* parental FAB — bottom-left, bolder pill style, clear of the fox watermark */}
+<button
+  onClick={() => navigate("/unlock-parental")}
+  className="fixed bottom-5 left-5 sm:bottom-6 sm:left-6 z-50 flex items-center gap-2 bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-full shadow-[0_10px_25px_rgba(126,34,206,0.4)] border-2 border-white/70 hover:shadow-[0_14px_32px_rgba(126,34,206,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 pl-3 pr-3 sm:pr-5 py-3"
+  title={t("gameMenu.parentalControl")}
+>
+  <img
+    src={parentsIcon}
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    className="h-6 w-6 sm:h-7 sm:w-7 object-contain flex-shrink-0"
+  />
+  <span className="hidden sm:inline text-sm font-bold tracking-wide whitespace-nowrap">
+    {t("gameMenu.parentalControl")}
+  </span>
+</button>
 
       <ParentalControlModal
         show={showLimitModal}

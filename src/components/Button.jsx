@@ -11,19 +11,20 @@ export default function Button({
   to,
 }) {
   const base =
-    "inline-block text-center font-bold rounded-full px-8 py-4 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+    "inline-block text-center font-bold rounded-full px-8 py-4 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
 
   const variants = {
     primary:
-      "bg-gradient-to-r from-green-400 to-blue-400 text-white hover:shadow-xl",
+      "bg-gradient-to-r from-emerald-400 to-sky-400 text-white shadow-[0_8px_20px_rgba(16,185,129,0.35)] hover:shadow-[0_10px_24px_rgba(16,185,129,0.45)]",
     secondary:
-      "bg-gradient-to-r from-purple-400 to-pink-400 text-white hover:shadow-xl",
-    neutral: "bg-white text-gray-700 hover:bg-gray-100",
+      "bg-gradient-to-r from-purple-400 to-pink-400 text-white shadow-[0_8px_20px_rgba(192,132,252,0.35)] hover:shadow-[0_10px_24px_rgba(192,132,252,0.45)]",
+    neutral:
+      "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm",
   }
 
   const style = `${base} ${variants[variant]} ${className}`
 
-  // if “to” is given, render <Link>
+  // if "to" is given, render <Link>
   if (to) {
     return (
       <Link to={to} className={style}>

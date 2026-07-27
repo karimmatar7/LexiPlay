@@ -162,6 +162,7 @@
     "dailyLimitDesc": "Définir une limite de minutes par jour",
     "save": "Enregistrer",
     "saving": "Enregistrement...",
+      "minutesShort": "min",
     "backToMenu": "Retour au menu",
     "viewDashboard": "Voir le tableau de bord",
     "successSave": "Paramètres enregistrés !"
@@ -434,7 +435,7 @@
   "keysHint": "La carte jaune au milieu montre combien de clés tu as.",
   "gamesTitle": "Jeux",
   "gamesDesc": "Appuie sur une carte de jeu pour commencer. Les cartes verrouillées montrent combien de clés il te manque.",
-  "gamesHint": "Regarde les quatre grandes cartes au centre de l’écran.",
+  "gamesHint": "Regarde les cinq grandes cartes au centre de l’écran.",
   "settingsTitle": "Réglages et parents",
   "settingsDesc": "Dans Réglages tu peux changer la police, le son et la langue. Les parents utilisent le bouton violet avec la famille.",
   "settingsHint": "En bas tu vois le bouton bleu des réglages et le bouton violet pour les parents.",
@@ -481,7 +482,7 @@
   "name": "Nom",
   "recovery_code": "Code de récupération",
   "new_pin": "Nouveau PIN",
-  "reset_pin": "🔑 Réinitialiser le PIN",
+  "reset_pin": "Réinitialiser le PIN",
   "close": "Fermer"
 },
 
@@ -563,6 +564,13 @@
       "sessionTip2": "Terminez par un compliment clair sur l’effort, l’écoute ou la persévérance.",
       "sessionHeartsTip": "Certains jeux sont en pause ; choisissez un autre jeu disponible ou faites une pause."
     }
-  }
+  },
+  "gamePicker": {
+  "title": "Choisis un jeu",
+  "close": "Fermer",
+  "locked": "Verrouillé",
+  "myGames": "Mes jeux",
+  "chooseAdventure": "Choisis ton aventure"
+}
 
 }

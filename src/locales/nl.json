@@ -167,6 +167,7 @@
   "dailyLimitDesc": "Stel een limiet in voor het aantal minuten per dag",
   "save": "Opslaan",
   "saving": "Opslaan...",
+    "minutesShort": "min",
   "backToMenu": "Terug naar Menu",
   "viewDashboard": "Bekijk Dashboard",
   "successSave": "Instellingen opgeslagen!"
@@ -444,7 +445,7 @@
   "keysHint": "Het gele kaartje in het midden laat zien hoeveel sleutels je hebt.",
   "gamesTitle": "Spellen",
   "gamesDesc": "Tik op een spelkaart om te beginnen. Op slot-kaarten zie je hoeveel sleutels je nog nodig hebt.",
-  "gamesHint": "Kijk naar de vier grote kaartjes in het midden van het scherm.",
+  "gamesHint": "Kijk naar de vijf grote kaartjes in het midden van het scherm.",
   "settingsTitle": "Instellingen en ouders",
   "settingsDesc": "In Instellingen kun je lettertype, geluid en taal aanpassen. Ouders gebruiken de paarse familie-knop.",
   "settingsHint": "Onderaan zie je de blauwe instellingenknop en de paarse familie-knop.",
@@ -491,7 +492,7 @@
   "name": "Naam",
   "recovery_code": "Herstelcode",
   "new_pin": "Nieuwe PIN",
-  "reset_pin": "🔑 Reset PIN",
+  "reset_pin": "Reset PIN",
   "close": "Sluiten"
 
 },
@@ -575,6 +576,13 @@
       "sessionTip2": "Eindig met een duidelijk compliment over inzet, luisteren of doorzetten.",
       "sessionHeartsTip": "Sommige spellen rusten nog, kies daarom een ander beschikbaar spel of neem een pauze."
     }
-  }
+  },
+  "gamePicker": {
+  "title": "Kies een spel",
+  "close": "Sluiten",
+  "locked": "Vergrendeld",
+  "myGames": "Mijn spellen",
+  "chooseAdventure": "Kies je avontuur"
+}
 }
 

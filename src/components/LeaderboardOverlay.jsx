@@ -2,10 +2,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "../supaBaseClient";
 import { useTranslation } from "react-i18next";
-import AvatarCanvas from "./AvatarCanvas"; // ← just import this
+import AvatarCanvas from "./AvatarCanvas";
 
 const MEDALS     = ["🥇", "🥈", "🥉"];
-const MEDAL_BG   = ["bg-yellow-50 border-yellow-300", "bg-slate-50 border-slate-300", "bg-orange-50 border-orange-300"];
+const MEDAL_BG   = ["bg-yellow-50 border-yellow-200", "bg-slate-50 border-slate-200", "bg-orange-50 border-orange-200"];
 const MEDAL_TEXT = ["text-yellow-600", "text-slate-500", "text-orange-500"];
 
 // ── Avatar wrapper — same pattern as GameMenuHeader ──────────────────
@@ -36,7 +36,7 @@ function RankChange({ prev, curr }) {
   const up = curr < prev;
   return (
     <span className={`inline-flex items-center text-xs font-black ml-1 animate-fade-in
-      ${up ? "text-green-500" : "text-red-400"}`}>
+      ${up ? "text-emerald-500" : "text-red-400"}`}>
       {up ? "▲" : "▼"}
     </span>
   );
@@ -95,7 +95,7 @@ export default function LeaderboardOverlay({ currentUserId, onClose }) {
     >
       <div
         className="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl
-          shadow-2xl overflow-hidden animate-fade-in border-t-4 border-indigo-400"
+          shadow-[0_25px_60px_rgba(15,23,42,0.25)] overflow-hidden animate-fade-in border border-indigo-100"
         style={{ maxHeight: "90vh" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -103,26 +103,51 @@ export default function LeaderboardOverlay({ currentUserId, onClose }) {
         {/* ── Header ── */}
         <div className="px-5 pt-5 pb-4 border-b border-slate-100">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-black text-indigo-700 tracking-tight">
-                🏆 {t("leaderboard.title", "Leaderboard")}
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5 font-medium">
-                {t("leaderboard.subtitle", "Letter Draw — High Scores")}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 bg-indigo-50 rounded-2xl p-2 border border-indigo-100">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 text-indigo-600"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                  <path d="M4 22h16" />
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-black text-indigo-700 tracking-tight">
+                  {t("leaderboard.title", "Leaderboard")}
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                  {t("leaderboard.subtitle", "Letter Draw — High Scores")}
+                </p>
+              </div>
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200
-                text-slate-500 rounded-xl border border-slate-200 transition-all font-bold text-sm active:scale-95"
+              className="w-9 h-9 flex items-center justify-center bg-slate-50 hover:bg-slate-100
+                text-slate-500 rounded-full border border-slate-200 transition-all duration-200 flex-shrink-0"
+              aria-label="Close"
             >
-              ✕
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
 
           {/* My rank banner */}
           {myEntry && (
-            <div className="mt-3 flex items-center gap-3 bg-indigo-50 border-2 border-indigo-200 rounded-2xl px-4 py-2.5">
+            <div className="mt-4 flex items-center gap-3 bg-indigo-50 border border-indigo-200 rounded-2xl px-4 py-3">
               <MiniAvatar avatar={myEntry.avatar} size={44} />
               <div className="flex-1 min-w-0">
                 <p className="text-indigo-700 font-black text-sm truncate">
@@ -149,7 +174,7 @@ export default function LeaderboardOverlay({ currentUserId, onClose }) {
         <div className="overflow-y-auto bg-slate-50" style={{ maxHeight: "52vh" }}>
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="w-10 h-10 border-4 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
+              <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin" />
               <p className="text-slate-400 text-sm font-medium">{t("leaderboard.loading", "Loading…")}</p>
             </div>
           ) : ranked.length === 0 ? (
@@ -169,9 +194,9 @@ export default function LeaderboardOverlay({ currentUserId, onClose }) {
                   <li
                     key={entry.id}
                     className={`
-                      flex items-center gap-3 px-3 py-2.5 rounded-2xl border-2 transition-all duration-300
+                      flex items-center gap-3 px-3 py-2.5 rounded-2xl border transition-all duration-300
                       ${isMe
-                        ? "bg-indigo-50 border-indigo-300 shadow-sm"
+                        ? "bg-indigo-50 border-indigo-200 shadow-sm"
                         : isTop3
                           ? `${MEDAL_BG[entry.rank - 1]} shadow-sm`
                           : "bg-white border-slate-100 hover:border-indigo-100"

@@ -13,8 +13,6 @@ import fontIcon from "../assets/icons/abc.png";
 import helpIcon from "../assets/icons/sos.png";
 import gamesIcon from "../assets/icons/games.png";
 
-
-
 export default function Settings({ user, setUser }) {
   const { t, i18n } = useTranslation();
   const { fontType, setFontType, fontSize, setFontSize, soundOn, setSoundOn } = useSettings();
@@ -27,65 +25,66 @@ export default function Settings({ user, setUser }) {
   }, [user, i18n]);
 
   // Change language function
-const changeLanguage = async (lng) => {
-  i18n.changeLanguage(lng);
+  const changeLanguage = async (lng) => {
+    i18n.changeLanguage(lng);
 
-  if (!user) return;
+    if (!user) return;
 
-  // Update local state
-  const updatedUser = {
-    ...user,
-    settings: { ...user.settings, language: lng },
+    // Update local state
+    const updatedUser = {
+      ...user,
+      settings: { ...user.settings, language: lng },
+    };
+    setUser(updatedUser);
+    localStorage.setItem("lexiplay_user", JSON.stringify(updatedUser));
+
+    // Update Supabase DB
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .update({ settings: updatedUser.settings })
+        .eq("id", user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      console.log("Language updated in DB:", data.settings.language);
+    } catch (err) {
+      console.error("Failed to update language in DB:", err);
+    }
   };
-  setUser(updatedUser);
-  localStorage.setItem("lexiplay_user", JSON.stringify(updatedUser));
-
-  // Update Supabase DB
-  try {
-    const { data, error } = await supabase
-      .from("users")
-      .update({ settings: updatedUser.settings })
-      .eq("id", user.id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    console.log("Language updated in DB:", data.settings.language);
-  } catch (err) {
-    console.error("Failed to update language in DB:", err);
-  }
-};
 
   return (
-    <div className="min-h-screen bg-rose-50 p-6 md:p-8 relative">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-rose-50 to-orange-50 p-4 pb-10 md:p-8 relative overflow-hidden">
       {/* Decorative shapes */}
-      <div className="absolute top-12 right-12 w-32 h-32 bg-indigo-200 rounded-full opacity-30" />
-      <div className="absolute bottom-20 left-20 w-40 h-40 bg-amber-200 rounded-full opacity-25" />
+      <div className="absolute top-12 right-12 w-32 h-32 bg-indigo-200 rounded-full opacity-30 pointer-events-none" />
+      <div className="absolute bottom-20 left-20 w-40 h-40 bg-amber-200 rounded-full opacity-25 pointer-events-none" />
 
       <div className="relative max-w-3xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="inline-block mb-6 bg-white rounded-3xl p-8 shadow-sm border-4 border-rose-300">
-            <span className="text-7xl">
-              <img
-                src={settingsIcon}
-                alt=""
-                aria-hidden="true"
-                className="h-12 w-12 object-contain"
-                draggable="false"
-              />
-            </span>
+        <div className="text-center mb-10 md:mb-12">
+          <div className="inline-flex items-center justify-center mb-5 md:mb-6 bg-white rounded-3xl p-6 md:p-8 shadow-[0_14px_30px_rgba(244,63,94,0.15)] border-4 border-rose-200">
+            <img
+              src={settingsIcon}
+              alt=""
+              aria-hidden="true"
+              className="h-10 w-10 md:h-12 md:w-12 object-contain"
+              draggable="false"
+            />
           </div>
-          <h1 className="text-5xl md:text-6xl font-black mb-4 text-rose-700" style={{ letterSpacing: '-0.02em' }}>
+          <h1
+            className="text-4xl sm:text-5xl md:text-6xl font-black mb-3 md:mb-4 text-rose-700"
+            style={{ letterSpacing: "-0.02em" }}
+          >
             {t("settings.title")}
           </h1>
-          <p className="text-xl text-gray-700 font-medium">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 font-medium">
             {t("settings.subtitle")}
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm border-2 p-8 mb-10 space-y-8">
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-[0_20px_45px_rgba(15,23,42,0.06)] border border-rose-100 p-5 sm:p-6 md:p-8 mb-8 md:mb-10 space-y-6 md:space-y-8">
           {/* Font Type */}
-          <SettingCard 
+          <SettingCard
             icon={
               <img
                 src={fontIcon}
@@ -95,25 +94,25 @@ const changeLanguage = async (lng) => {
                 draggable="false"
               />
             }
-            title={t("settings.fontType.title")} 
+            title={t("settings.fontType.title")}
             description={t("settings.fontType.description")}
           >
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <SettingButton 
-                active={fontType === "normal"} 
-                onClick={() => setFontType("normal")} 
-                label={t("settings.fontType.normal")} 
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4">
+              <SettingButton
+                active={fontType === "normal"}
+                onClick={() => setFontType("normal")}
+                label={t("settings.fontType.normal")}
               />
-              <SettingButton 
-                active={fontType === "dyslexic"} 
-                onClick={() => setFontType("dyslexic")} 
-                label={t("settings.fontType.dyslexic")} 
+              <SettingButton
+                active={fontType === "dyslexic"}
+                onClick={() => setFontType("dyslexic")}
+                label={t("settings.fontType.dyslexic")}
               />
             </div>
           </SettingCard>
 
           {/* Font Size */}
-          <SettingCard 
+          <SettingCard
             icon={
               <img
                 src={fontSizeIcon}
@@ -123,30 +122,30 @@ const changeLanguage = async (lng) => {
                 draggable="false"
               />
             }
-            title={t("settings.fontSize.title")} 
+            title={t("settings.fontSize.title")}
             description={t("settings.fontSize.description")}
           >
-            <div className="grid grid-cols-3 gap-3 mt-4">
-              <SettingButton 
-                active={fontSize === "small"} 
-                onClick={() => setFontSize("small")} 
-                label={t("settings.fontSize.small")} 
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mt-4">
+              <SettingButton
+                active={fontSize === "small"}
+                onClick={() => setFontSize("small")}
+                label={t("settings.fontSize.small")}
               />
-              <SettingButton 
-                active={fontSize === "medium"} 
-                onClick={() => setFontSize("medium")} 
-                label={t("settings.fontSize.medium")} 
+              <SettingButton
+                active={fontSize === "medium"}
+                onClick={() => setFontSize("medium")}
+                label={t("settings.fontSize.medium")}
               />
-              <SettingButton 
-                active={fontSize === "large"} 
-                onClick={() => setFontSize("large")} 
-                label={t("settings.fontSize.large")} 
+              <SettingButton
+                active={fontSize === "large"}
+                onClick={() => setFontSize("large")}
+                label={t("settings.fontSize.large")}
               />
             </div>
           </SettingCard>
 
           {/* Sound Toggle */}
-          <SettingCard 
+          <SettingCard
             icon={
               <img
                 src={soundIcon}
@@ -156,28 +155,62 @@ const changeLanguage = async (lng) => {
                 draggable="false"
               />
             }
-            title={t("settings.sound.title")} 
+            title={t("settings.sound.title")}
             description={t("settings.sound.description")}
           >
-            <div className="mt-4 flex items-center justify-between">
-              <span className="text-lg font-semibold">{t("settings.sound.label")}</span>
-              <label className="relative inline-block w-24 h-12 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={soundOn} 
-                  onChange={() => setSoundOn(!soundOn)} 
-                  className="sr-only" 
-                />
-                <div className={`w-24 h-12 rounded-full transition-colors duration-300 border-2 flex items-center ${
-                  soundOn ? "bg-green-400 border-green-600" : "bg-gray-300 border-gray-400"
-                }`}>
-                  <div className={`absolute top-1 w-10 h-10 bg-white rounded-full shadow-md transition-all duration-300 ${
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <span className="text-base sm:text-lg font-semibold text-gray-800">
+                {t("settings.sound.label")}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={soundOn}
+                onClick={() => setSoundOn(!soundOn)}
+                className={`relative inline-flex items-center w-20 h-10 sm:w-24 sm:h-12 rounded-full transition-colors duration-300 border-2 flex-shrink-0 ${
+                  soundOn
+                    ? "bg-emerald-400 border-emerald-600"
+                    : "bg-gray-300 border-gray-400"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center ${
                     soundOn ? "right-1" : "left-1"
-                  } flex items-center justify-center`}>
-                    {soundOn ? "🔊" : "🔇"}
-                  </div>
-                </div>
-              </label>
+                  }`}
+                >
+                  {soundOn ? (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500"
+                      aria-hidden="true"
+                    >
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    </svg>
+                  ) : (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400"
+                      aria-hidden="true"
+                    >
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <line x1="23" y1="9" x2="17" y2="15" />
+                      <line x1="17" y1="9" x2="23" y2="15" />
+                    </svg>
+                  )}
+                </span>
+              </button>
             </div>
           </SettingCard>
 
@@ -195,64 +228,61 @@ const changeLanguage = async (lng) => {
             title={t("settings.language.title") || "Language"}
             description={t("settings.language.description") || "Choose your preferred language"}
           >
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <SettingButton 
-                active={user?.settings?.language === "en"} 
-                onClick={() => changeLanguage("en")} 
-                label="English" 
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
+              <SettingButton
+                active={user?.settings?.language === "en"}
+                onClick={() => changeLanguage("en")}
+                label="English"
               />
-              <SettingButton 
-                active={user?.settings?.language === "nl"} 
-                onClick={() => changeLanguage("nl")} 
-                label="Nederlands" 
+              <SettingButton
+                active={user?.settings?.language === "nl"}
+                onClick={() => changeLanguage("nl")}
+                label="Nederlands"
               />
-              <SettingButton 
-                active={user?.settings?.language === "fr"} 
-                onClick={() => changeLanguage("fr")} 
-                label="Français" 
+              <SettingButton
+                active={user?.settings?.language === "fr"}
+                onClick={() => changeLanguage("fr")}
+                label="Français"
               />
             </div>
           </SettingCard>
 
+          {/* Support */}
           <SettingCard
-  icon={
-    <img
-      src={helpIcon}
-      alt=""
-      aria-hidden="true"
-      className="h-6 w-6 object-contain"
-      draggable="false"
-    />
-  }
-  title={t("support.title")}
-  description={t("support.description")}
->
-  <Link
-    to="/support"
-    className="mt-4 inline-flex items-center justify-center w-full bg-indigo-500 hover:bg-indigo-600 text-white py-4 rounded-2xl font-bold transition"
-  >
-    {t("support.button")}
-  </Link>
-</SettingCard>
-
-
+            icon={
+              <img
+                src={helpIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 object-contain"
+                draggable="false"
+              />
+            }
+            title={t("support.title")}
+            description={t("support.description")}
+          >
+            <Link
+              to="/support"
+              className="mt-4 inline-flex items-center justify-center w-full sm:w-auto sm:px-8 bg-indigo-500 hover:bg-indigo-600 text-white py-3.5 rounded-full font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200"
+            >
+              {t("support.button")}
+            </Link>
+          </SettingCard>
         </div>
 
-        {/* Navigation buttons side by side */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+        {/* Navigation buttons — pill style, matching GameMenu */}
+        <div className="max-w-md mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <Link
             to="/menu"
-            className="flex-1 text-center group inline-flex items-center justify-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-5 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-indigo-700 transform hover:scale-105 transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200 px-6 py-3.5 text-sm sm:text-base"
           >
-           <span className="flex shrink-0 items-center justify-center">
-  <img
-    src={gamesIcon}
-    alt=""
-    aria-hidden="true"
-    className="h-5 w-5 object-contain sm:h-6 sm:w-6"
-    draggable="false"
-  />
-</span>
+            <img
+              src={gamesIcon}
+              alt=""
+              aria-hidden="true"
+              className="h-5 w-5 object-contain"
+              draggable="false"
+            />
             <span>{t("settings.buttons.toGames")}</span>
           </Link>
 
@@ -262,9 +292,24 @@ const changeLanguage = async (lng) => {
               if (setUser) setUser(null);
               window.location.href = "/";
             }}
-            className="flex-1 text-center bg-red-400 hover:bg-red-500 text-white px-4 py-5 rounded-2xl font-bold shadow-md hover:shadow-lg border-b-4 border-red-600 transform hover:scale-105 transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white hover:bg-red-50 text-red-500 rounded-full font-bold border border-red-200 hover:border-red-300 shadow-sm transition-all duration-200 px-6 py-3.5 text-sm sm:text-base"
           >
-            {t("settings.buttons.logout")}
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4.5 w-4.5 flex-shrink-0"
+              style={{ height: 18, width: 18 }}
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span>{t("settings.buttons.logout")}</span>
           </button>
         </div>
       </div>

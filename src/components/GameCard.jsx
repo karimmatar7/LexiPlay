@@ -33,7 +33,7 @@ export default function GameCard({
 
   return (
     <div
-      className={`rounded-2xl border-2 ${borderColor} ${bgColor} p-4 sm:p-3 shadow-sm transition-all duration-200 flex flex-col ${
+      className={`rounded-2xl border ${borderColor} ${bgColor} p-4 sm:p-3 shadow-sm transition-all duration-200 flex flex-col ${
         active
           ? "hover:shadow-md hover:-translate-y-1"
           : "opacity-80 cursor-default"
@@ -42,7 +42,7 @@ export default function GameCard({
       {/* Badge row — in normal flow, never overflows */}
       <div className="flex justify-end mb-2 min-h-[24px]">
         {active && (
-          <div className="flex items-center gap-1 bg-green-400 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm border border-green-500">
+          <div className="flex items-center gap-1 bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
             <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
             <span>{t("game.available")}</span>
           </div>
@@ -50,19 +50,17 @@ export default function GameCard({
       </div>
 
       <div className="flex flex-col items-center text-center flex-1">
-        {/* Icon — bigger on mobile since it's full width */}
+        {/* Icon */}
         <div
-          className={`w-20 h-20 sm:w-14 sm:h-14 rounded-xl border-2 ${borderColor} bg-white flex items-center justify-center mb-3 sm:mb-2`}
+          className={`w-20 h-20 sm:w-14 sm:h-14 rounded-2xl border ${borderColor} bg-white flex items-center justify-center mb-3 sm:mb-2`}
         >
-          <span className="text-4xl sm:text-3xl select-none">
-            <img
-              src={icon}
-              alt=""
-              aria-hidden="true"
-              className="h-8 w-8 object-contain"
-              draggable="false"
-            />
-          </span>
+          <img
+            src={icon}
+            alt=""
+            aria-hidden="true"
+            className="h-8 w-8 object-contain"
+            draggable="false"
+          />
         </div>
 
         {/* Title */}
@@ -88,7 +86,7 @@ export default function GameCard({
           to ? (
             <Link
               to={to}
-              className="inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 sm:px-4 sm:py-2 rounded-xl text-sm sm:text-xs font-bold shadow-md border-b-4 border-indigo-700 transition-all duration-200 w-full"
+              className="inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 sm:px-4 sm:py-2 rounded-full text-sm sm:text-xs font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200 w-full"
             >
               <img
                 src={playIcon}
@@ -100,7 +98,7 @@ export default function GameCard({
               <span>{t("game.play_now")}</span>
             </Link>
           ) : (
-            <div className="inline-flex items-center justify-center gap-2 bg-indigo-500 text-white px-5 py-2.5 sm:px-4 sm:py-2 rounded-xl text-sm sm:text-xs font-bold shadow-md border-b-4 border-indigo-700 transition-all duration-200 w-full">
+            <div className="inline-flex items-center justify-center gap-2 bg-indigo-500 text-white px-5 py-2.5 sm:px-4 sm:py-2 rounded-full text-sm sm:text-xs font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] w-full">
               <img
                 src={playIcon}
                 alt=""
@@ -115,7 +113,7 @@ export default function GameCard({
           <div className="space-y-2 w-full">
             {globallyLocked ? (
               <div className="flex flex-col items-center gap-1.5 w-full">
-                <div className="inline-flex items-center justify-center gap-1.5 bg-red-100 text-red-600 border-2 border-red-300 px-3 py-2 rounded-xl text-xs font-bold w-full">
+                <div className="inline-flex items-center justify-center gap-1.5 bg-red-50 text-red-600 border border-red-200 px-3 py-2.5 rounded-full text-xs font-bold w-full">
                   <img
                     src={lockIcon}
                     alt=""
@@ -131,7 +129,7 @@ export default function GameCard({
                 </p>
               </div>
             ) : purchased ? (
-              <div className="inline-flex items-center justify-center gap-1.5 bg-orange-100 text-orange-700 border-2 border-orange-300 px-3 py-2 rounded-xl text-xs font-bold w-full">
+              <div className="inline-flex items-center justify-center gap-1.5 bg-orange-50 text-orange-600 border border-orange-200 px-3 py-2.5 rounded-full text-xs font-bold w-full">
                 <img
                   src={clockIcon}
                   alt=""
@@ -139,15 +137,13 @@ export default function GameCard({
                   className="h-4 w-4 shrink-0 object-contain"
                   draggable="false"
                 />
-                <span>
-                  {t("game.timeLocked") || "Tijdslimiet bereikt"}
-                </span>
+                <span>{t("game.timeLocked") || "Tijdslimiet bereikt"}</span>
               </div>
             ) : (
               <>
                 {keysRequired > 0 && (
-                  <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl px-3 py-2 text-left">
-                    <div className="flex items-center justify-between mb-1">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-2xl px-3 py-2.5 text-left">
+                    <div className="flex items-center justify-between mb-1.5">
                       <span className="text-[11px] font-bold text-yellow-700 flex items-center gap-1">
                         <img
                           src={keyIcon}
@@ -180,10 +176,10 @@ export default function GameCard({
                       onUnlock();
                     }}
                     disabled={isUnlocking}
-                    className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold border-b-4 shadow-md transition-all duration-200 ${
+                    className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full text-sm font-bold transition-all duration-200 ${
                       isUnlocking
-                        ? "bg-yellow-300 border-yellow-400 text-yellow-800 cursor-wait"
-                        : "bg-yellow-400 hover:bg-yellow-500 border-yellow-600 text-white hover:scale-105"
+                        ? "bg-yellow-200 text-yellow-700 cursor-wait shadow-none"
+                        : "bg-yellow-400 hover:bg-yellow-500 text-white shadow-[0_8px_20px_rgba(250,204,21,0.4)] hover:shadow-[0_10px_24px_rgba(250,204,21,0.5)]"
                     }`}
                   >
                     {isUnlocking ? (
@@ -195,9 +191,7 @@ export default function GameCard({
                           className="h-4 w-4 shrink-0 animate-spin object-contain"
                           draggable="false"
                         />
-                        <span>
-                          {t("game.unlocking") || "Ontgrendelen..."}
-                        </span>
+                        <span>{t("game.unlocking") || "Ontgrendelen..."}</span>
                       </>
                     ) : (
                       <>
@@ -218,7 +212,7 @@ export default function GameCard({
                 )}
 
                 {keysRequired > 0 && !canAfford && (
-                  <div className="inline-flex items-center justify-center gap-1.5 bg-gray-300 text-gray-600 px-3 py-2 rounded-xl text-sm font-bold border-2 border-gray-400 w-full">
+                  <div className="inline-flex items-center justify-center gap-1.5 bg-gray-100 text-gray-500 px-3 py-2.5 rounded-full text-sm font-bold border border-gray-200 w-full">
                     <img
                       src={lockIcon}
                       alt=""
@@ -231,7 +225,7 @@ export default function GameCard({
                 )}
 
                 {keysRequired === 0 && unlockMsg && (
-                  <div className="bg-yellow-100 border-2 border-yellow-300 rounded-xl px-3 py-2 text-xs text-gray-700 leading-snug">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-2xl px-3 py-2.5 text-xs text-gray-700 leading-snug">
                     {unlockMsg}
                   </div>
                 )}

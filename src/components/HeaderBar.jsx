@@ -16,14 +16,14 @@ export default function HeaderBar({
 
   return (
     <div className="mb-6">
-      <div className="rounded-2xl border-2 border-purple-200 bg-white p-4 shadow-md md:p-5">
+      <div className="rounded-3xl border border-purple-100 bg-white/95 backdrop-blur-sm p-4 shadow-[0_14px_30px_rgba(147,51,234,0.08)] md:p-5">
         <div className="flex items-center justify-between">
           {/* Left: Home + Keys */}
           <div className="flex items-center gap-3 md:gap-4">
             <button
               type="button"
               onClick={onHome}
-              className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-pink-500 bg-pink-400 shadow-sm transition-all duration-200 hover:scale-110 hover:bg-pink-500 hover:shadow-md md:h-14 md:w-14"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-400 hover:bg-pink-500 shadow-[0_8px_20px_rgba(244,114,182,0.4)] hover:shadow-[0_10px_24px_rgba(244,114,182,0.5)] transition-all duration-200 md:h-14 md:w-14"
             >
               <img
                 src={homeIcon}
@@ -34,7 +34,7 @@ export default function HeaderBar({
             </button>
 
             {/* Keys display: same height as Home/Pause */}
-            <div className="flex h-12 items-center gap-2 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-3 shadow-sm md:h-14">
+            <div className="flex h-12 items-center gap-2 rounded-full border border-yellow-200 bg-yellow-50 px-4 shadow-sm md:h-14">
               <img
                 src={keyIcon}
                 alt=""
@@ -44,11 +44,11 @@ export default function HeaderBar({
               />
 
               <div className="flex flex-col leading-none">
-                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-500">
                   {t("header.keys") || "Keys"}
                 </span>
 
-                <span className="text-2xl font-black text-yellow-600 md:text-3xl">
+                <span className="text-xl font-black text-yellow-600 md:text-2xl">
                   {keys}
                 </span>
               </div>
@@ -60,10 +60,10 @@ export default function HeaderBar({
             <button
               type="button"
               onClick={onPauseToggle}
-              className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 font-bold shadow-sm transition-all duration-200 hover:scale-110 hover:shadow-md md:h-14 md:w-14 ${
+              className={`flex h-12 w-12 items-center justify-center rounded-full font-bold transition-all duration-200 md:h-14 md:w-14 ${
                 paused
-                  ? "border-green-500 bg-green-400 hover:bg-green-500"
-                  : "border-amber-500 bg-amber-400 hover:bg-amber-500"
+                  ? "bg-emerald-400 hover:bg-emerald-500 shadow-[0_8px_20px_rgba(52,211,153,0.4)] hover:shadow-[0_10px_24px_rgba(52,211,153,0.5)]"
+                  : "bg-amber-400 hover:bg-amber-500 shadow-[0_8px_20px_rgba(251,191,36,0.4)] hover:shadow-[0_10px_24px_rgba(251,191,36,0.5)]"
               }`}
             >
               <img
