@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import GameCard from "./GameCard";
+import RandomGameCard from "./RandomGameCard";
 import MobileGameLauncher from "./games/MobileGameLauncher";
 import MobileGameWheel from "./games/MobileGameWheel";
+import useRandomGame from "../hooks/useRandomGame";
 
 import puzzleIcon from "../assets/icons/puzzle.png";
 import abcIcon from "../assets/icons/abc.png";
@@ -56,7 +58,9 @@ export default function GamesGrid({
     document.documentElement.style.overflow = "hidden";
 
     const closeOnEscape = (event) => {
-      if (event.key === "Escape") setIsWheelOpen(false);
+      if (event.key === "Escape") {
+        setIsWheelOpen(false);
+      }
     };
 
     window.addEventListener("keydown", closeOnEscape);
@@ -68,138 +72,152 @@ export default function GamesGrid({
     };
   }, [isWheelOpen]);
 
-  const games = useMemo(
-    () => {
-      const letterDrawMessage = limitReached ? (
-        t("gameCards.limitReached")
-      ) : (
-        <>
-          {t("gameCards.letterDraw.unlockMsg")}
-          <img
-            src={keyIcon}
-            alt=""
-            aria-hidden="true"
-            draggable="false"
-            className="ml-1 inline-block h-4 w-4 align-text-bottom object-contain"
-          />
-        </>
-      );
+  const games = useMemo(() => {
+    const letterDrawMessage = limitReached ? (
+      t("gameCards.limitReached")
+    ) : (
+      <>
+        {t("gameCards.letterDraw.unlockMsg")}
+        <img
+          src={keyIcon}
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+          className="ml-1 inline-block h-4 w-4 align-text-bottom object-contain"
+        />
+      </>
+    );
 
-      const baseGames = [
-        {
-          id: "wordMatch",
-          icon: puzzleIcon,
-          title: t("gameCards.wordMatch.title"),
-          desc: t("gameCards.wordMatch.desc"),
-          active: displayWordMatch && !globallyLocked,
-          to: "/game",
-          bgColor: "bg-green-100",
-          borderColor: "border-green-400",
-          pickerColor: "from-green-300 to-emerald-500",
-          purchased: true,
-          unlockMsg: limitReached ? t("gameCards.limitReached") : undefined,
-        },
-        {
-          id: "letterBuild",
-          icon: abcIcon,
-          title: t("gameCards.letterBuild.title"),
-          desc: t("gameCards.letterBuild.desc"),
-          active: displayLetterBuild,
-          to: "/letterbuild",
-          bgColor: "bg-blue-100",
-          borderColor: "border-blue-400",
-          pickerColor: "from-sky-300 to-blue-500",
-          keysRequired: keyThresholds.letterBuild,
-          purchased: purchasedLetterBuild,
-          unlockMsg: blocked
-            ? t("gameCards.limitReached")
-            : t("gameCards.letterBuild.unlockMsg"),
-        },
-        {
-          id: "wordMaze",
-          icon: mazeIcon,
-          title: t("gameCards.wordMaze.title"),
-          desc: t("gameCards.wordMaze.desc"),
-          active: displayMaze,
-          to: "/wordmaze",
-          bgColor: "bg-purple-100",
-          borderColor: "border-purple-400",
-          pickerColor: "from-violet-300 to-purple-500",
-          keysRequired: keyThresholds.maze,
-          purchased: purchasedMaze,
-          unlockMsg: blocked
-            ? t("gameCards.limitReached")
-            : t("gameCards.wordMaze.unlockMsg"),
-        },
-        {
-          id: "finalWordBuilder",
-          icon: cupIcon,
-          title: t("gameCards.finalWordBuilder.title"),
-          desc: t("gameCards.finalWordBuilder.desc"),
-          active: displayFinal,
-          to: "/finalwordbuilder",
-          bgColor: "bg-pink-100",
-          borderColor: "border-pink-400",
-          pickerColor: "from-pink-300 to-rose-500",
-          keysRequired: keyThresholds.final,
-          purchased: purchasedFinal,
-          unlockMsg: blocked
-            ? t("gameCards.limitReached")
-            : t("gameCards.finalWordBuilder.unlockMsg"),
-        },
-        {
-          id: "letterDraw",
-          icon: pencilIcon,
-          title: t("gameCards.letterDraw.title"),
-          desc: t("gameCards.letterDraw.desc"),
-          active: displayLetterDraw,
-          to: "/letterdraw",
-          bgColor: "bg-orange-100",
-          borderColor: "border-orange-400",
-          pickerColor: "from-orange-300 to-amber-400",
-          keysRequired: keyThresholds.letterDraw,
-          purchased: purchasedLetterDraw,
-          unlockMsg: letterDrawMessage,
-        },
-      ];
+    const baseGames = [
+      {
+        id: "wordMatch",
+        icon: puzzleIcon,
+        title: t("gameCards.wordMatch.title"),
+        desc: t("gameCards.wordMatch.desc"),
+        active: displayWordMatch && !globallyLocked,
+        to: "/game",
+        bgColor: "bg-green-100",
+        borderColor: "border-green-400",
+        pickerColor: "from-green-300 to-emerald-500",
+        purchased: true,
+        unlockMsg: limitReached ? t("gameCards.limitReached") : undefined,
+      },
+      {
+        id: "letterBuild",
+        icon: abcIcon,
+        title: t("gameCards.letterBuild.title"),
+        desc: t("gameCards.letterBuild.desc"),
+        active: displayLetterBuild,
+        to: "/letterbuild",
+        bgColor: "bg-blue-100",
+        borderColor: "border-blue-400",
+        pickerColor: "from-sky-300 to-blue-500",
+        keysRequired: keyThresholds.letterBuild,
+        purchased: purchasedLetterBuild,
+        unlockMsg: blocked
+          ? t("gameCards.limitReached")
+          : t("gameCards.letterBuild.unlockMsg"),
+      },
+      {
+        id: "wordMaze",
+        icon: mazeIcon,
+        title: t("gameCards.wordMaze.title"),
+        desc: t("gameCards.wordMaze.desc"),
+        active: displayMaze,
+        to: "/wordmaze",
+        bgColor: "bg-purple-100",
+        borderColor: "border-purple-400",
+        pickerColor: "from-violet-300 to-purple-500",
+        keysRequired: keyThresholds.maze,
+        purchased: purchasedMaze,
+        unlockMsg: blocked
+          ? t("gameCards.limitReached")
+          : t("gameCards.wordMaze.unlockMsg"),
+      },
+      {
+        id: "finalWordBuilder",
+        icon: cupIcon,
+        title: t("gameCards.finalWordBuilder.title"),
+        desc: t("gameCards.finalWordBuilder.desc"),
+        active: displayFinal,
+        to: "/finalwordbuilder",
+        bgColor: "bg-pink-100",
+        borderColor: "border-pink-400",
+        pickerColor: "from-pink-300 to-rose-500",
+        keysRequired: keyThresholds.final,
+        purchased: purchasedFinal,
+        unlockMsg: blocked
+          ? t("gameCards.limitReached")
+          : t("gameCards.finalWordBuilder.unlockMsg"),
+      },
+      {
+        id: "letterDraw",
+        icon: pencilIcon,
+        title: t("gameCards.letterDraw.title"),
+        desc: t("gameCards.letterDraw.desc"),
+        active: displayLetterDraw,
+        to: "/letterdraw",
+        bgColor: "bg-orange-100",
+        borderColor: "border-orange-400",
+        pickerColor: "from-orange-300 to-amber-400",
+        keysRequired: keyThresholds.letterDraw,
+        purchased: purchasedLetterDraw,
+        unlockMsg: letterDrawMessage,
+      },
+    ];
 
-      return baseGames.map((game) => ({
-        ...game,
-        currentKeys,
-        globallyLocked,
-        canAfford:
-          !blocked &&
-          (game.purchased || currentKeys >= (game.keysRequired || 0)),
-        isUnlocking: unlocking === game.id,
-        onUnlock:
-          game.id === "wordMatch" || !onUnlock
-            ? null
-            : () => onUnlock(game.id, game.keysRequired),
-      }));
-    },
-    [
-      t,
-      blocked,
+    return baseGames.map((game) => ({
+      ...game,
       currentKeys,
       globallyLocked,
-      displayWordMatch,
-      displayLetterBuild,
-      displayMaze,
-      displayFinal,
-      displayLetterDraw,
-      keyThresholds,
-      purchasedLetterBuild,
-      purchasedMaze,
-      purchasedFinal,
-      purchasedLetterDraw,
-      limitReached,
-      onUnlock,
-      unlocking,
-    ]
+      canAfford:
+        !blocked &&
+        (game.purchased || currentKeys >= (game.keysRequired || 0)),
+      isUnlocking: unlocking === game.id,
+      onUnlock:
+        game.id === "wordMatch" || !onUnlock
+          ? null
+          : () => onUnlock(game.id, game.keysRequired),
+    }));
+  }, [
+    t,
+    blocked,
+    currentKeys,
+    globallyLocked,
+    displayWordMatch,
+    displayLetterBuild,
+    displayMaze,
+    displayFinal,
+    displayLetterDraw,
+    keyThresholds,
+    purchasedLetterBuild,
+    purchasedMaze,
+    purchasedFinal,
+    purchasedLetterDraw,
+    limitReached,
+    onUnlock,
+    unlocking,
+  ]);
+
+  const playableGames = useMemo(
+    () => games.filter((game) => game.active),
+    [games]
   );
 
+  const {
+    canRandomize,
+    isRandomizing,
+    randomFocusId,
+    startRandomGame,
+  } = useRandomGame({
+    playableGames,
+    navigate,
+    onFinish: () => setIsWheelOpen(false),
+  });
+
   const handleGameSelect = (game) => {
-    if (!game.active) return;
+    if (!game.active || isRandomizing) return;
+
     setIsWheelOpen(false);
     navigate(game.to);
   };
@@ -223,12 +241,20 @@ export default function GamesGrid({
         open={isWheelOpen}
         games={games}
         currentKeys={currentKeys}
-        onClose={() => setIsWheelOpen(false)}
+        focusedGameId={randomFocusId}
+        isSpinning={isRandomizing}
+        canSpin={canRandomize}
+        onClose={() => {
+          if (!isRandomizing) setIsWheelOpen(false);
+        }}
         onSelect={handleGameSelect}
+        onSpin={startRandomGame}
         labels={{
           title: tr(t, "gamePicker.title", "Pick a game"),
           close: tr(t, "gamePicker.close", "Close"),
           locked: tr(t, "gamePicker.locked", "Locked"),
+          spin: tr(t, "gamePicker.spin", "Spin"),
+          spinning: tr(t, "gamePicker.spinning", "Spinning..."),
         }}
       />
 
@@ -251,8 +277,25 @@ export default function GamesGrid({
             isUnlocking={game.isUnlocking}
             onUnlock={game.onUnlock}
             unlockMsg={game.unlockMsg}
+            isRandomFocused={randomFocusId === game.id}
+            isRandomizing={isRandomizing}
           />
         ))}
+
+        {canRandomize && (
+          <RandomGameCard
+            icon={cupIcon}
+            title={tr(t, "gameCards.randomGame.title", "Random game")}
+            desc={tr(
+              t,
+              "gameCards.randomGame.desc",
+              "Let the wheel choose your next adventure"
+            )}
+            currentKeys={currentKeys}
+            isRandomizing={isRandomizing}
+            onRandomize={startRandomGame}
+          />
+        )}
       </div>
     </>
   );

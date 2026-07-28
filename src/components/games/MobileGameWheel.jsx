@@ -1,14 +1,23 @@
 import React from "react";
 import { createPortal } from "react-dom";
-
+import WheelSpinButton from "./WheelSpinButton";
 import keyIcon from "../../assets/icons/key.png";
 import lockIcon from "../../assets/icons/lock.png";
 
 const ANGLES = [-90, -18, 54, 126, 198];
 
-function WheelGame({ game, index, currentKeys, onSelect, lockedLabel }) {
+function WheelGame({
+  game,
+  index,
+  currentKeys,
+  onSelect,
+  lockedLabel,
+  focused,
+  isSpinning,
+}) {
   const locked = !game.active;
   const required = game.keysRequired || 0;
+
   const progress = required
     ? Math.min(100, Math.round((currentKeys / required) * 100))
     : 0;
@@ -16,8 +25,7 @@ function WheelGame({ game, index, currentKeys, onSelect, lockedLabel }) {
   return (
     <button
       type="button"
-      key={game.id}
-      disabled={locked}
+      disabled={locked || isSpinning}
       onClick={() => onSelect(game)}
       aria-label={
         locked && required
@@ -25,17 +33,21 @@ function WheelGame({ game, index, currentKeys, onSelect, lockedLabel }) {
           : game.title
       }
       className={`game-wheel-item absolute left-1/2 top-1/2 z-20 flex w-[clamp(76px,22vw,100px)] flex-col items-center ${
-        locked ? "cursor-not-allowed" : "cursor-pointer"
-      }`}
+        locked || isSpinning ? "cursor-not-allowed" : "cursor-pointer"
+      } ${focused ? "game-wheel-item-focused z-30" : ""}`}
       style={{
         "--angle": `${ANGLES[index]}deg`,
-        "--radius": "clamp(106px, 29vw, 135px)",
+        "--radius": "clamp(106px,29vw,135px)",
         animationDelay: `${0.08 + index * 0.06}s`,
       }}
     >
       <span
         className={`game-wheel-icon relative flex h-[clamp(58px,16vw,74px)] w-[clamp(58px,16vw,74px)] items-center justify-center rounded-[1.35rem] border-2 border-white/80 bg-gradient-to-br ${game.pickerColor} shadow-[0_10px_22px_rgba(15,23,42,0.3)] ${
           locked ? "brightness-[0.68] saturate-[0.45]" : ""
+        } ${
+          focused
+            ? "ring-4 ring-amber-300 ring-offset-4 ring-offset-indigo-700"
+            : ""
         }`}
       >
         <img
@@ -51,6 +63,7 @@ function WheelGame({ game, index, currentKeys, onSelect, lockedLabel }) {
         {locked && (
           <>
             <span className="absolute inset-0 rounded-[1.2rem] bg-slate-950/20" />
+
             <span className="absolute -right-2 -top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-slate-700 shadow-md">
               <img
                 src={lockIcon}
@@ -67,7 +80,7 @@ function WheelGame({ game, index, currentKeys, onSelect, lockedLabel }) {
       <span
         className={`mt-1.5 max-w-[106px] text-center text-[10px] font-extrabold leading-tight drop-shadow-[0_1px_2px_rgba(15,23,42,0.72)] ${
           locked ? "text-white/65" : "text-white"
-        }`}
+        } ${focused ? "text-amber-200" : ""}`}
       >
         {game.title}
       </span>
@@ -103,6 +116,10 @@ export default function MobileGameWheel({
   currentKeys,
   onClose,
   onSelect,
+  onSpin,
+  focusedGameId,
+  isSpinning,
+  canSpin,
   labels,
 }) {
   if (!open || typeof document === "undefined") return null;
@@ -120,6 +137,7 @@ export default function MobileGameWheel({
             opacity: 0;
             transform: scale(0.52) rotate(-10deg);
           }
+
           to {
             opacity: 1;
             transform: scale(1) rotate(0);
@@ -148,6 +166,27 @@ export default function MobileGameWheel({
           }
         }
 
+        @keyframes game-wheel-selected {
+          0%,
+          100% {
+            transform:
+              translate(-50%, -50%)
+              rotate(var(--angle))
+              translateX(var(--radius))
+              rotate(calc(-1 * var(--angle)))
+              scale(1);
+          }
+
+          50% {
+            transform:
+              translate(-50%, -50%)
+              rotate(var(--angle))
+              translateX(var(--radius))
+              rotate(calc(-1 * var(--angle)))
+              scale(1.15);
+          }
+        }
+
         .game-wheel-backdrop {
           animation: game-wheel-fade 0.2s ease-out both;
         }
@@ -165,8 +204,12 @@ export default function MobileGameWheel({
           animation: game-wheel-item 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
+        .game-wheel-item-focused {
+          animation: game-wheel-selected 0.24s ease-in-out infinite !important;
+        }
+
         .game-wheel-icon {
-          transition: transform 0.2s ease, filter 0.2s ease;
+          transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
         }
 
         .game-wheel-item:not(:disabled):active .game-wheel-icon {
@@ -176,7 +219,8 @@ export default function MobileGameWheel({
         @media (prefers-reduced-motion: reduce) {
           .game-wheel-backdrop,
           .game-wheel,
-          .game-wheel-item {
+          .game-wheel-item,
+          .game-wheel-item-focused {
             animation: none !important;
           }
         }
@@ -191,39 +235,53 @@ export default function MobileGameWheel({
         <button
           type="button"
           onClick={onClose}
+          disabled={isSpinning}
           aria-label={labels.close}
-          className="absolute inset-0"
+          className="absolute inset-0 disabled:cursor-not-allowed"
         />
 
-        <div className="game-wheel relative z-10 h-[min(88vw,410px)] w-[min(88vw,410px)]">
-          <div className="absolute inset-0 rounded-full border-[3px] border-white/50 bg-gradient-to-br from-indigo-500 via-violet-600 to-fuchsia-500 shadow-[0_28px_80px_rgba(49,46,129,0.55)]" />
-          <div className="absolute inset-3 rounded-full border border-white/25 bg-slate-950/10" />
+        <div className="relative z-10 flex w-full max-w-[410px] flex-col items-center">
+          <h2 className="mb-4 text-center text-xl font-black tracking-wide text-white drop-shadow-[0_3px_8px_rgba(15,23,42,0.8)]">
+            {labels.title}
+          </h2>
 
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex h-[clamp(108px,30vw,126px)] w-[clamp(108px,30vw,126px)] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-white/75 bg-white/95 px-4 text-center shadow-[0_16px_32px_rgba(30,27,75,0.28)]">
-            <span className="text-xs font-black uppercase leading-tight tracking-[0.13em] text-indigo-600">
-              {labels.title}
-            </span>
+          <div className="game-wheel relative h-[min(88vw,410px)] w-[min(88vw,410px)]">
+            <div className="absolute inset-0 rounded-full border-[3px] border-white/50 bg-gradient-to-br from-indigo-500 via-violet-600 to-fuchsia-500 shadow-[0_28px_80px_rgba(49,46,129,0.55)]" />
+
+            <div className="absolute inset-3 rounded-full border border-white/25 bg-slate-950/10" />
+
+    <WheelSpinButton
+  canSpin={canSpin}
+  isSpinning={isSpinning}
+  onSpin={onSpin}
+  title={labels.title}
+  spinLabel={labels.spin}
+  spinningLabel={labels.spinning}
+/>
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSpinning}
+              aria-label={labels.close}
+              className="absolute -right-1 -top-1 z-40 flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-white/80 bg-white text-2xl font-black leading-none text-indigo-600 shadow-xl transition-transform duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              ×
+            </button>
+
+            {games.map((game, index) => (
+              <WheelGame
+                key={game.id}
+                game={game}
+                index={index}
+                currentKeys={currentKeys}
+                onSelect={onSelect}
+                lockedLabel={labels.locked}
+                focused={focusedGameId === game.id}
+                isSpinning={isSpinning}
+              />
+            ))}
           </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={labels.close}
-            className="absolute -right-1 -top-1 z-40 flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-white/80 bg-white text-2xl font-black leading-none text-indigo-600 shadow-xl transition-transform duration-200 active:scale-90"
-          >
-            ×
-          </button>
-
-          {games.map((game, index) => (
-            <WheelGame
-              key={game.id}
-              game={game}
-              index={index}
-              currentKeys={currentKeys}
-              onSelect={onSelect}
-              lockedLabel={labels.locked}
-            />
-          ))}
         </div>
       </div>
     </>,

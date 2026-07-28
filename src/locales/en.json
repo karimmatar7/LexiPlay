@@ -139,9 +139,23 @@
   "title": "Letter Draw",
   "desc": "Draw letters and score goals!",
   "unlockMsg": "Unlock for 10 🗝️"
-}
+},
+  "randomGame": {
+    "title": "Random game",
+    "desc": "Let the wheel choose your next adventure",
+    "spinning": "Choosing a game..."
+  }
 ,
   "limitReached": "Daily limit reached"
+},
+"gamePicker": {
+  "title": "Pick a game",
+  "close": "Close",
+  "locked": "Locked",
+  "myGames": "My games",
+  "chooseAdventure": "Choose your adventure",
+  "spin": "Spin",
+  "spinning": "Spinning..."
 },
 "parentalUnlock": {
   "setPinTitle": "Set a PIN",
@@ -580,14 +594,7 @@
       "sessionTip2": "Finish with a clear compliment about effort, listening, or persistence.",
       "sessionHeartsTip": "Some games are resting, so choose another available game or take a break."
     }
-  },
-  "gamePicker": {
-  "title": "Pick a game",
-  "close": "Close",
-  "locked": "Locked",
-  "myGames": "My games",
-  "chooseAdventure": "Choose your adventure"
-}
+  }
 
 }
 

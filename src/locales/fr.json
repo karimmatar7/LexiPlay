@@ -130,10 +130,24 @@
   "title": "Dessin de Lettres",
   "desc": "Dessine des lettres et marque des buts !",
   "unlockMsg": "Débloquer pour 10 🗝️"
-}
+},
+"randomGame": {
+    "title": "Jeu aléatoire",
+    "desc": "Laisse la roue choisir ta prochaine aventure",
+    "spinning": "Choix d'un jeu..."
+  }
 ,
     "limitReached": "Limite quotidienne atteinte"
   },
+ "gamePicker": {
+  "title": "Choisis un jeu",
+  "close": "Fermer",
+  "locked": "Verrouillé",
+  "myGames": "Mes jeux",
+  "chooseAdventure": "Choisis ton aventure",
+    "spin": "Tourner",
+  "spinning": "La roue tourne..."
+},
   "parentalUnlock": {
     "setPinTitle": "Définir un PIN",
     "setPinSubtitle": "Crée un nouveau PIN avec au moins 4 chiffres",
@@ -564,13 +578,6 @@
       "sessionTip2": "Terminez par un compliment clair sur l’effort, l’écoute ou la persévérance.",
       "sessionHeartsTip": "Certains jeux sont en pause ; choisissez un autre jeu disponible ou faites une pause."
     }
-  },
-  "gamePicker": {
-  "title": "Choisis un jeu",
-  "close": "Fermer",
-  "locked": "Verrouillé",
-  "myGames": "Mes jeux",
-  "chooseAdventure": "Choisis ton aventure"
-}
+  }
 
 }

@@ -336,47 +336,51 @@ export default function GameMenu({ user, setUser }) {
           />
         </section>
 
-     {/* Settings + tour — two balanced pill buttons, responsive */}
+    {/* Settings + tour — stable horizontal layout for long translations */}
 <section className="gm-s5 pb-2">
-  <div className="max-w-md mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+  <div className="mx-auto flex max-w-3xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:gap-4">
     <Link
       to="/settings"
-      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200 px-6 py-3 text-sm sm:text-base"
+      className="inline-flex min-h-[52px] w-full shrink-0 items-center justify-center gap-2.5 rounded-full bg-indigo-500 px-5 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)] transition-all duration-200 hover:bg-indigo-600 hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] sm:w-auto sm:px-6 sm:text-base"
     >
       <img
         src={settingsIcon}
         alt=""
         aria-hidden="true"
-        className="h-5 w-5 object-contain"
         draggable="false"
+        className="h-5 w-5 shrink-0 object-contain"
       />
-      <span>{t("gameMenu.settings")}</span>
+      <span className="whitespace-nowrap">
+        {t("gameMenu.settings")}
+      </span>
     </Link>
 
-    <button
-      type="button"
-      onClick={startTour}
-      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white hover:bg-purple-50 text-purple-700 rounded-full font-semibold border border-purple-200 hover:border-purple-300 shadow-sm transition-all duration-200 px-6 py-3 text-sm sm:text-base"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-4.5 w-4.5 flex-shrink-0"
-        style={{ height: 18, width: 18 }}
-        aria-hidden="true"
-      >
-        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-        <path d="M21 3v5h-5" />
-        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-        <path d="M3 21v-5h5" />
-      </svg>
-      <span>{t("menuTour.showAgain")}</span>
-    </button>
+   <button
+  type="button"
+  onClick={startTour}
+  className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full border border-purple-200 bg-white px-5 py-3 text-center text-sm font-semibold leading-tight text-purple-700 shadow-sm transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:w-[min(330px,calc(100vw-220px))] sm:px-6 sm:text-[15px]"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-[18px] w-[18px] shrink-0"
+    aria-hidden="true"
+  >
+    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+    <path d="M21 3v5h-5" />
+    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+    <path d="M3 21v-5h5" />
+  </svg>
+
+  <span className="whitespace-nowrap">
+    {t("menuTour.showAgain")}
+  </span>
+</button>
   </div>
 </section>
       </div>
