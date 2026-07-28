@@ -1,21 +1,44 @@
 {
-  "auth": {
+"auth": {
     "welcome": "Welcome to LexiPlay!",
-    "subtitle": "Log in to start your adventure",
-    "nameLabel": "Name",
-    "namePlaceholder": "Type your name here...",
-    "pinLabel": "PIN Code",
-    "pinPlaceholder": "Type your PIN here...",
-    "login": "Login",
-    "register": "Register",
-    "guest": "Continue as guest",
-    "forgotPin": "Forgot PIN?",
+    "subtitle": "Learn, play, and grow every day.",
+    "logoAlt": "LexiPlay fox logo",
+    "createAccountTitle": "Create your account",
+    "createAccountSubtitle": "Save your progress and play on any device.",
+    "fullNameLabel": "Full name",
+    "fullNamePlaceholder": "Enter your full name",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "login": "Log in",
+    "createAccountButton": "Create account",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "No account yet? Create one",
+    "alreadyHaveAccount": "Already have an account? Log in",
+    "loading": "Please wait…",
+    "orContinueWith": "Or continue with",
+"google": "Google",
+"apple": "Apple",
+    "messages": {
+      "confirmEmail": "Account created! Check your email and confirm your account before signing in.",
+      "resetEmailSent": "If an account exists for this email address, we sent a password-reset link.",
+      "signingIn": "Signing you in…"
+    },
     "errors": {
-      "fillFields": "Please fill in both fields",
-      "loginFailed": "User not found or incorrect PIN",
-      "registerFailed": "Registration failed or name already taken",
-      "resetFillFields": "Please fill in all fields",
-      "resetFailed": "Incorrect recovery code or name"
+      "emailAndPasswordRequired": "Please enter your email address and password.",
+      "allFieldsRequired": "Please enter your full name, email address, and password.",
+      "passwordTooShort": "Your password must contain at least 6 characters.",
+      "emailRequiredForReset": "Enter your email address first, then click Forgot password.",
+      "loginFailed": "Incorrect email address or password.",
+      "emailAlreadyRegistered": "An account already exists with this email address.",
+      "emailNotConfirmed": "Please confirm your email address before signing in.",
+      "profileLoadFailed": "Your LexiPlay profile could not be loaded.",
+      "registerFailed": "We could not create your account.",
+      "somethingWentWrong": "Something went wrong. Please try again.",
+      "passwordRequirements": "Your password must be at least 8 characters, start with a capital letter, and include a lowercase letter, number, and special character."
     }
   },
   "modals": {
@@ -96,7 +119,23 @@
     "keys": "keys",
     "unlockFor" : "Unlock for"
   },
-
+"resetPassword": {
+  "title": "Create a new password",
+  "subtitle": "Choose a strong new password for your LexiPlay account.",
+  "verifyingLink": "Verifying your reset link…",
+  "newPassword": "New password",
+  "confirmPassword": "Confirm new password",
+  "confirmPasswordPlaceholder": "Enter your new password again",
+  "savePassword": "Save new password",
+  "messages": {
+    "success": "Your password has been changed. You can now log in."
+  },
+  "errors": {
+    "passwordsDoNotMatch": "Your passwords do not match.",
+    "invalidLink": "This password-reset link is invalid or has expired. Please request a new one."
+  },
+  "backToLogin": "Back to login"
+},
   "wordMatch": {
     "title": "Word Match",
     "desc": "Match words with sounds and create the correct combinations!",

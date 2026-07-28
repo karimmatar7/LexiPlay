@@ -12,6 +12,8 @@ import Reward from "./pages/Reward";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import AuthPage from "./pages/Auth";
+import AuthCallbackPage from "./pages/AuthCallbackPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { supabase } from "./supaBaseClient";
 import "./index.css";
@@ -42,29 +44,38 @@ function App() {
         .eq("id", session.user.id)
         .single();
       if (!error && data) latestUser = data;
-    } else {
-      const savedUser = localStorage.getItem("lexiplay_user");
-      if (savedUser) latestUser = JSON.parse(savedUser);
-    }
+    } 
 
-    if (latestUser) {
-      setUser(latestUser);
-      if (latestUser.settings?.language) {
-        await i18n.changeLanguage(latestUser.settings.language);
-      }
-    }
+if (latestUser) {
+  setUser(latestUser);
 
-    setLoading(false);
-    setLangLoaded(true);
+  if (latestUser.settings?.language) {
+    await i18n.changeLanguage(latestUser.settings.language);
+  }
+} else {
+  setUser(null);
+}
+
+setLoading(false);
+setLangLoaded(true);
   }, [i18n]);
 
-  useEffect(() => {
+ useEffect(() => {
+  fetchUser();
+
+  const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+    const isResetPage = window.location.pathname === "/reset-password";
+
+    // Let ResetPasswordPage exclusively handle its recovery session.
+    if (isResetPage || event === "PASSWORD_RECOVERY") {
+      return;
+    }
+
     fetchUser();
-    const { data: listener } = supabase.auth.onAuthStateChange(() => {
-      fetchUser();
-    });
-    return () => listener.subscription.unsubscribe();
-  }, [fetchUser]);
+  });
+
+  return () => listener.subscription.unsubscribe();
+}, [fetchUser]);
 
   if (!langLoaded) return null;
   if (loading) return <div>Loading...</div>;
@@ -73,11 +84,22 @@ function App() {
     <SettingsProvider user={user} setUser={setUser}>
       <Router>
         <Routes>
-          {/* Auth */}
-          <Route
-            path="/"
-            element={user ? <Navigate to="/menu" /> : <AuthPage onLogin={setUser} />}
-          />
+         {/* Auth */}
+  <Route
+    path="/"
+    element={
+      user ? (
+        <Navigate to="/menu" replace />
+      ) : (
+        <AuthPage onLogin={setUser} />
+      )
+    }
+  />
+
+  <Route
+    path="/auth/callback"
+    element={<AuthCallbackPage onLogin={setUser} />}
+  />
 
           {/* Menu — setUser added */}
           <Route
@@ -90,6 +112,9 @@ function App() {
               )
             }
           />
+
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+
 
           {/* Games */}
           <Route

@@ -36,7 +36,6 @@ export default function Settings({ user, setUser }) {
       settings: { ...user.settings, language: lng },
     };
     setUser(updatedUser);
-    localStorage.setItem("lexiplay_user", JSON.stringify(updatedUser));
 
     // Update Supabase DB
     try {
@@ -287,11 +286,20 @@ export default function Settings({ user, setUser }) {
           </Link>
 
           <button
-            onClick={() => {
-              localStorage.removeItem("lexiplay_user");
-              if (setUser) setUser(null);
-              window.location.href = "/";
-            }}
+         onClick={async () => {
+  try {
+    const { error } = await supabase.auth.signOut({ scope: "local" });
+
+    if (error) {
+      throw error;
+    }
+
+    localStorage.removeItem("lexiplay_user");
+    setUser(null);
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+}}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white hover:bg-red-50 text-red-500 rounded-full font-bold border border-red-200 hover:border-red-300 shadow-sm transition-all duration-200 px-6 py-3.5 text-sm sm:text-base"
           >
             <svg

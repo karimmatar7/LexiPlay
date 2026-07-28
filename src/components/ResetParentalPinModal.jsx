@@ -1,68 +1,105 @@
 import React, { useState } from "react";
 import { sha256 } from "js-sha256";
-import { updateSettings, getUser } from "../utils/user.js";
-import NotificationModal from "./NotificationModal";
 import { useTranslation } from "react-i18next";
+import { supabase } from "../supaBaseClient.js";
+import { updateSettings } from "../utils/user.js";
+import NotificationModal from "./NotificationModal";
 
-export default function ResetParentalPinModal({ user, onClose, setExistingPin, setPin }) {
+export default function ResetParentalPinModal({
+  user,
+  onClose,
+  setExistingPin,
+  setPin,
+}) {
   const { t } = useTranslation();
-  const [recoveryCode, setRecoveryCode] = useState("");
+
+  const [password, setPassword] = useState("");
   const [newPin, setNewPin] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
-  const [modalConfig, setModalConfig] = useState({ message: "", type: "error" });
+  const [modalConfig, setModalConfig] = useState({
+    message: "",
+    type: "error",
+  });
+
+  const showMessage = (message, type = "error") => {
+    setModalConfig({ message, type });
+    setShowModal(true);
+  };
 
   const handleResetPin = async () => {
+    if (!password) {
+      showMessage("Enter your account password.");
+      return;
+    }
+
     if (newPin.length < 4) {
-      setModalConfig({ message: t("parentalUnlock.errorShortPin"), type: "error" });
-      setShowModal(true);
+      showMessage(t("parentalUnlock.errorShortPin"));
       return;
     }
 
-    const latestUser = await getUser(user.id);
-    const storedRecovery = latestUser?.recovery_code;
+    try {
+      setLoading(true);
 
-    if (!storedRecovery) {
-      setModalConfig({ message: t("auth.errors.resetFailed"), type: "error" });
-      setShowModal(true);
-      return;
+      // The user does not type an email; we use the logged-in user's email.
+     const {
+  data: { user: authUser },
+  error: authUserError,
+} = await supabase.auth.getUser();
+
+if (authUserError || !authUser?.email) {
+  throw new Error("Could not verify your signed-in account. Please log in again.");
+}
+
+const { data, error: signInError } =
+  await supabase.auth.signInWithPassword({
+    email: authUser.email,
+    password,
+  });
+
+      if (signInError || !data.user) {
+        throw new Error("Password is incorrect.");
+      }
+
+  if (data.user.id !== authUser.id || data.user.id !== user.id) {
+  throw new Error("This password does not belong to the current account.");
+}
+      const hashedPin = sha256(newPin);
+
+      const updatedUser = await updateSettings(user.id, {
+        parentalPin: hashedPin,
+        parentalAttempts: 0,
+        parentalLockUntil: null,
+      });
+
+      if (!updatedUser) {
+        throw new Error("Could not reset the parental PIN. Try again.");
+      }
+
+      // Make the new PIN work immediately without a page refresh.
+      setExistingPin(hashedPin);
+      setPin("");
+
+      showMessage("Parental PIN reset successfully.", "success");
+
+      window.setTimeout(() => {
+        setShowModal(false);
+        onClose();
+      }, 1500);
+    } catch (error) {
+      showMessage(error.message || "Could not reset the parental PIN.");
+    } finally {
+      setLoading(false);
     }
-
-    if (sha256(recoveryCode.trim()) !== storedRecovery) {
-      setModalConfig({ message: t("auth.errors.resetFailed"), type: "error" });
-      setShowModal(true);
-      return;
-    }
-
-    // Update PIN and reset attempts
-    const hashedPin = sha256(newPin);
-    await updateSettings(user.id, {
-      parentalPin: hashedPin,
-      parentalAttempts: 0,
-      parentalLockUntil: null,
-    });
-
-    // Update local state so new PIN works immediately
-    setExistingPin(hashedPin);
-    setPin("");
-
-    setModalConfig({ message: t("modals.success.title"), type: "success" });
-    setShowModal(true);
-
-    // Close modal after success
-    setTimeout(() => {
-      setShowModal(false);
-      onClose();
-      setRecoveryCode("");
-      setNewPin("");
-    }, 1500);
   };
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-3xl shadow-[0_25px_60px_rgba(15,23,42,0.25)] border border-gray-100 p-6 sm:p-8 w-full max-w-md">
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="inline-flex items-center justify-center mb-3 bg-purple-50 rounded-2xl p-3 border border-purple-100">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+        <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 shadow-[0_25px_60px_rgba(15,23,42,0.25)] sm:p-8">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <div className="mb-3 inline-flex items-center justify-center rounded-2xl border border-purple-100 bg-purple-50 p-3">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -79,52 +116,79 @@ export default function ResetParentalPinModal({ user, onClose, setExistingPin, s
                 <path d="M3 21v-5h5" />
               </svg>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-gray-900">
-              {t("modals.resetPin.title")}
+
+            <h2 className="text-xl font-black text-gray-900 sm:text-2xl">
+              Reset parental PIN
             </h2>
+
+            <p className="mt-2 text-sm text-gray-600">
+              Enter your account password to create a new parental PIN.
+            </p>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1.5">
-                {t("modals.resetPin.recoveryCode")}
+              <label
+                htmlFor="account-password"
+                className="mb-1.5 block text-sm font-bold text-gray-700"
+              >
+                Account password
               </label>
+
               <input
-                placeholder={t("modals.resetPin.recoveryCode")}
-                value={recoveryCode}
-                onChange={(e) => setRecoveryCode(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all"
+                id="account-password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Enter your account password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                disabled={loading}
+                className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-gray-100"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1.5">
-                {t("modals.resetPin.newPin")}
+              <label
+                htmlFor="new-parental-pin"
+                className="mb-1.5 block text-sm font-bold text-gray-700"
+              >
+                New parental PIN
               </label>
+
               <input
+                id="new-parental-pin"
                 type="password"
-                placeholder={t("modals.resetPin.newPin")}
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="4 to 6 digits"
                 value={newPin}
-                onChange={(e) => setNewPin(e.target.value)}
+                onChange={(event) =>
+                  setNewPin(event.target.value.replace(/\D/g, ""))
+                }
                 maxLength={6}
-                className="w-full px-4 py-3 rounded-2xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 tracking-widest transition-all"
+                disabled={loading}
+                className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 tracking-widest transition-all focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-gray-100"
               />
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 mt-7">
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <button
+              type="button"
               onClick={onClose}
-              className="flex-1 order-2 sm:order-1 bg-white hover:bg-gray-50 text-gray-600 py-3 rounded-full font-bold border border-gray-200 hover:border-gray-300 shadow-sm transition-all duration-200"
+              disabled={loading}
+              className="order-2 flex-1 rounded-full border border-gray-200 bg-white py-3 font-bold text-gray-600 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:order-1"
             >
               {t("modals.resetPin.closeButton")}
             </button>
 
             <button
+              type="button"
               onClick={handleResetPin}
-              className="flex-1 order-1 sm:order-2 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-full font-bold shadow-[0_8px_20px_rgba(147,51,234,0.35)] hover:shadow-[0_10px_24px_rgba(147,51,234,0.45)] transition-all duration-200"
+              disabled={loading}
+              className="order-1 flex-1 rounded-full bg-purple-600 py-3 font-bold text-white shadow-[0_8px_20px_rgba(147,51,234,0.35)] transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-400 sm:order-2"
             >
-              {t("modals.resetPin.resetButton")}
+              {loading ? "Checking..." : "Reset PIN"}
             </button>
           </div>
         </div>

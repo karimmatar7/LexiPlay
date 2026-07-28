@@ -1,22 +1,63 @@
 {
   "auth": {
     "welcome": "Bienvenue sur LexiPlay !",
-    "subtitle": "Connecte-toi pour commencer ton aventure",
-    "nameLabel": "Nom",
-    "namePlaceholder": "Entre ton nom ici...",
-    "pinLabel": "Code PIN",
-    "pinPlaceholder": "Entre ton code PIN ici...",
-    "login": "Connexion",
-    "register": "S’inscrire",
-    "guest": "Continuer en tant qu’invité",
-    "forgotPin": "Code PIN oublié ?",
+    "subtitle": "Apprends, joue et progresse chaque jour.",
+    "logoAlt": "Logo renard LexiPlay",
+    "createAccountTitle": "Crée ton compte",
+    "createAccountSubtitle": "Garde ta progression et joue sur tous tes appareils.",
+    "fullNameLabel": "Nom complet",
+    "fullNamePlaceholder": "Entre ton nom complet",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "toi@exemple.fr",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Entre ton mot de passe",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "login": "Se connecter",
+    "createAccountButton": "Créer un compte",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Pas encore de compte ? Crée-en un",
+    "alreadyHaveAccount": "Tu as déjà un compte ? Connecte-toi",
+    "loading": "Un instant…",
+    "orContinueWith": "Ou continuer avec",
+"google": "Google",
+"apple": "Apple",
+    "messages": {
+      "confirmEmail": "Compte créé ! Vérifie ton e-mail et confirme ton compte avant de te connecter.",
+      "resetEmailSent": "Si un compte existe pour cette adresse e-mail, nous avons envoyé un lien de réinitialisation du mot de passe.",
+      "signingIn": "Connexion en cours…"
+    },
     "errors": {
-      "fillFields": "Veuillez remplir les deux champs",
-      "loginFailed": "Utilisateur introuvable ou code PIN incorrect",
-      "registerFailed": "Échec de l’inscription ou nom déjà utilisé",
-      "resetFillFields": "Veuillez remplir tous les champs",
-      "resetFailed": "Code de récupération ou nom incorrect"
+      "emailAndPasswordRequired": "Entre ton adresse e-mail et ton mot de passe.",
+      "allFieldsRequired": "Entre ton nom complet, ton adresse e-mail et ton mot de passe.",
+      "passwordTooShort": "Ton mot de passe doit contenir au moins 6 caractères.",
+      "emailRequiredForReset": "Entre d'abord ton adresse e-mail, puis clique sur Mot de passe oublié.",
+      "loginFailed": "Adresse e-mail ou mot de passe incorrect.",
+      "emailAlreadyRegistered": "Un compte existe déjà avec cette adresse e-mail.",
+      "emailNotConfirmed": "Confirme d'abord ton adresse e-mail avant de te connecter.",
+      "profileLoadFailed": "Ton profil LexiPlay n'a pas pu être chargé.",
+      "registerFailed": "Nous n'avons pas pu créer ton compte.",
+      "somethingWentWrong": "Un problème est survenu. Réessaie.",
+      "passwordRequirements": "Ton mot de passe doit contenir au moins 8 caractères, commencer par une majuscule et inclure une minuscule, un chiffre et un caractère spécial."
     }
+  },
+
+  "resetPassword": {
+  "title": "Créer un nouveau mot de passe",
+  "subtitle": "Choisis un nouveau mot de passe sécurisé pour ton compte LexiPlay.",
+  "verifyingLink": "Vérification de ton lien de réinitialisation…",
+  "newPassword": "Nouveau mot de passe",
+  "confirmPassword": "Confirmer le nouveau mot de passe",
+  "confirmPasswordPlaceholder": "Saisis à nouveau ton nouveau mot de passe",
+  "savePassword": "Enregistrer le nouveau mot de passe",
+  "messages": {
+    "success": "Ton mot de passe a été modifié. Tu peux maintenant te connecter."
+  },
+  "errors": {
+    "passwordsDoNotMatch": "Tes mots de passe ne correspondent pas.",
+     "invalidLink": "Ce lien de réinitialisation du mot de passe est invalide ou a expiré. Veuillez en demander un nouveau."
+  },
+  "backToLogin": "Retour à la connexion"
   },
   "modals": {
     "recoveryCode": {
