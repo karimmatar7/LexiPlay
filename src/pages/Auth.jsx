@@ -27,13 +27,19 @@ export default function AuthPage({ onLogin }) {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  const changeLanguage = async (nextLanguage) => {
+    setLanguage(nextLanguage);
+    await i18n.changeLanguage(nextLanguage);
+    setShowLanguageMenu(false);
+  };
 
   const toggleLanguage = () => {
     const nextLanguage =
       language === "en" ? "nl" : language === "nl" ? "fr" : "en";
 
-    setLanguage(nextLanguage);
-    i18n.changeLanguage(nextLanguage);
+    changeLanguage(nextLanguage);
   };
 
   const getErrorMessage = (err) => {
@@ -64,14 +70,14 @@ export default function AuthPage({ onLogin }) {
   };
 
   const isStrongPassword = (value) => {
-  return (
-    value.length >= 8 &&
-    /^[A-Z]/.test(value) &&
-    /[a-z]/.test(value) &&
-    /\d/.test(value) &&
-    /[!@#$%^&*()[\]{};:'"\\|,.<>/?`~_+=-]/.test(value)
-  );
-};
+    return (
+      value.length >= 8 &&
+      /^[A-Z]/.test(value) &&
+      /[a-z]/.test(value) &&
+      /\d/.test(value) &&
+      /[!@#$%^&*()[\]{};:'"\\|,.<>/?`~_+=-]/.test(value)
+    );
+  };
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
@@ -93,7 +99,6 @@ export default function AuthPage({ onLogin }) {
       }
 
       await applyUserLanguage(profile);
-
       onLogin(profile);
       navigate("/menu");
     } catch (err) {
@@ -109,10 +114,10 @@ export default function AuthPage({ onLogin }) {
       return;
     }
 
-  if (!isStrongPassword(password)) {
-  setError(t("auth.errors.passwordRequirements"));
-  return;
-}
+    if (!isStrongPassword(password)) {
+      setError(t("auth.errors.passwordRequirements"));
+      return;
+    }
 
     try {
       setLoading(true);
@@ -129,7 +134,6 @@ export default function AuthPage({ onLogin }) {
         throw new Error(t("auth.errors.registerFailed"));
       }
 
-      // If Confirm email is disabled in Supabase, login happens immediately.
       if (session) {
         const profile = await getCurrentProfile();
 
@@ -165,7 +169,6 @@ export default function AuthPage({ onLogin }) {
       setMessage("");
 
       await sendPasswordResetEmail(email);
-
       setMessage(t("auth.messages.resetEmailSent"));
     } catch (err) {
       setError(getErrorMessage(err));
@@ -175,22 +178,22 @@ export default function AuthPage({ onLogin }) {
   };
 
   const handleSocialLogin = async (provider) => {
-  try {
-    setLoading(true);
-    setError("");
-    setMessage("");
+    try {
+      setLoading(true);
+      setError("");
+      setMessage("");
 
-    if (provider === "google") {
-      await signInWithGoogle();
-      return;
+      if (provider === "google") {
+        await signInWithGoogle();
+        return;
+      }
+
+      await signInWithApple();
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setLoading(false);
     }
-
-    await signInWithApple();
-  } catch (err) {
-    setError(getErrorMessage(err));
-    setLoading(false);
-  }
-};
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -203,12 +206,19 @@ export default function AuthPage({ onLogin }) {
     handleRegister();
   };
 
-  const nextLanguage =
-    language === "en" ? "NL" : language === "nl" ? "FR" : "EN";
+  const languageCode =
+    language === "en" ? "EN" : language === "nl" ? "NL" : "FR";
+
+  const languageOptions = [
+    { code: "en", label: "English", short: "EN" },
+    { code: "nl", label: "Nederlands", short: "NL" },
+    { code: "fr", label: "Français", short: "FR" },
+  ];
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 p-4">
-      <div className="fixed right-4 top-4 z-50">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 p-4 sm:p-6 lg:p-10">
+      {/* iPad and smaller: KEEP old language cycle button */}
+      <div className="fixed right-4 top-4 z-50 lg:hidden">
         <button
           type="button"
           onClick={toggleLanguage}
@@ -230,246 +240,350 @@ export default function AuthPage({ onLogin }) {
           </svg>
 
           <span className="text-sm font-bold uppercase tracking-wide text-purple-700 sm:text-base">
-            {language === "en" ? "EN" : language === "nl" ? "NL" : "FR"}
-          </span>
-
-          <span className="hidden text-xs font-medium text-purple-400 sm:inline">
-            → {nextLanguage}
+            {languageCode}
           </span>
         </button>
       </div>
 
+      {/* Desktop only: language dropdown */}
+      <div className="fixed right-8 top-8 z-50 hidden lg:block">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowLanguageMenu((current) => !current)}
+            className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-4 py-2.5 text-sm font-bold text-purple-700 shadow-[0_8px_20px_rgba(147,51,234,0.15)] backdrop-blur-sm transition-all duration-200 hover:bg-white focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
+            aria-label={t("changeLanguage")}
+            aria-expanded={showLanguageMenu}
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 5h12M9 3v2m1.5 9.5A18 18 0 016.4 9m6.1 9h7M11 21l5-10 5 10M12.8 5C11.8 10.8 8.1 15.6 3 18.1"
+              />
+            </svg>
+
+            <span>{languageCode}</span>
+
+            <svg
+              className={`h-4 w-4 transition-transform ${
+                showLanguageMenu ? "rotate-180" : ""
+              }`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m6 9 6 6 6-6"
+              />
+            </svg>
+          </button>
+
+          {showLanguageMenu && (
+            <div className="absolute right-0 mt-2 w-44 overflow-hidden rounded-2xl border border-purple-100 bg-white p-1.5 shadow-[0_16px_35px_rgba(76,29,149,0.2)]">
+              {languageOptions.map((option) => (
+                <button
+                  key={option.code}
+                  type="button"
+                  onClick={() => changeLanguage(option.code)}
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
+                    language === option.code
+                      ? "bg-purple-100 text-purple-800"
+                      : "text-gray-700 hover:bg-purple-50 hover:text-purple-700"
+                  }`}
+                >
+                  <span>{option.label}</span>
+                  <span className="text-xs font-black">{option.short}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Original background decorations */}
       <div className="pointer-events-none absolute left-10 top-20 h-32 w-32 rounded-full bg-yellow-300 opacity-40" />
       <div className="pointer-events-none absolute bottom-20 right-10 h-40 w-40 rounded-full bg-green-300 opacity-30" />
       <div className="pointer-events-none absolute left-1/4 top-1/2 h-24 w-24 rounded-full bg-purple-300 opacity-35" />
+      <div className="pointer-events-none absolute right-[18%] top-[14%] hidden h-20 w-20 rounded-full bg-pink-300/45 lg:block" />
 
-      <main className="relative w-full max-w-md space-y-7 rounded-3xl border border-purple-100 bg-white/95 p-6 shadow-[0_25px_60px_rgba(147,51,234,0.15)] backdrop-blur-sm sm:p-8 md:p-10">
-        <header className="space-y-3 text-center sm:space-y-4">
-          <div className="mb-1 inline-flex items-center justify-center rounded-full border border-purple-200 bg-gradient-to-br from-purple-100 to-pink-100 p-5 shadow-[0_10px_25px_rgba(147,51,234,0.15)] sm:p-6">
-            <img
-              src="/fox.png"
-              alt={t("auth.logoAlt")}
-              className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28"
-            />
+      {/* On iPad and smaller, this is the original one-column width */}
+      <div className="relative w-full max-w-md lg:grid lg:max-w-6xl lg:grid-cols-[minmax(0,1fr)_500px] lg:items-center lg:gap-16 xl:max-w-7xl xl:grid-cols-[minmax(0,1fr)_540px] xl:gap-24">
+        {/* Only desktop gets the left branding panel */}
+        <section className="hidden lg:block">
+          <div className="max-w-xl">
+            <div className="mb-8 inline-flex items-center justify-center rounded-[2.5rem] border border-white/70 bg-white/35 p-8 shadow-[0_25px_60px_rgba(147,51,234,0.18)] backdrop-blur-md xl:p-10">
+              <img
+                src="/fox.png"
+                alt={t("auth.logoAlt")}
+                className="h-44 w-44 object-contain xl:h-52 xl:w-52"
+              />
+            </div>
+
+            <h1
+              className="max-w-xl text-5xl font-black leading-[1.05] text-purple-800 xl:text-6xl"
+              style={{ letterSpacing: "-0.04em" }}
+            >
+              {mode === "login"
+                ? t("auth.welcome")
+                : t("auth.createAccountTitle")}
+            </h1>
+
+            <p className="mt-5 max-w-md text-lg font-medium leading-relaxed text-purple-950/70 xl:text-xl">
+              {mode === "login"
+                ? t("auth.subtitle")
+                : t("auth.createAccountSubtitle")}
+            </p>
+
+            <div className="mt-10 flex items-center gap-3">
+              <span className="h-3 w-3 rounded-full bg-yellow-400 shadow-sm" />
+              <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-sm" />
+              <span className="h-3 w-3 rounded-full bg-pink-400 shadow-sm" />
+            </div>
           </div>
+        </section>
 
-          <h1
-            className="text-3xl font-black text-purple-700 sm:text-4xl"
-            style={{ letterSpacing: "-0.02em" }}
-          >
-            {mode === "login"
-              ? t("auth.welcome")
-              : t("auth.createAccountTitle")}
-          </h1>
+        {/* Same original card for iPad/small; desktop only adjusts spacing */}
+        <main className="w-full space-y-7 rounded-3xl border border-purple-100 bg-white/95 p-6 shadow-[0_25px_60px_rgba(147,51,234,0.15)] backdrop-blur-sm sm:p-8 md:p-10 lg:space-y-6 lg:p-9 xl:p-10">
+          <header className="space-y-3 text-center lg:text-left sm:space-y-4">
+            {/* Original fox on iPads and smaller */}
+            <div className="mb-1 inline-flex items-center justify-center rounded-full border border-purple-200 bg-gradient-to-br from-purple-100 to-pink-100 p-5 shadow-[0_10px_25px_rgba(147,51,234,0.15)] sm:p-6 lg:hidden">
+              <img
+                src="/fox.png"
+                alt={t("auth.logoAlt")}
+                className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28"
+              />
+            </div>
 
-          <p className="text-sm font-medium text-gray-600 sm:text-base">
-            {mode === "login"
-              ? t("auth.subtitle")
-              : t("auth.createAccountSubtitle")}
-          </p>
-        </header>
+            <h2
+              className="text-3xl font-black text-purple-700 sm:text-4xl lg:text-3xl"
+              style={{ letterSpacing: "-0.02em" }}
+            >
+              {mode === "login"
+                ? t("auth.welcome")
+                : t("auth.createAccountTitle")}
+            </h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {mode === "register" && (
+            <p className="text-sm font-medium text-gray-600 sm:text-base">
+              {mode === "login"
+                ? t("auth.subtitle")
+                : t("auth.createAccountSubtitle")}
+            </p>
+          </header>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {mode === "register" && (
+              <div>
+                <label
+                  htmlFor="fullName"
+                  className="mb-1.5 ml-1 block text-sm font-bold text-gray-700"
+                >
+                  {t("auth.fullNameLabel")}
+                </label>
+
+                <input
+                  id="fullName"
+                  type="text"
+                  autoComplete="name"
+                  placeholder={t("auth.fullNamePlaceholder")}
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
+                  className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-base transition-all duration-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 sm:text-lg"
+                />
+              </div>
+            )}
+
             <div>
               <label
-                htmlFor="fullName"
+                htmlFor="email"
                 className="mb-1.5 ml-1 block text-sm font-bold text-gray-700"
               >
-                {t("auth.fullNameLabel")}
+                {t("auth.emailLabel")}
               </label>
 
               <input
-                id="fullName"
-                type="text"
-                autoComplete="name"
-                placeholder={t("auth.fullNamePlaceholder")}
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder={t("auth.emailPlaceholder")}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-base transition-all duration-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 sm:text-lg"
               />
             </div>
-          )}
 
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1.5 ml-1 block text-sm font-bold text-gray-700"
-            >
-              {t("auth.emailLabel")}
-            </label>
-
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder={t("auth.emailPlaceholder")}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-base transition-all duration-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 sm:text-lg"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1.5 ml-1 block text-sm font-bold text-gray-700"
-            >
-              {t("auth.passwordLabel")}
-            </label>
-
-            <div className="relative">
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete={
-                  mode === "login" ? "current-password" : "new-password"
-                }
-                placeholder={t("auth.passwordPlaceholder")}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 pr-12 text-base transition-all duration-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 sm:text-lg"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword((current) => !current)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-purple-600"
-                aria-label={
-                  showPassword
-                    ? t("auth.hidePassword")
-                    : t("auth.showPassword")
-                }
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-1.5 ml-1 block text-sm font-bold text-gray-700"
               >
-                {showPassword ? (
-                  <svg
-                    className="h-5 w-5 sm:h-6 sm:w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.228.223-2.403.637-3.5M9.879 9.879A3 3 0 1114.121 14.12m0 0L21 21m-7-7l-7-7"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-5 w-5 sm:h-6 sm:w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 0 1 6 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                )}
-              </button>
+                {t("auth.passwordLabel")}
+              </label>
+
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete={
+                    mode === "login" ? "current-password" : "new-password"
+                  }
+                  placeholder={t("auth.passwordPlaceholder")}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 pr-12 text-base transition-all duration-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 sm:text-lg"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-purple-600"
+                  aria-label={
+                    showPassword
+                      ? t("auth.hidePassword")
+                      : t("auth.showPassword")
+                  }
+                >
+                  {showPassword ? (
+                    <svg
+                      className="h-5 w-5 sm:h-6 sm:w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.228.223-2.403.637-3.5M9.879 9.879A3 3 0 1114.121 14.12m0 0L21 21m-7-7l-7-7"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="h-5 w-5 sm:h-6 sm:w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 0 1 6 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
+
+            {error && (
+              <div
+                className="rounded-2xl border border-red-200 bg-red-50 p-4"
+                role="alert"
+              >
+                <p className="text-sm font-semibold leading-relaxed text-red-700">
+                  {error}
+                </p>
+              </div>
+            )}
+
+            {message && (
+              <div
+                className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4"
+                role="status"
+              >
+                <p className="text-sm font-semibold leading-relaxed text-emerald-700">
+                  {message}
+                </p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2.5 rounded-full bg-indigo-500 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)] transition-all duration-200 hover:bg-indigo-600 hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
+            >
+              {loading
+                ? t("auth.loading")
+                : mode === "login"
+                  ? t("auth.login")
+                  : t("auth.createAccountButton")}
+            </button>
+          </form>
+
+          <div className="relative flex items-center py-1">
+            <div className="flex-1 border-t border-gray-200" />
+            <span className="px-3 text-xs font-bold uppercase tracking-wide text-gray-400">
+              {t("auth.orContinueWith")}
+            </span>
+            <div className="flex-1 border-t border-gray-200" />
           </div>
 
-          {error && (
-            <div
-              className="rounded-2xl border border-red-200 bg-red-50 p-4"
-              role="alert"
+          <div className="grid grid-cols-1 gap-3">
+            <button
+              type="button"
+              onClick={() => handleSocialLogin("google")}
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-gray-200 bg-white px-4 py-3 font-bold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <p className="text-sm font-semibold leading-relaxed text-red-700">
-                {error}
-              </p>
-            </div>
+              <img
+                src={googleIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-5 w-5 flex-shrink-0"
+              />
+              <span>{t("auth.google")}</span>
+            </button>
+          </div>
+
+          {mode === "login" && (
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={loading}
+              className="w-full text-sm font-semibold text-purple-600 transition-colors hover:text-purple-800 disabled:opacity-60"
+            >
+              {t("auth.forgotPassword")}
+            </button>
           )}
 
-          {message && (
-            <div
-              className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4"
-              role="status"
+          <div className="border-t border-gray-100 pt-5 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setMode((current) =>
+                  current === "login" ? "register" : "login"
+                );
+                setError("");
+                setMessage("");
+                setPassword("");
+              }}
+              className="text-sm font-semibold text-purple-600 transition-colors hover:text-purple-800"
             >
-              <p className="text-sm font-semibold leading-relaxed text-emerald-700">
-                {message}
-              </p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center justify-center gap-2.5 rounded-full bg-indigo-500 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)] transition-all duration-200 hover:bg-indigo-600 hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
-          >
-            {loading
-              ? t("auth.loading")
-              : mode === "login"
-                ? t("auth.login")
-                : t("auth.createAccountButton")}
-          </button>
-        </form>
-
-        <div className="relative flex items-center py-1">
-  <div className="flex-1 border-t border-gray-200" />
-  <span className="px-3 text-xs font-bold uppercase tracking-wide text-gray-400">
-    {t("auth.orContinueWith")}
-  </span>
-  <div className="flex-1 border-t border-gray-200" />
-</div>
-
-<div className="grid grid-cols-1 gap-3">
-  <button
-    type="button"
-    onClick={() => handleSocialLogin("google")}
-    disabled={loading}
-    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-gray-200 bg-white px-4 py-3 font-bold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-  >
-    <img
-      src={googleIcon}
-      alt=""
-      aria-hidden="true"
-      className="h-5 w-5 flex-shrink-0"
-    />
-    <span>{t("auth.google")}</span>
-  </button>
-</div>
-
-        {mode === "login" && (
-          <button
-            type="button"
-            onClick={handleForgotPassword}
-            disabled={loading}
-            className="w-full text-sm font-semibold text-purple-600 transition-colors hover:text-purple-800 disabled:opacity-60"
-          >
-            {t("auth.forgotPassword")}
-          </button>
-        )}
-
-        <div className="border-t border-gray-100 pt-5 text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setMode((current) =>
-                current === "login" ? "register" : "login"
-              );
-              setError("");
-              setMessage("");
-              setPassword("");
-            }}
-            className="text-sm font-semibold text-purple-600 transition-colors hover:text-purple-800"
-          >
-            {mode === "login"
-              ? t("auth.noAccount")
-              : t("auth.alreadyHaveAccount")}
-          </button>
-        </div>
-      </main>
+              {mode === "login"
+                ? t("auth.noAccount")
+                : t("auth.alreadyHaveAccount")}
+            </button>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
