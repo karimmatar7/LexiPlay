@@ -204,7 +204,7 @@ export default function ResetParentalPinPage() {
             onClick={() => navigate("/", { replace: true })}
             className="mt-5 w-full text-sm font-semibold text-purple-600 transition-colors hover:text-purple-800"
           >
-            {t("resetParentalPin.backToSignIn")}
+            {t("resetParentalPin.backToHome")}
           </button>
         </section>
       </main>
