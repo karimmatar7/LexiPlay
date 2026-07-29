@@ -149,6 +149,7 @@
     "resetButton": "Reset parental PIN",
     "resetting": "Resetting...",
     "backToSignIn": "Back to sign in",
+    "backToHome": "Back to home",
     "success": "Your parental PIN has been reset successfully.",
     "errors": {
       "invalidLink": "This reset link is missing, invalid, or expired. Please request a new one.",

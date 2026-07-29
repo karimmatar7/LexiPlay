@@ -93,6 +93,7 @@
     "resetButton": "Ouderlijke pincode opnieuw instellen",
     "resetting": "Bezig met opnieuw instellen...",
     "backToSignIn": "Terug naar aanmelden",
+    "backToHome": "Terug naar home",
     "success": "Je ouderlijke pincode is succesvol opnieuw ingesteld.",
     "errors": {
       "invalidLink": "Deze resetlink ontbreekt, is ongeldig of is verlopen. Vraag een nieuwe link aan.",

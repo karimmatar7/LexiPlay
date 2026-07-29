@@ -95,6 +95,7 @@
     "resetButton": "Réinitialiser le code PIN parental",
     "resetting": "Réinitialisation...",
     "backToSignIn": "Retour à la connexion",
+    "backToHome": "Retour à l’accueil",
     "success": "Votre code PIN parental a été réinitialisé avec succès.",
     "errors": {
       "invalidLink": "Ce lien de réinitialisation est absent, invalide ou expiré. Veuillez en demander un nouveau.",
