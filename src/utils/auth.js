@@ -17,6 +17,12 @@ export async function signUpUser({ fullName, email, password }) {
     throw error;
   }
 
+  // With email confirmation enabled, Supabase may return a user object
+  // rather than an error for an already registered email.
+  if (data.user?.identities?.length === 0) {
+    throw new Error("EMAIL_ALREADY_EXISTS");
+  }
+
   return data;
 }
 

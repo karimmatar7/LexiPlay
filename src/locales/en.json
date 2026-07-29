@@ -136,6 +136,27 @@
   },
   "backToLogin": "Back to login"
 },
+
+  "resetParentalPin": {
+    "title": "Choose a new parental PIN",
+    "subtitle": "Create a new 4 to 6 digit PIN for parental controls.",
+    "newPinLabel": "New parental PIN",
+    "confirmPinLabel": "Confirm parental PIN",
+    "pinPlaceholder": "4 to 6 digits",
+    "confirmPinPlaceholder": "Repeat your PIN",
+    "showPin": "Show",
+    "hidePin": "Hide",
+    "resetButton": "Reset parental PIN",
+    "resetting": "Resetting...",
+    "backToSignIn": "Back to sign in",
+    "success": "Your parental PIN has been reset successfully.",
+    "errors": {
+      "invalidLink": "This reset link is missing, invalid, or expired. Please request a new one.",
+      "pinLength": "Your parental PIN must contain 4 to 6 digits.",
+      "pinMismatch": "The PINs do not match.",
+      "resetFailed": "Could not reset the parental PIN. Please try again."
+    }
+  },
   "wordMatch": {
     "title": "Word Match",
     "desc": "Match words with sounds and create the correct combinations!",

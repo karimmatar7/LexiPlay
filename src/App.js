@@ -14,6 +14,7 @@ import Support from "./pages/Support";
 import AuthPage from "./pages/Auth";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ResetParentalPinPage from "./pages/ResetParentalPinPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { supabase } from "./supaBaseClient";
 import "./index.css";
@@ -100,7 +101,10 @@ setLangLoaded(true);
     path="/auth/callback"
     element={<AuthCallbackPage onLogin={setUser} />}
   />
-
+<Route
+  path="/reset-parental-pin"
+  element={<ResetParentalPinPage />}
+/>
           {/* Menu — setUser added */}
           <Route
             path="/menu"

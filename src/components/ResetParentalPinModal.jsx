@@ -1,22 +1,12 @@
 import React, { useState } from "react";
-import { sha256 } from "js-sha256";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../supaBaseClient.js";
-import { updateSettings } from "../utils/user.js";
 import NotificationModal from "./NotificationModal";
 
-export default function ResetParentalPinModal({
-  user,
-  onClose,
-  setExistingPin,
-  setPin,
-}) {
+export default function ResetParentalPinModal({ onClose }) {
   const { t } = useTranslation();
 
-  const [password, setPassword] = useState("");
-  const [newPin, setNewPin] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [showModal, setShowModal] = useState(false);
   const [modalConfig, setModalConfig] = useState({
     message: "",
@@ -28,67 +18,56 @@ export default function ResetParentalPinModal({
     setShowModal(true);
   };
 
-  const handleResetPin = async () => {
-    if (!password) {
-      showMessage("Enter your account password.");
-      return;
-    }
-
-    if (newPin.length < 4) {
-      showMessage(t("parentalUnlock.errorShortPin"));
-      return;
-    }
-
+  const handleSendResetEmail = async () => {
     try {
       setLoading(true);
 
-      // The user does not type an email; we use the logged-in user's email.
-     const {
-  data: { user: authUser },
-  error: authUserError,
-} = await supabase.auth.getUser();
+      // Confirms the user is still authenticated with Supabase.
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-if (authUserError || !authUser?.email) {
-  throw new Error("Could not verify your signed-in account. Please log in again.");
-}
-
-const { data, error: signInError } =
-  await supabase.auth.signInWithPassword({
-    email: authUser.email,
-    password,
-  });
-
-      if (signInError || !data.user) {
-        throw new Error("Password is incorrect.");
+      if (userError || !user) {
+        throw new Error("Your session has expired. Please log in again.");
       }
 
-  if (data.user.id !== authUser.id || data.user.id !== user.id) {
-  throw new Error("This password does not belong to the current account.");
-}
-      const hashedPin = sha256(newPin);
+      // Retrieves the current access token to authenticate the Edge Function request.
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-      const updatedUser = await updateSettings(user.id, {
-        parentalPin: hashedPin,
-        parentalAttempts: 0,
-        parentalLockUntil: null,
-      });
-
-      if (!updatedUser) {
-        throw new Error("Could not reset the parental PIN. Try again.");
+      if (sessionError || !session?.access_token) {
+        throw new Error("Your session has expired. Please log in again.");
       }
 
-      // Make the new PIN work immediately without a page refresh.
-      setExistingPin(hashedPin);
-      setPin("");
+      const { data, error } = await supabase.functions.invoke(
+        "send-parental-pin-reset",
+        {
+          body: {},
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
 
-      showMessage("Parental PIN reset successfully.", "success");
+      if (error) {
+        throw new Error(error.message || "Could not send the reset email.");
+      }
 
-      window.setTimeout(() => {
-        setShowModal(false);
-        onClose();
-      }, 1500);
+      if (!data?.success) {
+        throw new Error(
+          data?.error || "Could not send the reset email. Please try again."
+        );
+      }
+
+      showMessage(
+        "We sent a secure parental PIN reset link to your account email.",
+        "success"
+      );
     } catch (error) {
-      showMessage(error.message || "Could not reset the parental PIN.");
+      showMessage(error.message || "Could not send the reset email.");
     } finally {
       setLoading(false);
     }
@@ -121,55 +100,16 @@ const { data, error: signInError } =
               Reset parental PIN
             </h2>
 
-            <p className="mt-2 text-sm text-gray-600">
-              Enter your account password to create a new parental PIN.
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              We will send a secure one-time reset link to the email connected
+              to this account.
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="account-password"
-                className="mb-1.5 block text-sm font-bold text-gray-700"
-              >
-                Account password
-              </label>
-
-              <input
-                id="account-password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Enter your account password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                disabled={loading}
-                className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-gray-100"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="new-parental-pin"
-                className="mb-1.5 block text-sm font-bold text-gray-700"
-              >
-                New parental PIN
-              </label>
-
-              <input
-                id="new-parental-pin"
-                type="password"
-                inputMode="numeric"
-                autoComplete="off"
-                placeholder="4 to 6 digits"
-                value={newPin}
-                onChange={(event) =>
-                  setNewPin(event.target.value.replace(/\D/g, ""))
-                }
-                maxLength={6}
-                disabled={loading}
-                className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 tracking-widest transition-all focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-gray-100"
-              />
-            </div>
+          <div className="rounded-2xl border border-purple-100 bg-purple-50 p-4">
+            <p className="text-center text-sm font-semibold leading-relaxed text-purple-800">
+              The link expires in 20 minutes and can be used only once.
+            </p>
           </div>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -177,18 +117,18 @@ const { data, error: signInError } =
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="order-2 flex-1 rounded-full border border-gray-200 bg-white py-3 font-bold text-gray-600 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:order-1"
+              className="order-2 flex-1 rounded-full border border-gray-200 bg-white py-3.5 font-bold text-gray-600 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:order-1"
             >
               {t("modals.resetPin.closeButton")}
             </button>
 
             <button
               type="button"
-              onClick={handleResetPin}
+              onClick={handleSendResetEmail}
               disabled={loading}
-              className="order-1 flex-1 rounded-full bg-purple-600 py-3 font-bold text-white shadow-[0_8px_20px_rgba(147,51,234,0.35)] transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-400 sm:order-2"
+              className="order-1 flex-1 rounded-full bg-purple-600 py-3.5 font-bold text-white shadow-[0_8px_20px_rgba(147,51,234,0.35)] transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-400 sm:order-2"
             >
-              {loading ? "Checking..." : "Reset PIN"}
+              {loading ? "Sending..." : "Send reset link"}
             </button>
           </div>
         </div>

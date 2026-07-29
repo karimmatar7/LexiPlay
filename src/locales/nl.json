@@ -81,6 +81,27 @@
     "levelUp": "Niveau omhoog!"
   },
 
+  "resetParentalPin": {
+    "title": "Kies een nieuwe ouderlijke pincode",
+    "subtitle": "Maak een nieuwe pincode van 4 tot 6 cijfers voor ouderlijk toezicht.",
+    "newPinLabel": "Nieuwe ouderlijke pincode",
+    "confirmPinLabel": "Bevestig ouderlijke pincode",
+    "pinPlaceholder": "4 tot 6 cijfers",
+    "confirmPinPlaceholder": "Herhaal je pincode",
+    "showPin": "Tonen",
+    "hidePin": "Verbergen",
+    "resetButton": "Ouderlijke pincode opnieuw instellen",
+    "resetting": "Bezig met opnieuw instellen...",
+    "backToSignIn": "Terug naar aanmelden",
+    "success": "Je ouderlijke pincode is succesvol opnieuw ingesteld.",
+    "errors": {
+      "invalidLink": "Deze resetlink ontbreekt, is ongeldig of is verlopen. Vraag een nieuwe link aan.",
+      "pinLength": "Je ouderlijke pincode moet 4 tot 6 cijfers bevatten.",
+      "pinMismatch": "De pincodes komen niet overeen.",
+      "resetFailed": "De ouderlijke pincode kon niet opnieuw worden ingesteld. Probeer het opnieuw."
+    }
+  
+},
   "resetPassword": {
   "title": "Maak een nieuw wachtwoord",
   "subtitle": "Kies een sterk nieuw wachtwoord voor je LexiPlay-account.",

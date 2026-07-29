@@ -42,23 +42,27 @@ export default function AuthPage({ onLogin }) {
     changeLanguage(nextLanguage);
   };
 
-  const getErrorMessage = (err) => {
-    const lowerMessage = err?.message?.toLowerCase() || "";
+const getErrorMessage = (err) => {
+  const lowerMessage = err?.message?.toLowerCase() || "";
 
-    if (lowerMessage.includes("invalid login credentials")) {
-      return t("auth.errors.loginFailed");
-    }
+  if (err?.message === "EMAIL_ALREADY_EXISTS") {
+    return t("auth.errors.emailAlreadyRegistered");
+  }
 
-    if (lowerMessage.includes("already registered")) {
-      return t("auth.errors.emailAlreadyRegistered");
-    }
+  if (lowerMessage.includes("invalid login credentials")) {
+    return t("auth.errors.loginFailed");
+  }
 
-    if (lowerMessage.includes("email not confirmed")) {
-      return t("auth.errors.emailNotConfirmed");
-    }
+  if (lowerMessage.includes("already registered")) {
+    return t("auth.errors.emailAlreadyRegistered");
+  }
 
-    return err?.message || t("auth.errors.somethingWentWrong");
-  };
+  if (lowerMessage.includes("email not confirmed")) {
+    return t("auth.errors.emailNotConfirmed");
+  }
+
+  return err?.message || t("auth.errors.somethingWentWrong");
+};
 
   const applyUserLanguage = async (user) => {
     const userLanguage = user?.settings?.language;

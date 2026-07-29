@@ -82,6 +82,28 @@
       "button": "Compris"
     }
   },
+  
+  "resetParentalPin": {
+    "title": "Choisissez un nouveau code PIN parental",
+    "subtitle": "Créez un nouveau code PIN de 4 à 6 chiffres pour le contrôle parental.",
+    "newPinLabel": "Nouveau code PIN parental",
+    "confirmPinLabel": "Confirmez le code PIN parental",
+    "pinPlaceholder": "4 à 6 chiffres",
+    "confirmPinPlaceholder": "Répétez votre code PIN",
+    "showPin": "Afficher",
+    "hidePin": "Masquer",
+    "resetButton": "Réinitialiser le code PIN parental",
+    "resetting": "Réinitialisation...",
+    "backToSignIn": "Retour à la connexion",
+    "success": "Votre code PIN parental a été réinitialisé avec succès.",
+    "errors": {
+      "invalidLink": "Ce lien de réinitialisation est absent, invalide ou expiré. Veuillez en demander un nouveau.",
+      "pinLength": "Votre code PIN parental doit contenir de 4 à 6 chiffres.",
+      "pinMismatch": "Les codes PIN ne correspondent pas.",
+      "resetFailed": "Impossible de réinitialiser le code PIN parental. Veuillez réessayer."
+    }
+  },
+
   "gameMenu": {
     "title": "Menu des jeux",
     "subtitle": "Quelle aventure choisis-tu aujourd’hui, {{name}} ?",
