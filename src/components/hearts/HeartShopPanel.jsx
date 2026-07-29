@@ -33,6 +33,7 @@ export default function HeartShopPanel({ onClose, buying, onBuy, feedback, t, de
           🏪 {t("hearts.shop", "Heart Shop")}
         </h3>
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close shop"
           className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-purple-100 transition-colors text-lg font-bold"

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import AppButton from "./AppButton";
 
 export default function SupportForm({ loading, onSubmit }) {
   const { t } = useTranslation();
@@ -10,7 +11,9 @@ export default function SupportForm({ loading, onSubmit }) {
     message: "",
   });
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -28,6 +31,7 @@ export default function SupportForm({ loading, onSubmit }) {
         onChange={handleChange}
         required
       />
+
       <InputField
         label={t("support.subject")}
         name="subject"
@@ -37,6 +41,7 @@ export default function SupportForm({ loading, onSubmit }) {
         onChange={handleChange}
         required
       />
+
       <TextAreaField
         label={t("support.message")}
         name="message"
@@ -46,15 +51,16 @@ export default function SupportForm({ loading, onSubmit }) {
         onChange={handleChange}
         required
       />
-      <button
+
+      <AppButton
         type="submit"
+        variant="indigo"
+        size="lg"
         disabled={loading}
-        className={`w-full py-4 rounded-2xl font-bold transition ${
-          loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-500 hover:bg-indigo-600 text-white"
-        }`}
+        className="w-full"
       >
         {loading ? t("support.sending") : t("support.send")}
-      </button>
+      </AppButton>
     </form>
   );
 }
@@ -62,10 +68,11 @@ export default function SupportForm({ loading, onSubmit }) {
 function InputField({ label, ...props }) {
   return (
     <div>
-      <label className="block font-bold mb-2">{label}</label>
+      <label className="mb-2 block font-bold">{label}</label>
+
       <input
         {...props}
-        className="w-full p-4 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        className="w-full rounded-xl border-2 p-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
     </div>
   );
@@ -74,10 +81,11 @@ function InputField({ label, ...props }) {
 function TextAreaField({ label, ...props }) {
   return (
     <div>
-      <label className="block font-bold mb-2">{label}</label>
+      <label className="mb-2 block font-bold">{label}</label>
+
       <textarea
         {...props}
-        className="w-full p-4 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+        className="w-full resize-none rounded-xl border-2 p-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
     </div>
   );

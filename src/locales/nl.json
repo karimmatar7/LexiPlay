@@ -298,6 +298,8 @@
   "level": "Niveau",
   "wordNumber": "Woord #",
   "hearts": "Harten",
+    "showMoreStats": "Meer statistieken",
+    "showLessStats": "Minder statistieken",
   "refilling": "Bijvullen",
   "heartsReady": "Harten vol — klaar om te spelen!",
   "locked": "Vergrendeld",

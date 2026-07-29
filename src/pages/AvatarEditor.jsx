@@ -6,6 +6,7 @@ import AvatarCanvas from "../components/AvatarCanvas";
 import { AVATAR_PARTS, DEFAULT_AVATAR, getLabel } from "../data/avatarParts";
 import { supabase } from "../supaBaseClient";
 import { useAvatarShop } from "../hooks/useAvatarShop";
+import AppButton from "../components/AppButton";
 import AvatarOptionButton from "../components/avatar/AvatarOptionButton";
 import BuyConfirmModal    from "../components/avatar/BuyConfirmModal";
 import KeysBar            from "../components/avatar/KeysBar";
@@ -130,13 +131,18 @@ export default function AvatarEditor({ user, setUser }) {
 
         {/* ── TOP BAR ── */}
         <div className="ae-s1 flex items-center justify-between gap-2">
-          <button
-            onClick={() => navigate("/menu")}
-            className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm transition-all duration-200 flex-shrink-0"
-            style={{ padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)", fontSize:"clamp(12px,2.5vw,15px)" }}
-          >
-            {t("avatar.back")}
-          </button>
+    <AppButton
+  type="button"
+  variant="neutral"
+  onClick={() => navigate("/menu")}
+  className="shrink-0"
+  style={{
+    padding: "clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)",
+    fontSize: "clamp(12px,2.5vw,15px)",
+  }}
+>
+  {t("avatar.back")}
+</AppButton>
 
           <h1
             className="font-black text-indigo-700 text-center leading-tight"
@@ -154,55 +160,53 @@ export default function AvatarEditor({ user, setUser }) {
             </span>
           </h1>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className={`inline-flex items-center gap-1.5 font-black rounded-full transition-all duration-200 flex-shrink-0
-              ${saved
-                ? "bg-emerald-500 text-white shadow-[0_8px_20px_rgba(16,185,129,0.4)]"
-                : "bg-indigo-500 hover:bg-indigo-600 text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)]"
-              }`}
-            style={{
-              padding:"clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)",
-              fontSize:"clamp(12px,2.5vw,15px)",
-              animation: saved ? "ae-saved 0.4s ease both" : "none",
-            }}
-          >
-            {saving ? (
-              <>
-                <img
-                  src={saveIcon}
-                  alt=""
-                  aria-hidden="true"
-                  draggable="false"
-                  className="h-4 w-4 animate-pulse object-contain sm:h-5 sm:w-5"
-                />
-                <span>…</span>
-              </>
-            ) : saved ? (
-              <>
-                <img
-                  src={checkIcon}
-                  alt=""
-                  aria-hidden="true"
-                  draggable="false"
-                  className="h-4 w-4 object-contain sm:h-5 sm:w-5"
-                />
-                <span>{t("avatar.saved")}</span>
-              </>
-            ) : (
-              <>
-                <img
-                  src={saveIcon}
-                  alt=""
-                  aria-hidden="true"
-                  draggable="false"
-                  className="h-4 w-4 object-contain sm:h-5 sm:w-5"
-                />
-                <span>{t("avatar.save")}</span>
-              </>
-            )}
-          </button>
+        <AppButton
+  type="button"
+  onClick={handleSave}
+  disabled={saving}
+  variant={saved ? "primary" : "indigo"}
+  className="shrink-0"
+  style={{
+    padding: "clamp(8px,2vw,12px) clamp(10px,2.5vw,18px)",
+    fontSize: "clamp(12px,2.5vw,15px)",
+    animation: saved ? "ae-saved 0.4s ease both" : "none",
+  }}
+>
+  {saving ? (
+    <>
+      <img
+        src={saveIcon}
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+        className="h-4 w-4 animate-pulse object-contain sm:h-5 sm:w-5"
+      />
+      <span>…</span>
+    </>
+  ) : saved ? (
+    <>
+      <img
+        src={checkIcon}
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+        className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+      />
+      <span>{t("avatar.saved")}</span>
+    </>
+  ) : (
+    <>
+      <img
+        src={saveIcon}
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+        className="h-4 w-4 object-contain sm:h-5 sm:w-5"
+      />
+      <span>{t("avatar.save")}</span>
+    </>
+  )}
+</AppButton>
         </div>
 
         {/* ── KEYS BAR ── */}
@@ -308,39 +312,51 @@ export default function AvatarEditor({ user, setUser }) {
 
         {/* ── RANDOMISE ── */}
         <div className="ae-s5 flex justify-center pb-4">
-          <button
-            onClick={() => {
-              const rand = (part, arr) => {
-                const pool = arr.filter(o =>
-                  !o.locked || user?.progress?.avatar?.unlocked?.[part]?.[o.id]
-                );
-                const safe = pool.length ? pool : arr.filter(o => !o.locked);
-                return safe[Math.floor(Math.random() * safe.length)]?.id;
-              };
-              setAvatar(prev => ({
-                gender:    prev.gender,           // keep gender
-                skin:      rand("skin",      AVATAR_PARTS.skin),
-                eyes:      rand("eyes",      AVATAR_PARTS.eyes),
-                mouth:     rand("mouth",     AVATAR_PARTS.mouth),
-                hair:      rand("hair",      AVATAR_PARTS.hair),
-                outfit:    rand("outfit",    AVATAR_PARTS.outfit),
-                accessory: rand("accessory", AVATAR_PARTS.accessory),
-                bg:        rand("bg",        AVATAR_PARTS.bg),
-              }));
-              setSaved(false);
-            }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-black rounded-full shadow-[0_8px_20px_rgba(192,132,252,0.4)] hover:shadow-[0_10px_24px_rgba(192,132,252,0.5)] transition-all duration-200"
-            style={{ padding:"clamp(10px,2.5vw,14px) clamp(20px,5vw,32px)", fontSize:"clamp(13px,2.5vw,16px)" }}
-          >
-            <img
-              src={diceIcon}
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-              className="h-5 w-5 object-contain sm:h-6 sm:w-6"
-            />
-            <span>{t("avatar.randomise")}</span>
-          </button>
+   <AppButton
+  type="button"
+  variant="secondary"
+  onClick={() => {
+    const rand = (part, arr) => {
+      const pool = arr.filter(
+        (o) =>
+          !o.locked ||
+          user?.progress?.avatar?.unlocked?.[part]?.[o.id]
+      );
+
+      const safe = pool.length ? pool : arr.filter((o) => !o.locked);
+
+      return safe[Math.floor(Math.random() * safe.length)]?.id;
+    };
+
+    setAvatar((prev) => ({
+      gender: prev.gender,
+      skin: rand("skin", AVATAR_PARTS.skin),
+      eyes: rand("eyes", AVATAR_PARTS.eyes),
+      mouth: rand("mouth", AVATAR_PARTS.mouth),
+      hair: rand("hair", AVATAR_PARTS.hair),
+      outfit: rand("outfit", AVATAR_PARTS.outfit),
+      accessory: rand("accessory", AVATAR_PARTS.accessory),
+      bg: rand("bg", AVATAR_PARTS.bg),
+    }));
+
+    setSaved(false);
+  }}
+  className="font-black"
+  style={{
+    padding: "clamp(10px,2.5vw,14px) clamp(20px,5vw,32px)",
+    fontSize: "clamp(13px,2.5vw,16px)",
+  }}
+>
+  <img
+    src={diceIcon}
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+    className="h-5 w-5 shrink-0 object-contain sm:h-6 sm:w-6"
+  />
+
+  <span>{t("avatar.randomise")}</span>
+</AppButton>
         </div>
 
       </div>

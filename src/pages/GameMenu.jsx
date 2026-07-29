@@ -1,9 +1,10 @@
 // src/pages/GameMenu.jsx
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
 import { useParentalControl } from "../hooks/useParentalControl";
+import AppButton from "../components/AppButton";
 import GameMenuHeader from "../components/GameMenuHeader";
 import GamesGrid from "../components/GamesGrid";
 import TimeLeftDisplay from "../components/TimeLeftDisplay";
@@ -284,6 +285,7 @@ export default function GameMenu({ user, setUser }) {
                 letterBuild: letterBuildUnlocked,
                 maze: mazeUnlocked,
                 final: finalUnlocked,
+                letterDraw: letterDrawUnlocked,
               }}
             />
           </div>
@@ -339,9 +341,10 @@ export default function GameMenu({ user, setUser }) {
     {/* Settings + tour — stable horizontal layout for long translations */}
 <section className="gm-s5 pb-2">
   <div className="mx-auto flex max-w-3xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:gap-4">
-    <Link
+    <AppButton
       to="/settings"
-      className="inline-flex min-h-[52px] w-full shrink-0 items-center justify-center gap-2.5 rounded-full bg-indigo-500 px-5 py-3 text-sm font-bold text-white shadow-[0_8px_20px_rgba(99,102,241,0.35)] transition-all duration-200 hover:bg-indigo-600 hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] sm:w-auto sm:px-6 sm:text-base"
+      variant="indigo"
+      className="w-full shrink-0 px-5 text-sm sm:w-auto sm:px-6 sm:text-base"
     >
       <img
         src={settingsIcon}
@@ -350,58 +353,63 @@ export default function GameMenu({ user, setUser }) {
         draggable="false"
         className="h-5 w-5 shrink-0 object-contain"
       />
+
       <span className="whitespace-nowrap">
         {t("gameMenu.settings")}
       </span>
-    </Link>
+    </AppButton>
 
-   <button
-  type="button"
-  onClick={startTour}
-  className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full border border-purple-200 bg-white px-5 py-3 text-center text-sm font-semibold leading-tight text-purple-700 shadow-sm transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:w-[min(330px,calc(100vw-220px))] sm:px-6 sm:text-[15px]"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="h-[18px] w-[18px] shrink-0"
-    aria-hidden="true"
-  >
-    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-    <path d="M21 3v5h-5" />
-    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-    <path d="M3 21v-5h5" />
-  </svg>
+    <AppButton
+      type="button"
+      variant="neutral"
+      onClick={startTour}
+      className="w-full border-purple-200 px-5 text-sm font-semibold leading-tight text-purple-700 hover:border-purple-300 hover:bg-purple-50 sm:w-[min(330px,calc(100vw-220px))] sm:px-6 sm:text-[15px]"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-[18px] w-[18px] shrink-0"
+        aria-hidden="true"
+      >
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+        <path d="M21 3v5h-5" />
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+        <path d="M3 21v-5h5" />
+      </svg>
 
-  <span className="whitespace-nowrap">
-    {t("menuTour.showAgain")}
-  </span>
-</button>
+      <span className="whitespace-nowrap">
+        {t("menuTour.showAgain")}
+      </span>
+    </AppButton>
   </div>
 </section>
       </div>
 
    {/* parental FAB — bottom-left, bolder pill style, clear of the fox watermark */}
-<button
+<AppButton
+  type="button"
   onClick={() => navigate("/unlock-parental")}
-  className="fixed bottom-5 left-5 sm:bottom-6 sm:left-6 z-50 flex items-center gap-2 bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-full shadow-[0_10px_25px_rgba(126,34,206,0.4)] border-2 border-white/70 hover:shadow-[0_14px_32px_rgba(126,34,206,0.5)] hover:scale-105 active:scale-95 transition-all duration-200 pl-3 pr-3 sm:pr-5 py-3"
+  variant="indigo"
   title={t("gameMenu.parentalControl")}
+  className="fixed bottom-5 left-5 z-50 min-h-0 gap-2 border-2 border-white/70 bg-gradient-to-br from-purple-600 to-indigo-600 py-3 pl-3 pr-3 text-white shadow-[0_10px_25px_rgba(126,34,206,0.4)] hover:from-purple-600 hover:to-indigo-600 hover:shadow-[0_14px_32px_rgba(126,34,206,0.5)] hover:scale-105 sm:bottom-6 sm:left-6 sm:pr-5"
 >
   <img
     src={parentsIcon}
     alt=""
     aria-hidden="true"
     draggable="false"
-    className="h-6 w-6 sm:h-7 sm:w-7 object-contain flex-shrink-0"
+    className="h-6 w-6 shrink-0 object-contain sm:h-7 sm:w-7"
   />
-  <span className="hidden sm:inline text-sm font-bold tracking-wide whitespace-nowrap">
+
+  <span className="hidden whitespace-nowrap text-sm font-bold tracking-wide sm:inline">
     {t("gameMenu.parentalControl")}
   </span>
-</button>
+</AppButton>
 
       <ParentalControlModal
         show={showLimitModal}

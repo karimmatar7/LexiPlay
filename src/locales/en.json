@@ -314,7 +314,9 @@
   "starsAcrossGames": "{{total}}/{{max}} stars earned across {{games}} games",
   "readyToPlay": "Ready to play",
   "waitingGames": "Waiting on hearts",
-  "outOfHearts": "Out of hearts!"
+  "outOfHearts": "Out of hearts!",
+  "showMoreStats": "More statistics",
+    "showLessStats": "Show less"
 }
 ,
   "progressBar": {

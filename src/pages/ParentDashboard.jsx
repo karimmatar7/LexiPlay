@@ -8,14 +8,15 @@ import { getChildStats } from "../utils/parent.js";
 import { heartStatus } from "../utils/heartStatus.js";
 import { useSettings } from "../context/SettingsContext";
 
+import AppButton from "../components/AppButton";
 import GameCard from "../components/dashboard/GameCard";
 import PrintButton from "../components/dashboard/PrintButton";
 import PrintReport from "../components/dashboard/PrintReport";
 import ProgressAssistant from "../components/dashboard/ProgressAssistant";
 import StatCards from "../components/dashboard/StatCards";
+
 import streakIcon from "../assets/icons/fire.png";
 import keyIcon from "../assets/icons/key.png";
-
 
 const KNOWN_GAMES = [
   "wordMatch",
@@ -39,7 +40,7 @@ function calcStreak(history = {}) {
   if (!dates.length) return 0;
 
   let streak = 0;
-  let expectedDate = new Date();
+  const expectedDate = new Date();
   expectedDate.setHours(0, 0, 0, 0);
 
   for (const dateString of dates) {
@@ -50,7 +51,7 @@ function calcStreak(history = {}) {
 
     if (difference >= 0 && difference <= 1) {
       streak += 1;
-      expectedDate = activityDate;
+      expectedDate.setTime(activityDate.getTime());
     } else {
       break;
     }
@@ -128,20 +129,14 @@ export default function ParentDashboard() {
       .filter((date) => !Number.isNaN(parseISO(date).getTime()))
       .sort((a, b) => parseISO(a).getTime() - parseISO(b).getTime());
 
-    const totalPlaytime = Math.max(
-      0,
-      safeNumber(stats.totalPlaytime)
-    );
-
+    const totalPlaytime = Math.max(0, safeNumber(stats.totalPlaytime));
     const xp = Math.max(0, safeNumber(rawProgress.xp));
     const xpLevel = Math.max(1, safeNumber(rawProgress.level, 1));
-    const keys = Math.max(
-      0,
-      safeNumber(rawProgress.currency?.keys)
-    );
+    const keys = Math.max(0, safeNumber(rawProgress.currency?.keys));
 
     const streak = calcStreak(history);
     const lastActive = dates.length ? dates[dates.length - 1] : null;
+
     const avgPerDay = dates.length
       ? Number((totalPlaytime / dates.length).toFixed(1))
       : 0;
@@ -159,45 +154,55 @@ export default function ParentDashboard() {
         !status?.isRefilling
       );
     });
-return {
-  progress,
-  dates,
-  minutes: dates.map((date) => Math.max(0, safeNumber(history[date]))),
-  totalPlaytime,
-  xp,
-  xpLevel,
-  keys,
-  streak,
-  lastActive,
-  avgPerDay,
-  refilling,
-  readyToPlay,
-};
+
+    return {
+      progress,
+      dates,
+      minutes: dates.map((date) =>
+        Math.max(0, safeNumber(history[date]))
+      ),
+      totalPlaytime,
+      xp,
+      xpLevel,
+      keys,
+      streak,
+      lastActive,
+      avgPerDay,
+      refilling,
+      readyToPlay,
+    };
   }, [stats]);
 
   if (hasError) {
     return (
       <main
-        className={`flex min-h-screen items-center justify-center bg-slate-50 p-4 ${fontClass}`}
+        className={`flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-violet-50/50 p-4 ${fontClass}`}
       >
-        <div className="max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-          <span className="text-3xl" aria-hidden="true">
+        <div className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-[0_16px_40px_rgba(15,23,42,0.08)] sm:p-8">
+          <span className="text-4xl" aria-hidden="true">
             ⚠️
           </span>
 
-          <p className="mt-3 text-sm font-semibold text-slate-700">
+          <h1 className="mt-4 text-lg font-black text-slate-900">
+            {t("parentDashboard.loadErrorTitle", {
+              defaultValue: "Dashboard unavailable",
+            })}
+          </h1>
+
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
             {t("parentDashboard.loadError", {
               defaultValue: "We could not load this dashboard.",
             })}
           </p>
 
-          <button
+          <AppButton
             type="button"
             onClick={() => navigate(-1)}
-            className="mt-5 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
+            variant="indigo"
+            className="mt-6"
           >
             {t("parentDashboard.back")}
-          </button>
+          </AppButton>
         </div>
       </main>
     );
@@ -206,12 +211,12 @@ return {
   if (!stats || !derived) {
     return (
       <main
-        className={`flex min-h-screen items-center justify-center bg-slate-50 ${fontClass}`}
+        className={`flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-violet-50/50 p-4 ${fontClass}`}
       >
         <div className="text-center">
-          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-violet-100 border-t-violet-600" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-violet-100 border-t-violet-600" />
 
-          <p className="mt-3 text-sm font-medium text-slate-500">
+          <p className="mt-4 text-sm font-semibold text-slate-500">
             {t("parentDashboard.loading")}
           </p>
         </div>
@@ -244,189 +249,238 @@ return {
     ? format(parseISO(lastActive), "dd MMM yyyy")
     : null;
 
+  const gameCount = Object.keys(progress).length;
+
   const streakValue = (
-    <span className="inline-flex items-center gap-1">
-      {streak}
-      <img src={streakIcon} alt="" className="h-4 w-4" />
+    <span className="inline-flex items-center gap-1.5">
+      <span>{streak}</span>
+      <img
+        src={streakIcon}
+        alt=""
+        aria-hidden="true"
+        className="h-4 w-4 object-contain"
+      />
     </span>
   );
 
-  const statCards = [
-    {
-      label: t("parentDashboard.totalPlaytime"),
-      value: `${Math.round(totalPlaytime)} min`,
-      sub: `${(totalPlaytime / 60).toFixed(1)}h total`,
-      color: "bg-white border-slate-200",
-    },
-    {
-      label: t("parentDashboard.dailyAvg"),
-      value: `${avgPerDay} min`,
-      sub: `${dates.length} ${t("parentDashboard.daysTracked")}`,
-      color: "bg-white border-slate-200",
-    },
-    {
-      label: t("parentDashboard.streak"),
-      value: streakValue,
-      sub:
-        streak >= 3
-          ? t("parentDashboard.streakGreat")
-          : t("parentDashboard.streakKeepGoing"),
-      color: "bg-white border-slate-200",
-    },
-    {
-      label: t("parentDashboard.keys"),
-      value: (
-        <span className="inline-flex items-center gap-1">
-          <img src={keyIcon} alt="Key" className="h-5 w-5" />
-          {keys}
-        </span>
-      ),
-      color: "bg-white border-slate-200",
-    },
-  ];
+const statCards = [
+  {
+    label: t("parentDashboard.totalPlaytime"),
+    value: `${Math.round(totalPlaytime)} min`,
+    sub: `${(totalPlaytime / 60).toFixed(1)}h total`,
+    color: "border-violet-100 bg-white",
+  },
+  {
+    label: t("parentDashboard.dailyAvg"),
+    value: `${avgPerDay} min`,
+    sub: `${dates.length} ${t("parentDashboard.daysTracked")}`,
+    color: "border-sky-100 bg-white",
+  },
+  {
+    label: t("parentDashboard.streak"),
+    value: streakValue,
+    sub:
+      streak >= 3
+        ? t("parentDashboard.streakGreat")
+        : t("parentDashboard.streakKeepGoing"),
+    color: "border-orange-100 bg-white",
+  },
+  {
+    label: t("parentDashboard.keys"),
+    value: (
+      <span className="inline-flex items-center gap-1.5">
+        <img
+          src={keyIcon}
+          alt=""
+          aria-hidden="true"
+          className="h-5 w-5 shrink-0 object-contain"
+        />
+        <span>{keys}</span>
+      </span>
+    ),
+    color: "border-amber-100 bg-white",
+  },
+];
 
-    return (
-  <>
-    <main className={`min-h-screen bg-slate-50 ${fontClass}`}>
-      <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-          >
-            <span aria-hidden="true">←</span>
-            {t("parentDashboard.back")}
-          </button>
-
-          <PrintButton />
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-600 text-xl text-white shadow-sm"
-              aria-hidden="true"
+  return (
+    <>
+      <main
+        className={`min-h-screen overflow-x-hidden bg-gradient-to-b from-slate-50 via-slate-50 to-violet-50/50 ${fontClass}`}
+      >
+        {/* Sticky action bar */}
+        <div className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+            <AppButton
+              type="button"
+              onClick={() => navigate(-1)}
+              variant="neutral"
+              size="sm"
+              className="shrink-0"
             >
-              👤
+              <span aria-hidden="true">←</span>
+              <span>{t("parentDashboard.back")}</span>
+            </AppButton>
+
+            <PrintButton />
+          </div>
+        </div>
+
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+          {/* Child summary */}
+          <header className="rounded-3xl border border-white/80 bg-white/85 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.05)] backdrop-blur-sm sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-xl text-white shadow-[0_8px_18px_rgba(124,58,237,0.25)] sm:h-14 sm:w-14 sm:text-2xl"
+                  aria-hidden="true"
+                >
+                  👤
+                </div>
+
+                <div className="min-w-0">
+                  <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-violet-500">
+                    {t("parentDashboard.thisChild", {
+                      defaultValue: "Child",
+                    })}
+                  </p>
+
+                  <h1 className="truncate text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                    {childName}
+                  </h1>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    {lastActiveLabel
+                      ? `${t("parentDashboard.lastSeen")}: ${lastActiveLabel}`
+                      : t("parentDashboard.neverPlayed")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="self-start rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-indigo-50 px-4 py-3 text-left sm:self-auto sm:text-right">
+                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-violet-500">
+                  {t("parentDashboard.xpLevel")}
+                </p>
+
+                <p className="mt-0.5 text-xl font-black text-violet-700">
+                  {xpLevel}
+                  <span className="ml-1 text-xs font-semibold text-violet-500">
+                    · {xp} XP
+                  </span>
+                </p>
+              </div>
             </div>
+          </header>
 
-            <div className="min-w-0">
-              <h1 className="truncate text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                {childName}
-              </h1>
+          {/* Refill warning */}
+          {refilling.length > 0 && (
+            <section
+              className="mt-5 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 shadow-sm"
+              aria-live="polite"
+            >
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 text-base" aria-hidden="true">
+                  💛
+                </span>
 
-              <p className="mt-0.5 text-sm text-slate-500">
-                {lastActiveLabel
-                  ? `${t("parentDashboard.lastSeen")}: ${lastActiveLabel}`
-                  : t("parentDashboard.neverPlayed")}
-              </p>
-            </div>
-          </div>
+                <p className="text-sm leading-relaxed text-amber-900">
+                  <strong>{t("parentDashboard.heartsRefillingTitle")}</strong>
+                  {" — "}
+                  {refilling
+                    .map(([gameKey]) => t(`gameCards.${gameKey}.title`))
+                    .join(", ")}
+                  {". "}
+                  {t("parentDashboard.heartsRefillingDesc")}
+                </p>
+              </div>
+            </section>
+          )}
 
-          <div className="rounded-xl border border-violet-100 bg-violet-50 px-4 py-2 text-right">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-violet-500">
-              {t("parentDashboard.xpLevel")}
-            </p>
+          {/* Summary statistics */}
+          <section className="mt-6 sm:mt-8">
+            <StatCards cards={statCards} />
+          </section>
 
-            <p className="text-lg font-black text-violet-700">
-              {xpLevel}
-              <span className="ml-1 text-xs font-semibold text-violet-500">
-                · {xp} XP
-              </span>
-            </p>
-          </div>
-        </header>
+          {/* Parent guidance */}
+          <section className="mt-6 sm:mt-8">
+            <ProgressAssistant
+              childName={childName}
+              progress={progress}
+              totalPlaytime={totalPlaytime}
+              streak={streak}
+              avgPerDay={avgPerDay}
+              dates={dates}
+              readyToPlay={readyToPlay}
+              refilling={refilling}
+            />
+          </section>
 
-        {refilling.length > 0 && (
-          <div className="mt-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <span className="text-base" aria-hidden="true">
-              💛
-            </span>
+          {/* Game progress */}
+          <section className="mt-8 sm:mt-10">
+            <div className="mb-5 flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-violet-500">
+                  {t("parentDashboard.gameProgress")}
+                </p>
 
-            <p className="text-xs leading-relaxed text-amber-800">
-              <strong>{t("parentDashboard.heartsRefillingTitle")}</strong>
-              {" — "}
-              {refilling
-                .map(([gameKey]) => t(`gameCards.${gameKey}.title`))
-                .join(", ")}
-              {". "}
-              {t("parentDashboard.heartsRefillingDesc")}
-            </p>
-          </div>
-        )}
+                <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+                  {t("parentDashboard.gameProgress")}
+                </h2>
 
-        <section className="mt-6">
-          <StatCards cards={statCards} />
-        </section>
+                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
+                  {t("parentDashboard.gameProgressDescription", {
+                    defaultValue: "Progress recorded in each activity.",
+                  })}
+                </p>
+              </div>
 
-        <section className="mt-6">
-          <ProgressAssistant
-            childName={childName}
-            progress={progress}
-            totalPlaytime={totalPlaytime}
-            streak={streak}
-            avgPerDay={avgPerDay}
-            dates={dates}
-            readyToPlay={readyToPlay}
-            refilling={refilling}
-          />
-        </section>
-
-        <section className="mt-8">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                {t("parentDashboard.gameProgress")}
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                {t("parentDashboard.gameProgressDescription", {
-                  defaultValue: "Progress recorded in each activity.",
-                })}
-              </p>
-            </div>
-
-            {Object.keys(progress).length > 0 && (
-              <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-bold text-slate-600">
-                {Object.keys(progress).length}
-              </span>
-            )}
-          </div>
-
-          {Object.keys(progress).length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {KNOWN_GAMES.filter((gameKey) => progress[gameKey]).map(
-                (gameKey) => (
-                  <GameCard
-                    key={gameKey}
-                    gameKey={gameKey}
-                    data={progress[gameKey]}
-                    t={t}
-                  />
-                )
+              {gameCount > 0 && (
+                <span
+                  className="inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 px-3 text-sm font-black text-violet-700"
+                  aria-label={`${gameCount} games`}
+                >
+                  {gameCount}
+                </span>
               )}
             </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
-              <span className="text-3xl" aria-hidden="true">
-                🎯
-              </span>
 
-              <p className="mt-3 text-sm font-semibold text-slate-600">
-                {t("parentDashboard.noProgress")}
-              </p>
-            </div>
-          )}
-        </section>
+            {gameCount > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-5">
+                {KNOWN_GAMES.filter((gameKey) => progress[gameKey]).map(
+                  (gameKey) => (
+                    <GameCard
+                      key={gameKey}
+                      gameKey={gameKey}
+                      data={progress[gameKey]}
+                      t={t}
+                    />
+                  )
+                )}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-dashed border-slate-300 bg-white/80 px-6 py-12 text-center shadow-sm">
+                <span className="text-4xl" aria-hidden="true">
+                  🎯
+                </span>
+
+                <p className="mt-4 text-sm font-bold text-slate-700">
+                  {t("parentDashboard.noProgress")}
+                </p>
+
+                <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
+                  {t("parentDashboard.noProgressDescription", {
+                    defaultValue:
+                      "Game progress will appear here after the first activity.",
+                  })}
+                </p>
+              </div>
+            )}
+          </section>
+        </div>
+      </main>
+
+      <div className="print-only">
+        <PrintReport stats={stats} derived={derived} />
       </div>
-    </main>
-
-    <div className="print-only">
-      <PrintReport stats={stats} derived={derived} />
-    </div>
-  </>
-);
+    </>
+  );
 }

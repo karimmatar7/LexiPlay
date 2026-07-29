@@ -10,6 +10,8 @@ import clockIcon from "../assets/icons/clock.png";
 import saveIcon from "../assets/icons/save.png";
 import dashboardIcon from "../assets/icons/dashboard.png";
 import homeIcon from "../assets/icons/home.png";
+import AppButton from "../components/AppButton";
+
 
 export default function ParentalControlPage({ user, fetchUser }) {
   const { t } = useTranslation();
@@ -175,51 +177,61 @@ export default function ParentalControlPage({ user, fetchUser }) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch justify-center gap-3 sm:gap-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 min-w-0 inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-3.5 rounded-full font-bold shadow-[0_8px_20px_rgba(16,185,129,0.35)] hover:shadow-[0_10px_24px_rgba(16,185,129,0.45)] disabled:shadow-none transition-all duration-200 text-sm sm:text-base"
-          >
-            <img
-              src={saveIcon}
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-              className="h-5 w-5 object-contain"
-            />
-            <span>{saving ? t("parentalControl.saving") : t("parentalControl.save")}</span>
-          </button>
+   {/* Action Buttons */}
+<div className="mx-auto flex max-w-2xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:gap-4">
+  <AppButton
+    type="button"
+    onClick={handleSave}
+    disabled={saving}
+    variant="success"
+    className="min-w-0 flex-1 text-sm sm:text-base"
+  >
+    <img
+      src={saveIcon}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="h-5 w-5 shrink-0 object-contain"
+    />
+    <span>
+      {saving
+        ? t("parentalControl.saving")
+        : t("parentalControl.save")}
+    </span>
+  </AppButton>
 
-          <button
-            onClick={() => navigate(`/parent-dashboard/${user.id}`)}
-            className="flex-1 min-w-0 inline-flex items-center justify-center gap-2.5 bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3.5 rounded-full font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200 text-sm sm:text-base"
-          >
-            <img
-              src={dashboardIcon}
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-              className="h-5 w-5 object-contain"
-            />
-            <span>{t("parentalControl.viewDashboard")}</span>
-          </button>
+  <AppButton
+    type="button"
+    onClick={() => navigate(`/parent-dashboard/${user.id}`)}
+    variant="indigo"
+    className="min-w-0 flex-1 text-sm sm:text-base"
+  >
+    <img
+      src={dashboardIcon}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="h-5 w-5 shrink-0 object-contain"
+    />
+    <span>{t("parentalControl.viewDashboard")}</span>
+  </AppButton>
 
-          <button
-            onClick={() => navigate("/menu")}
-            className="flex-1 min-w-0 inline-flex items-center justify-center gap-2.5 bg-white hover:bg-gray-50 text-gray-600 px-6 py-3.5 rounded-full font-bold border border-gray-200 hover:border-gray-300 shadow-sm transition-all duration-200 text-sm sm:text-base"
-          >
-            <img
-              src={homeIcon}
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-              className="h-5 w-5 object-contain"
-            />
-            <span>{t("parentalControl.backToMenu")}</span>
-          </button>
-        </div>
+  <AppButton
+    type="button"
+    onClick={() => navigate("/menu")}
+    variant="neutral"
+    className="min-w-0 flex-1 text-sm sm:text-base"
+  >
+    <img
+      src={homeIcon}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="h-5 w-5 shrink-0 object-contain"
+    />
+    <span>{t("parentalControl.backToMenu")}</span>
+  </AppButton>
+</div>
       </div>
 
       {/* Notification Modal */}

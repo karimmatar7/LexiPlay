@@ -45,13 +45,13 @@ const calculateReturnKey = (lastPlayedDate) => {
 
       if (error || !alive) return;
 
-      const pc = data.parental_control || {};
-      if (!pc.enabled) return;
+const pc = data.parental_control ?? {};
+if (pc.enabled !== true) return;
 
       const today = new Date().toISOString().slice(0, 10);
-      const limitSeconds = (pc.dailyLimitMinutes || 60) * 60;
+const limitSeconds = (pc.dailyLimitMinutes ?? 60) * 60;
 
-      let playtime = pc.playtimeToday || 0;
+let playtime = pc.playtimeToday ?? 0;
 
       // new day
       if (pc.lastPlayedDate !== today) {

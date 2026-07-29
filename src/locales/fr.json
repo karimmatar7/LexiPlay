@@ -306,7 +306,9 @@
   "starsAcrossGames": "{{total}}/{{max}} étoiles gagnées sur {{games}} jeux",
   "readyToPlay": "Prêt à jouer",
   "waitingGames": "En attente de cœurs",
-  "outOfHearts": "Aucun cœur restant !"
+  "outOfHearts": "Aucun cœur restant !",
+    "showMoreStats": "Plus de statistiques",
+    "showLessStats": "Moins de statistiques"
 
 },
   "progressBar": {

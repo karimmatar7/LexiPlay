@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import AppButton from "../components/AppButton";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
 import SettingCard from "../components/SettingCard";
@@ -260,66 +260,69 @@ export default function Settings({ user, setUser }) {
             title={t("support.title")}
             description={t("support.description")}
           >
-            <Link
-              to="/support"
-              className="mt-4 inline-flex items-center justify-center w-full sm:w-auto sm:px-8 bg-indigo-500 hover:bg-indigo-600 text-white py-3.5 rounded-full font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200"
-            >
-              {t("support.button")}
-            </Link>
+          <AppButton
+  to="/support"
+  variant="indigo"
+  className="mt-4 w-full sm:w-auto sm:px-8"
+>
+  {t("support.button")}
+</AppButton>
           </SettingCard>
         </div>
 
         {/* Navigation buttons — pill style, matching GameMenu */}
-        <div className="max-w-md mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-          <Link
-            to="/menu"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full font-bold shadow-[0_8px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_10px_24px_rgba(99,102,241,0.45)] transition-all duration-200 px-6 py-3.5 text-sm sm:text-base"
-          >
-            <img
-              src={gamesIcon}
-              alt=""
-              aria-hidden="true"
-              className="h-5 w-5 object-contain"
-              draggable="false"
-            />
-            <span>{t("settings.buttons.toGames")}</span>
-          </Link>
+       <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+  <AppButton
+    to="/menu"
+    variant="indigo"
+    className="w-full text-sm sm:w-auto sm:text-base"
+  >
+    <img
+      src={gamesIcon}
+      alt=""
+      aria-hidden="true"
+      className="h-5 w-5 shrink-0 object-contain"
+      draggable="false"
+    />
 
-          <button
-         onClick={async () => {
-  try {
-    const { error } = await supabase.auth.signOut({ scope: "local" });
+    <span>{t("settings.buttons.toGames")}</span>
+  </AppButton>
 
-    if (error) {
-      throw error;
-    }
+  <AppButton
+    type="button"
+    variant="neutral"
+    onClick={async () => {
+      try {
+        const { error } = await supabase.auth.signOut({ scope: "local" });
 
-    localStorage.removeItem("lexiplay_user");
-    setUser(null);
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-}}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white hover:bg-red-50 text-red-500 rounded-full font-bold border border-red-200 hover:border-red-300 shadow-sm transition-all duration-200 px-6 py-3.5 text-sm sm:text-base"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4.5 w-4.5 flex-shrink-0"
-              style={{ height: 18, width: 18 }}
-              aria-hidden="true"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            <span>{t("settings.buttons.logout")}</span>
-          </button>
-        </div>
+        if (error) throw error;
+
+        localStorage.removeItem("lexiplay_user");
+        setUser(null);
+      } catch (error) {
+        console.error("Logout failed:", error);
+      }
+    }}
+    className="w-full border-red-200 text-sm text-red-500 hover:border-red-300 hover:bg-red-50 sm:w-auto sm:text-base"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-[18px] w-[18px] shrink-0"
+      aria-hidden="true"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+
+    <span>{t("settings.buttons.logout")}</span>
+  </AppButton>
+</div>
       </div>
     </div>
   );

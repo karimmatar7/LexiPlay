@@ -24,6 +24,11 @@ export default function KeysCard({ keys, thresholds, unlocked }) {
       label: t("gameCards.finalWordBuilder.title"),
       isUnlocked: unlocked.final,
     },
+      {
+    threshold: thresholds.letterDraw,
+    label: t("gameCards.letterDraw.title"),
+    isUnlocked: unlocked.letterDraw,
+  },
   ];
 
   return (

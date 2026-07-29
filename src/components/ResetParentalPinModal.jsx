@@ -1,7 +1,9 @@
+// src/components/ResetParentalPinModal.jsx
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../supaBaseClient.js";
 import NotificationModal from "./NotificationModal";
+import AppButton from "./AppButton";
 
 export default function ResetParentalPinModal({ onClose }) {
   const { t } = useTranslation();
@@ -111,25 +113,27 @@ export default function ResetParentalPinModal({ onClose }) {
           </div>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <button
+            <AppButton
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="order-2 flex-1 rounded-full border border-gray-200 bg-white py-3.5 font-bold text-gray-600 shadow-sm transition-all hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:order-1"
+              variant="neutral"
+              className="order-2 flex-1 sm:order-1"
             >
               {t("modals.resetPin.closeButton")}
-            </button>
+            </AppButton>
 
-            <button
+            <AppButton
               type="button"
               onClick={handleSendResetEmail}
               disabled={loading}
-              className="order-1 flex-1 rounded-full bg-purple-600 py-3.5 font-bold text-white shadow-[0_8px_20px_rgba(147,51,234,0.35)] transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-400 sm:order-2"
+              variant="indigo"
+              className="order-1 flex-1 sm:order-2"
             >
               {loading
                 ? t("resetParentalPinModal.sending")
                 : t("resetParentalPinModal.sendButton")}
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>

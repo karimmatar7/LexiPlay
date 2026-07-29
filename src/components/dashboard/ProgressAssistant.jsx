@@ -156,7 +156,7 @@ function FoxGuide({ waving, onClick, label }) {
       `}</style>
 
       <svg
-        className="lexi-fox-avatar h-[82px] w-[82px] drop-shadow-lg transition-transform duration-200 hover:scale-105 sm:h-[96px] sm:w-[96px]"
+        className="lexi-fox-avatar h-14 w-14 drop-shadow-lg transition-transform duration-200 hover:scale-105 sm:h-[96px] sm:w-[96px]"
         viewBox="0 0 100 100"
         aria-hidden="true"
       >
@@ -414,7 +414,7 @@ export default function ProgressAssistant({
 }) {
   const { t } = useTranslation();
 
-  const [isOpen, setIsOpen] = useState(true);
+const [isOpen, setIsOpen] = useState(false);
   const [isWaving, setIsWaving] = useState(true);
   const [selectedQuestion, setSelectedQuestion] = useState("summary");
 
@@ -751,15 +751,15 @@ hasActivity:
   }
 
   return (
-    <section
-      className="overflow-hidden rounded-2xl border-2 border-orange-200 bg-white shadow-sm sm:rounded-3xl"
+<section
+  className="overflow-hidden rounded-2xl border border-orange-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.05)] sm:rounded-3xl sm:border-2"
       aria-label={t("progressAssistant.ariaLabel")}
     >
-      <div className="relative overflow-hidden bg-gradient-to-r from-orange-100 via-amber-50 to-sky-100 p-4 sm:p-5">
+      <div className="relative overflow-hidden bg-gradient-to-r from-orange-100 via-amber-50 to-sky-100 p-3 sm:p-5">
         <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/40 blur-2xl" />
         <div className="pointer-events-none absolute bottom-0 left-1/3 h-24 w-24 rounded-full bg-orange-300/20 blur-xl" />
 
-        <div className="relative flex items-center gap-3 sm:gap-4">
+        <div className="relative flex items-center gap-2 sm:gap-4">
           <FoxGuide
             waving={isWaving}
             onClick={openFox}
@@ -795,35 +795,69 @@ hasActivity:
         </div>
       </div>
 
-      {isOpen && (
-        <div className="p-3 sm:p-5">
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[0.9fr_1.35fr]">
-            <div>
-              <p className="mb-2 px-1 text-xs font-black uppercase tracking-wide text-slate-500">
-                {t("progressAssistant.chooseQuestion")}
-              </p>
+ {isOpen && (
+  <div className="p-3 sm:p-5">
+    {/* Mobile: horizontal question selector */}
+    <div className="sm:hidden">
+      <p className="mb-2 px-1 text-xs font-black uppercase tracking-wide text-slate-500">
+        {t("progressAssistant.chooseQuestion")}
+      </p>
 
-              <div className="space-y-2">
-                {questions.map((question) => (
-                  <QuestionButton
-                    key={question.id}
-                    icon={question.icon}
-                    label={question.label}
-                    active={selectedQuestion === question.id}
-                    onClick={() => setSelectedQuestion(question.id)}
-                  />
-                ))}
-              </div>
-            </div>
+      <div className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {questions.map((question) => (
+          <button
+            key={question.id}
+            type="button"
+            onClick={() => setSelectedQuestion(question.id)}
+            className={`flex min-h-11 shrink-0 items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-bold transition ${
+              selectedQuestion === question.id
+                ? "border-orange-300 bg-orange-100 text-orange-950 shadow-sm"
+                : "border-slate-200 bg-white text-slate-600 hover:border-orange-200 hover:bg-orange-50"
+            }`}
+            aria-pressed={selectedQuestion === question.id}
+          >
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              {question.icon}
+            </span>
 
-            <AnswerPanel answer={answer} t={t} />
-          </div>
+            <span className="whitespace-nowrap">{question.label}</span>
+          </button>
+        ))}
+      </div>
 
-          <p className="mt-4 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[10px] leading-relaxed text-slate-500">
-            {t("progressAssistant.note")}
-          </p>
+      <div className="mt-3">
+        <AnswerPanel answer={answer} t={t} />
+      </div>
+    </div>
+
+    {/* Tablet and desktop: question list + answer */}
+    <div className="hidden sm:grid sm:grid-cols-1 sm:gap-3 lg:grid-cols-[0.9fr_1.35fr]">
+      <div>
+        <p className="mb-2 px-1 text-xs font-black uppercase tracking-wide text-slate-500">
+          {t("progressAssistant.chooseQuestion")}
+        </p>
+
+        <div className="space-y-2">
+          {questions.map((question) => (
+            <QuestionButton
+              key={question.id}
+              icon={question.icon}
+              label={question.label}
+              active={selectedQuestion === question.id}
+              onClick={() => setSelectedQuestion(question.id)}
+            />
+          ))}
         </div>
-      )}
+      </div>
+
+      <AnswerPanel answer={answer} t={t} />
+    </div>
+
+    <p className="mt-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[10px] leading-relaxed text-slate-500 sm:mt-4">
+      {t("progressAssistant.note")}
+    </p>
+  </div>
+)}
     </section>
   );
 }

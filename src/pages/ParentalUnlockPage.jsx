@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { sha256 } from "js-sha256";
 import { useTranslation } from "react-i18next";
 import { useSettings } from "../context/SettingsContext";
+import AppButton from "../components/AppButton";
 
 import { getUser, updateSettings } from "../utils/user.js";
 import NotificationModal from "../components/NotificationModal";
@@ -170,38 +171,47 @@ export default function ParentalUnlockPage({ user, setUnlocked }) {
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto">
-          <button
-            onClick={handleUnlock}
-            disabled={isLocked}
-            className="flex-1 inline-flex items-center justify-center gap-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3.5 sm:py-4 rounded-full font-bold shadow-[0_8px_20px_rgba(147,51,234,0.35)] hover:shadow-[0_10px_24px_rgba(147,51,234,0.45)] disabled:shadow-none transition-all duration-200"
-          >
-            <img
-              src={existingPin ? unlockIcon : lockIcon}
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-              className="h-5 w-5 object-contain"
-            />
-            <span>
-              {existingPin ? t("parentalUnlock.buttonUnlock") : t("parentalUnlock.buttonSetPin")}
-            </span>
-          </button>
+ {/* Buttons */}
+<div className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
+  <AppButton
+    type="button"
+    onClick={handleUnlock}
+    disabled={isLocked}
+    variant="indigo"
+    className="flex-1 bg-purple-600 text-sm hover:bg-purple-700 sm:text-base"
+  >
+    <img
+      src={existingPin ? unlockIcon : lockIcon}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="h-5 w-5 shrink-0 object-contain"
+    />
 
-          <button
-            onClick={() => navigate("/menu")}
-            className="flex-1 inline-flex items-center justify-center gap-2.5 bg-white hover:bg-gray-50 text-gray-600 py-3.5 sm:py-4 rounded-full font-bold border border-gray-200 hover:border-gray-300 shadow-sm transition-all duration-200"
-          >
-            <img
-              src={homeIcon}
-              alt=""
-              aria-hidden="true"
-              draggable="false"
-              className="h-5 w-5 object-contain"
-            />
-            <span>{t("parentalUnlock.backToMenu")}</span>
-          </button>
-        </div>
+    <span>
+      {existingPin
+        ? t("parentalUnlock.buttonUnlock")
+        : t("parentalUnlock.buttonSetPin")}
+    </span>
+  </AppButton>
+
+  <AppButton
+    type="button"
+    onClick={() => navigate("/menu")}
+    variant="neutral"
+    className="flex-1 text-sm sm:text-base"
+  >
+    <img
+      src={homeIcon}
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+      className="h-5 w-5 shrink-0 object-contain"
+    />
+
+    <span>{t("parentalUnlock.backToMenu")}</span>
+  </AppButton>
+</div>
       </div>
 
       {/* Reset PIN Modal */}

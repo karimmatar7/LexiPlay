@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { buyHearts } from "../utils/user"
 import { MAX_HEARTS, MS_PER_HEART } from "../utils/heartConstants"
 import HeartShopPanel from "./hearts/HeartShopPanel"
-
+import AppButton from "./AppButton";
 
 function getSecondsLeft(until, hearts) {
   if (!until) return 0
@@ -100,12 +100,14 @@ export default function NoHeartsScreen({
             </div>
 
             {/* Back to menu — only action */}
-            <button
-              onClick={() => navigate("/menu")}
-              className="w-full inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-md border-b-4 border-indigo-700 hover:scale-105 transition-all duration-200"
-            >
-              {t("letterBuild.backToMenu", "Back to Menu")}
-            </button>
+     <AppButton
+  type="button"
+  onClick={() => navigate("/menu")}
+  variant="indigo"
+  className="w-full rounded-2xl"
+>
+  {t("letterBuild.backToMenu", "Back to Menu")}
+</AppButton>
           </div>
         </div>
       </div>
@@ -137,19 +139,24 @@ export default function NoHeartsScreen({
             ))}
           </div>
 
-          <button
-            onClick={() => setShowShop((v) => !v)}
-            className="w-full mb-3 inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 active:scale-95 text-yellow-900 px-6 py-3 rounded-2xl font-bold shadow-md border-b-4 border-yellow-600 hover:scale-105 transition-all duration-200"
-          >
-            🗝️ {t("hearts.buyHearts", "Buy Hearts with Keys")}
-          </button>
+    <AppButton
+  type="button"
+  onClick={() => setShowShop((v) => !v)}
+  variant="yellow"
+  className="mb-3 w-full rounded-2xl"
+>
+  <span aria-hidden="true">🗝️</span>
+  <span>{t("hearts.buyHearts", "Buy Hearts with Keys")}</span>
+</AppButton>
 
-          <button
-            onClick={() => navigate("/menu")}
-            className="w-full inline-flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white px-6 py-3 rounded-2xl font-bold shadow-md border-b-4 border-indigo-700 hover:scale-105 transition-all duration-200"
-          >
-            {t("hearts.backToMenu", "Back to Menu")}
-          </button>
+          <AppButton
+  type="button"
+  onClick={() => navigate("/menu")}
+  variant="indigo"
+  className="w-full rounded-2xl"
+>
+  {t("hearts.backToMenu", "Back to Menu")}
+</AppButton>
         </div>
 
         {showShop && (
