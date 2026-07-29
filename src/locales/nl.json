@@ -102,6 +102,20 @@
     }
   
 },
+
+
+  "resetParentalPinModal": {
+    "title": "Ouderlijke pincode opnieuw instellen",
+    "subtitle": "We sturen een beveiligde resetlink voor eenmalig gebruik naar het e-mailadres van dit account.",
+    "expiryNotice": "De link verloopt na 20 minuten en kan slechts één keer worden gebruikt.",
+    "sendButton": "Resetlink versturen",
+    "sending": "Bezig met versturen...",
+    "success": "We hebben een beveiligde resetlink voor de ouderlijke pincode naar je e-mailadres gestuurd.",
+    "errors": {
+      "sessionExpired": "Je sessie is verlopen. Meld je opnieuw aan.",
+      "sendFailed": "De resetmail kon niet worden verstuurd. Probeer het opnieuw."
+    }
+  },
   "resetPassword": {
   "title": "Maak een nieuw wachtwoord",
   "subtitle": "Kies een sterk nieuw wachtwoord voor je LexiPlay-account.",

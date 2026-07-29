@@ -103,6 +103,20 @@
       "resetFailed": "Impossible de réinitialiser le code PIN parental. Veuillez réessayer."
     }
   },
+  
+  "resetParentalPinModal": {
+    "title": "Réinitialiser le code PIN parental",
+    "subtitle": "Nous enverrons un lien de réinitialisation sécurisé à usage unique à l’adresse e-mail associée à ce compte.",
+    "expiryNotice": "Le lien expire après 20 minutes et ne peut être utilisé qu’une seule fois.",
+    "sendButton": "Envoyer le lien de réinitialisation",
+    "sending": "Envoi en cours...",
+    "success": "Nous avons envoyé un lien sécurisé de réinitialisation du code PIN parental à votre adresse e-mail.",
+    "errors": {
+      "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+      "sendFailed": "Impossible d’envoyer l’e-mail de réinitialisation. Veuillez réessayer."
+    }
+  },
+
 
   "gameMenu": {
     "title": "Menu des jeux",

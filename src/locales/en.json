@@ -157,6 +157,21 @@
       "resetFailed": "Could not reset the parental PIN. Please try again."
     }
   },
+
+  
+  "resetParentalPinModal": {
+    "title": "Reset parental PIN",
+    "subtitle": "We will send a secure one-time reset link to the email connected to this account.",
+    "expiryNotice": "The link expires in 20 minutes and can be used only once.",
+    "sendButton": "Send reset link",
+    "sending": "Sending...",
+    "success": "We sent a secure parental PIN reset link to your account email.",
+    "errors": {
+      "sessionExpired": "Your session has expired. Please log in again.",
+      "sendFailed": "Could not send the reset email. Please try again."
+    }
+  },
+
   "wordMatch": {
     "title": "Word Match",
     "desc": "Match words with sounds and create the correct combinations!",

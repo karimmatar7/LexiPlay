@@ -22,24 +22,22 @@ export default function ResetParentalPinModal({ onClose }) {
     try {
       setLoading(true);
 
-      // Confirms the user is still authenticated with Supabase.
       const {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        throw new Error("Your session has expired. Please log in again.");
+        throw new Error(t("resetParentalPinModal.errors.sessionExpired"));
       }
 
-      // Retrieves the current access token to authenticate the Edge Function request.
       const {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
 
       if (sessionError || !session?.access_token) {
-        throw new Error("Your session has expired. Please log in again.");
+        throw new Error(t("resetParentalPinModal.errors.sessionExpired"));
       }
 
       const { data, error } = await supabase.functions.invoke(
@@ -53,21 +51,22 @@ export default function ResetParentalPinModal({ onClose }) {
       );
 
       if (error) {
-        throw new Error(error.message || "Could not send the reset email.");
+        throw new Error(
+          error.message || t("resetParentalPinModal.errors.sendFailed")
+        );
       }
 
       if (!data?.success) {
         throw new Error(
-          data?.error || "Could not send the reset email. Please try again."
+          data?.error || t("resetParentalPinModal.errors.sendFailed")
         );
       }
 
-      showMessage(
-        "We sent a secure parental PIN reset link to your account email.",
-        "success"
-      );
+      showMessage(t("resetParentalPinModal.success"), "success");
     } catch (error) {
-      showMessage(error.message || "Could not send the reset email.");
+      showMessage(
+        error.message || t("resetParentalPinModal.errors.sendFailed")
+      );
     } finally {
       setLoading(false);
     }
@@ -97,18 +96,17 @@ export default function ResetParentalPinModal({ onClose }) {
             </div>
 
             <h2 className="text-xl font-black text-gray-900 sm:text-2xl">
-              Reset parental PIN
+              {t("resetParentalPinModal.title")}
             </h2>
 
             <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              We will send a secure one-time reset link to the email connected
-              to this account.
+              {t("resetParentalPinModal.subtitle")}
             </p>
           </div>
 
           <div className="rounded-2xl border border-purple-100 bg-purple-50 p-4">
             <p className="text-center text-sm font-semibold leading-relaxed text-purple-800">
-              The link expires in 20 minutes and can be used only once.
+              {t("resetParentalPinModal.expiryNotice")}
             </p>
           </div>
 
@@ -128,7 +126,9 @@ export default function ResetParentalPinModal({ onClose }) {
               disabled={loading}
               className="order-1 flex-1 rounded-full bg-purple-600 py-3.5 font-bold text-white shadow-[0_8px_20px_rgba(147,51,234,0.35)] transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-400 sm:order-2"
             >
-              {loading ? "Sending..." : "Send reset link"}
+              {loading
+                ? t("resetParentalPinModal.sending")
+                : t("resetParentalPinModal.sendButton")}
             </button>
           </div>
         </div>
