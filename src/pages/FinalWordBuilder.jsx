@@ -22,6 +22,7 @@ import usePlaytimeTracker from "../hooks/usePlaytimeTracker"
 import { getUser, addKeysAndXP } from "../supabaseFunctions.js"
 import clockIcon from "../assets/icons/clock.png"
 import writingIcon from "../assets/icons/writing.png"
+import AppButton from "../components/AppButton";
 
 const TOTAL_WORDS  = 20
 const GAME_TIME    = 400
@@ -49,13 +50,15 @@ function GlobalLockWarningModal({ onClose, t }) {
             <span>{t("finalWordBuilder.warningLockAll")}</span>
           </p>
         </div>
-        <button
-          onClick={onClose}
-          className="w-full inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-2xl font-bold shadow-md border-b-4 border-red-700 transition-all duration-200 hover:scale-105"
-        >
-          <span>✅</span>
-          <span>{t("finalWordBuilder.warningUnderstood")}</span>
-        </button>
+    <AppButton
+  type="button"
+  onClick={onClose}
+  variant="red"
+  className="w-full rounded-2xl"
+>
+  <span aria-hidden="true">✅</span>
+  <span>{t("finalWordBuilder.warningUnderstood")}</span>
+</AppButton>
       </div>
     </div>
   )

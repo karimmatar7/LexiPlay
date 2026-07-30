@@ -45,6 +45,8 @@ export default function AppButton({
 
   pink:
   "bg-pink-400 text-white shadow-[0_8px_20px_rgba(236,72,153,0.35)] hover:bg-pink-500 hover:shadow-[0_10px_24px_rgba(236,72,153,0.45)]",
+  red:
+  "bg-red-500 text-white shadow-[0_8px_20px_rgba(239,68,68,0.35)] hover:bg-red-600 hover:shadow-[0_10px_24px_rgba(239,68,68,0.45)]",
   };
 
   const style = `${base} ${sizes[size]} ${variants[variant]} ${className}`;
