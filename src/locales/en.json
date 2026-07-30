@@ -302,7 +302,7 @@
   "wordNumber": "Word #",
   "hearts": "Hearts",
   "refilling": "Refilling",
-  "heartsReady": "Hearts full — ready to play!",
+  "heartsReady": "Hearts full, ready to play!",
   "locked": "Locked",
   "sessionSummary": "Session Summary",
   "activeDays": "Active days",
@@ -310,6 +310,7 @@
   "mostRecent": "most recent",
   "totalTime": "Total time",
   "avg": "avg.",
+            "thisChild": "Child",
   "day": "day",
   "progress": "Progress",
   "starsAcrossGames": "{{total}}/{{max}} stars earned across {{games}} games",
@@ -317,7 +318,8 @@
   "waitingGames": "Waiting on hearts",
   "outOfHearts": "Out of hearts!",
   "showMoreStats": "More statistics",
-    "showLessStats": "Show less"
+    "showLessStats": "Show less",
+    "gameProgressDescription": "Progress recorded in each activity."
 }
 ,
   "progressBar": {

@@ -302,7 +302,7 @@
     "showMoreStats": "Meer statistieken",
     "showLessStats": "Minder statistieken",
   "refilling": "Bijvullen",
-  "heartsReady": "Harten vol — klaar om te spelen!",
+  "heartsReady": "Harten vol, klaar om te spelen!",
   "locked": "Vergrendeld",
   "sessionSummary": "Sessie-overzicht",
   "activeDays": "Actieve dagen",
@@ -311,11 +311,13 @@
   "totalTime": "Totale tijd",
   "avg": "gem.",
   "day": "dag",
+          "thisChild": "Kind",
   "progress": "Voortgang",
   "starsAcrossGames": "{{total}}/{{max}} sterren verdiend in {{games}} spellen",
   "readyToPlay": "Klaar om te spelen",
   "waitingGames": "Wachten op harten",
-  "outOfHearts": "Geen harten meer!"
+  "outOfHearts": "Geen harten meer!",
+      "gameProgressDescription": "Voortgang geregistreerd in elke activiteit."
 },
   "progressBar": {
     "completed": "voltooid",

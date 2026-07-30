@@ -427,9 +427,7 @@ const statCards = [
                 </h2>
 
                 <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-500">
-                  {t("parentDashboard.gameProgressDescription", {
-                    defaultValue: "Progress recorded in each activity.",
-                  })}
+                  {t("parentDashboard.gameProgressDescription")}
                 </p>
               </div>
 

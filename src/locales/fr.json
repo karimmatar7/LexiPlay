@@ -294,7 +294,7 @@
   "wordNumber": "Mot n°",
   "hearts": "Cœurs",
   "refilling": "Recharge",
-  "heartsReady": "Cœurs pleins — prêt à jouer !",
+  "heartsReady": "Cœurs pleins, prêt à jouer !",
   "locked": "Verrouillé",
   "sessionSummary": "Résumé de session",
   "activeDays": "Jours actifs",
@@ -309,7 +309,9 @@
   "waitingGames": "En attente de cœurs",
   "outOfHearts": "Aucun cœur restant !",
     "showMoreStats": "Plus de statistiques",
-    "showLessStats": "Moins de statistiques"
+    "showLessStats": "Moins de statistiques",
+        "gameProgressDescription": "Progression enregistrée dans chaque activité.",
+        "thisChild": "Enfant"
 
 },
   "progressBar": {
