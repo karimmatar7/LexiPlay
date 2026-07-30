@@ -424,16 +424,24 @@
         "backToMenu": "Back to Menu",
     "noHearts": "No hearts left!"
   },
-"finalWordBuilder": {
-  "warningTitle": "Warning!",
-  "warningDesc": "If you lose all your hearts in this game, ALL games will be locked — not just this one. Play carefully!",
-  "warningLockAll": "0 hearts = all games locked",
-  "warningUnderstood": "Got it!",
-  "allLockedTitle": "All games locked!",
-  "allLockedDesc": "You lost all your hearts in the Final Word Builder game.",
-  "word": "Word",
-  "cancel": "Cancel"
-}
+
+
+
+  "finalWordBuilder": {
+    "title": "Word Builder",
+    "changeOneLetter": "Change one letter to make a new word",
+    "startWord": "Starting word",
+    "changePurpleLetter": "Change the purple letter",
+    "chooseNewLetter": "Choose a new letter",
+    "youChangedOneLetter": "You changed one letter!",
+    "newWord": "New word",
+    "realWord": "You made a real word!",
+    "tryAnother": "That does not make a word. Try again.",
+    "next": "Next word",
+    "round": "Round",
+      "allLockedTitle": "All games locked!",
+  "allLockedDesc": "You lost all your hearts in the Final Word Builder game."
+  }
 ,
 "support": {
   "title": "Support",

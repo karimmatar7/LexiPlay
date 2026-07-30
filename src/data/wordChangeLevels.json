@@ -1,0 +1,958 @@
+{
+  "nl": [
+    {
+      "id": "nl-an-01",
+      "level": 1,
+      "pattern": "_an",
+      "changeIndex": 0,
+      "startLetter": "m",
+      "choices": ["m", "k", "p", "t"],
+      "validAnswers": {
+        "m": { "word": "man", "emoji": "👨" },
+        "k": { "word": "kan", "emoji": "🫖" },
+        "p": { "word": "pan", "emoji": "🍳" },
+        "t": { "word": "tan", "emoji": "🌙" }
+      }
+    },
+    {
+      "id": "nl-at-01",
+      "level": 1,
+      "pattern": "_at",
+      "changeIndex": 0,
+      "startLetter": "k",
+      "choices": ["k", "m", "r", "z"],
+      "validAnswers": {
+        "k": { "word": "kat", "emoji": "🐱" },
+        "m": { "word": "mat", "emoji": "🧶" },
+        "r": { "word": "rat", "emoji": "🐀" }
+      }
+    },
+    {
+      "id": "nl-as-01",
+      "level": 1,
+      "pattern": "_as",
+      "changeIndex": 0,
+      "startLetter": "j",
+      "choices": ["j", "t", "v", "z"],
+      "validAnswers": {
+        "j": { "word": "jas", "emoji": "🧥" },
+        "t": { "word": "tas", "emoji": "👜" },
+        "v": { "word": "vas", "emoji": "🏺" }
+      }
+    },
+    {
+      "id": "nl-ak-01",
+      "level": 1,
+      "pattern": "_ak",
+      "changeIndex": 0,
+      "startLetter": "d",
+      "choices": ["d", "p", "t", "z"],
+      "validAnswers": {
+        "d": { "word": "dak", "emoji": "🏠" },
+        "p": { "word": "pak", "emoji": "📦" },
+        "t": { "word": "tak", "emoji": "🌿" }
+      }
+    },
+    {
+      "id": "nl-ap-01",
+      "level": 1,
+      "pattern": "_ap",
+      "changeIndex": 0,
+      "startLetter": "k",
+      "choices": ["k", "l", "m", "z"],
+      "validAnswers": {
+        "k": { "word": "kap", "emoji": "🧢" },
+        "l": { "word": "lap", "emoji": "🧽" },
+        "m": { "word": "map", "emoji": "🗺️" }
+      }
+    },
+    {
+      "id": "nl-ad-01",
+      "level": 1,
+      "pattern": "_ad",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "p", "v", "z"],
+      "validAnswers": {
+        "b": { "word": "bad", "emoji": "🛁" },
+        "p": { "word": "pad", "emoji": "🛤️" },
+        "v": { "word": "vad", "emoji": "🌊" }
+      }
+    },
+    {
+      "id": "nl-am-01",
+      "level": 1,
+      "pattern": "_am",
+      "changeIndex": 0,
+      "startLetter": "d",
+      "choices": ["d", "k", "l", "z"],
+      "validAnswers": {
+        "d": { "word": "dam", "emoji": "🦫" },
+        "k": { "word": "kam", "emoji": "🪮" },
+        "l": { "word": "lam", "emoji": "🐑" }
+      }
+    },
+    {
+      "id": "nl-ot-01",
+      "level": 1,
+      "pattern": "_ot",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "l", "p", "z"],
+      "validAnswers": {
+        "b": { "word": "bot", "emoji": "🐟" },
+        "l": { "word": "lot", "emoji": "🎟️" },
+        "p": { "word": "pot", "emoji": "🪴" }
+      }
+    },
+    {
+      "id": "nl-os-01",
+      "level": 1,
+      "pattern": "_os",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "k", "v", "z"],
+      "validAnswers": {
+        "b": { "word": "bos", "emoji": "🌳" },
+        "k": { "word": "kos", "emoji": "🏠" },
+        "v": { "word": "vos", "emoji": "🦊" }
+      }
+    },
+    {
+      "id": "nl-is-01",
+      "level": 1,
+      "pattern": "_is",
+      "changeIndex": 0,
+      "startLetter": "f",
+      "choices": ["f", "m", "v", "z"],
+      "validAnswers": {
+        "f": { "word": "fis", "emoji": "🎵" },
+        "m": { "word": "mis", "emoji": "🌫️" },
+        "v": { "word": "vis", "emoji": "🐟" }
+      }
+    },
+    {
+      "id": "nl-ip-01",
+      "level": 1,
+      "pattern": "_ip",
+      "changeIndex": 0,
+      "startLetter": "k",
+      "choices": ["k", "l", "r", "z"],
+      "validAnswers": {
+        "k": { "word": "kip", "emoji": "🐔" },
+        "l": { "word": "lip", "emoji": "👄" },
+        "r": { "word": "rip", "emoji": "💥" }
+      }
+    },
+    {
+      "id": "nl-in-01",
+      "level": 1,
+      "pattern": "_in",
+      "changeIndex": 0,
+      "startLetter": "k",
+      "choices": ["k", "p", "r", "z"],
+      "validAnswers": {
+        "k": { "word": "kin", "emoji": "🙂" },
+        "p": { "word": "pin", "emoji": "📌" },
+        "r": { "word": "rin", "emoji": "💧" }
+      }
+    },
+    {
+      "id": "nl-it-01",
+      "level": 1,
+      "pattern": "_it",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "p", "r", "z"],
+      "validAnswers": {
+        "b": { "word": "bit", "emoji": "🔩" },
+        "p": { "word": "pit", "emoji": "🕳️" },
+        "r": { "word": "rit", "emoji": "🚗" }
+      }
+    },
+    {
+      "id": "nl-et-01",
+      "level": 1,
+      "pattern": "_et",
+      "changeIndex": 0,
+      "startLetter": "n",
+      "choices": ["n", "p", "v", "z"],
+      "validAnswers": {
+        "n": { "word": "net", "emoji": "🕸️" },
+        "p": { "word": "pet", "emoji": "🧢" },
+        "v": { "word": "vet", "emoji": "🧈" }
+      }
+    },
+    {
+      "id": "nl-ek-01",
+      "level": 1,
+      "pattern": "_ek",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "g", "l", "z"],
+      "validAnswers": {
+        "b": { "word": "bek", "emoji": "🐦" },
+        "g": { "word": "gek", "emoji": "🤪" },
+        "l": { "word": "lek", "emoji": "💧" }
+      }
+    },
+    {
+      "id": "nl-el-01",
+      "level": 1,
+      "pattern": "_el",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "f", "g", "z"],
+      "validAnswers": {
+        "b": { "word": "bel", "emoji": "🔔" },
+        "f": { "word": "fel", "emoji": "✨" },
+        "g": { "word": "gel", "emoji": "🧴" }
+      }
+    },
+    {
+      "id": "nl-us-01",
+      "level": 1,
+      "pattern": "_us",
+      "changeIndex": 0,
+      "startLetter": "m",
+      "choices": ["b", "k", "m", "z"],
+      "validAnswers": {
+        "b": { "word": "bus", "emoji": "🚌" },
+        "k": { "word": "kus", "emoji": "😘" },
+        "m": { "word": "mus", "emoji": "🐦" }
+      }
+    },
+ {
+  "id": "nl-us-02",
+  "level": 1,
+  "pattern": "_us",
+  "changeIndex": 0,
+  "startLetter": "b",
+  "choices": ["b", "k", "m", "z"],
+  "validAnswers": {
+    "b": { "word": "bus", "emoji": "🚌" },
+    "k": { "word": "kus", "emoji": "😘" },
+    "m": { "word": "mus", "emoji": "🐦" }
+  }
+},
+    {
+      "id": "nl-aal-01",
+      "level": 2,
+      "pattern": "_aal",
+      "changeIndex": 0,
+      "startLetter": "t",
+      "choices": ["d", "m", "t", "z"],
+      "validAnswers": {
+        "d": { "word": "daal", "emoji": "⬇️" },
+        "m": { "word": "maal", "emoji": "🍽️" },
+        "t": { "word": "taal", "emoji": "🗣️" }
+      }
+    },
+    {
+      "id": "nl-aar-01",
+      "level": 2,
+      "pattern": "_aar",
+      "changeIndex": 0,
+      "startLetter": "r",
+      "choices": ["b", "k", "r", "z"],
+      "validAnswers": {
+        "b": { "word": "baar", "emoji": "➖" },
+        "k": { "word": "kaar", "emoji": "🕯️" },
+        "r": { "word": "raar", "emoji": "🤨" }
+      }
+    },
+    {
+      "id": "nl-eer-01",
+      "level": 2,
+      "pattern": "_eer",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "m", "v", "z"],
+      "validAnswers": {
+        "b": { "word": "beer", "emoji": "🐻" },
+        "m": { "word": "meer", "emoji": "🌊" },
+        "v": { "word": "veer", "emoji": "🪶" }
+      }
+    },
+    {
+      "id": "nl-oom-01",
+      "level": 2,
+      "pattern": "_oom",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "d", "o", "z"],
+      "validAnswers": {
+        "b": { "word": "boom", "emoji": "🌳" },
+        "d": { "word": "doom", "emoji": "🚂" },
+        "o": { "word": "oom", "emoji": "👨" }
+      }
+    },
+    {
+      "id": "nl-een-01",
+      "level": 2,
+      "pattern": "_een",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "g", "m", "z"],
+      "validAnswers": {
+        "b": { "word": "been", "emoji": "🦵" },
+        "g": { "word": "geen", "emoji": "🚫" },
+        "m": { "word": "meen", "emoji": "💭" }
+      }
+    }
+  ],
+  "en": [
+    {
+      "id": "en-at-01",
+      "level": 1,
+      "pattern": "_at",
+      "changeIndex": 0,
+      "startLetter": "c",
+      "choices": ["c", "m", "r", "z"],
+      "validAnswers": {
+        "c": { "word": "cat", "emoji": "🐱" },
+        "m": { "word": "mat", "emoji": "🧶" },
+        "r": { "word": "rat", "emoji": "🐀" }
+      }
+    },
+    {
+      "id": "en-an-01",
+      "level": 1,
+      "pattern": "_an",
+      "changeIndex": 0,
+      "startLetter": "c",
+      "choices": ["c", "m", "p", "z"],
+      "validAnswers": {
+        "c": { "word": "can", "emoji": "🥫" },
+        "m": { "word": "man", "emoji": "👨" },
+        "p": { "word": "pan", "emoji": "🍳" }
+      }
+    },
+    {
+      "id": "en-ap-01",
+      "level": 1,
+      "pattern": "_ap",
+      "changeIndex": 0,
+      "startLetter": "c",
+      "choices": ["c", "m", "t", "z"],
+      "validAnswers": {
+        "c": { "word": "cap", "emoji": "🧢" },
+        "m": { "word": "map", "emoji": "🗺️" },
+        "t": { "word": "tap", "emoji": "🚰" }
+      }
+    },
+    {
+      "id": "en-ad-01",
+      "level": 1,
+      "pattern": "_ad",
+      "changeIndex": 0,
+      "startLetter": "d",
+      "choices": ["b", "d", "p", "z"],
+      "validAnswers": {
+        "b": { "word": "bad", "emoji": "👎" },
+        "d": { "word": "dad", "emoji": "👨" },
+        "p": { "word": "pad", "emoji": "🛤️" }
+      }
+    },
+    {
+      "id": "en-am-01",
+      "level": 1,
+      "pattern": "_am",
+      "changeIndex": 0,
+      "startLetter": "h",
+      "choices": ["h", "j", "r", "z"],
+      "validAnswers": {
+        "h": { "word": "ham", "emoji": "🍖" },
+        "j": { "word": "jam", "emoji": "🍓" },
+        "r": { "word": "ram", "emoji": "🐏" }
+      }
+    },
+    {
+      "id": "en-et-01",
+      "level": 1,
+      "pattern": "_et",
+      "changeIndex": 0,
+      "startLetter": "n",
+      "choices": ["g", "n", "p", "z"],
+      "validAnswers": {
+        "g": { "word": "get", "emoji": "🎁" },
+        "n": { "word": "net", "emoji": "🥅" },
+        "p": { "word": "pet", "emoji": "🐶" }
+      }
+    },
+    {
+      "id": "en-ed-01",
+      "level": 1,
+      "pattern": "_ed",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "r", "w", "z"],
+      "validAnswers": {
+        "b": { "word": "bed", "emoji": "🛏️" },
+        "r": { "word": "red", "emoji": "🔴" },
+        "w": { "word": "wed", "emoji": "💍" }
+      }
+    },
+    {
+      "id": "en-en-01",
+      "level": 1,
+      "pattern": "_en",
+      "changeIndex": 0,
+      "startLetter": "h",
+      "choices": ["d", "h", "p", "z"],
+      "validAnswers": {
+        "d": { "word": "den", "emoji": "🦊" },
+        "h": { "word": "hen", "emoji": "🐔" },
+        "p": { "word": "pen", "emoji": "🖊️" }
+      }
+    },
+    {
+      "id": "en-eg-01",
+      "level": 1,
+      "pattern": "_eg",
+      "changeIndex": 0,
+      "startLetter": "l",
+      "choices": ["b", "k", "l", "z"],
+      "validAnswers": {
+        "b": { "word": "beg", "emoji": "🙏" },
+        "k": { "word": "keg", "emoji": "🛢️" },
+        "l": { "word": "leg", "emoji": "🦵" }
+      }
+    },
+    {
+      "id": "en-it-01",
+      "level": 1,
+      "pattern": "_it",
+      "changeIndex": 0,
+      "startLetter": "s",
+      "choices": ["f", "h", "s", "z"],
+      "validAnswers": {
+        "f": { "word": "fit", "emoji": "💪" },
+        "h": { "word": "hit", "emoji": "🏏" },
+        "s": { "word": "sit", "emoji": "🪑" }
+      }
+    },
+    {
+      "id": "en-in-01",
+      "level": 1,
+      "pattern": "_in",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "f", "p", "z"],
+      "validAnswers": {
+        "b": { "word": "bin", "emoji": "🗑️" },
+        "f": { "word": "fin", "emoji": "🐟" },
+        "p": { "word": "pin", "emoji": "📌" }
+      }
+    },
+    {
+      "id": "en-ip-01",
+      "level": 1,
+      "pattern": "_ip",
+      "changeIndex": 0,
+      "startLetter": "d",
+      "choices": ["d", "l", "s", "z"],
+      "validAnswers": {
+        "d": { "word": "dip", "emoji": "🥣" },
+        "l": { "word": "lip", "emoji": "👄" },
+        "s": { "word": "sip", "emoji": "🥤" }
+      }
+    },
+    {
+      "id": "en-id-01",
+      "level": 1,
+      "pattern": "_id",
+      "changeIndex": 0,
+      "startLetter": "k",
+      "choices": ["k", "l", "r", "z"],
+      "validAnswers": {
+        "k": { "word": "kid", "emoji": "🧒" },
+        "l": { "word": "lid", "emoji": "🫙" },
+        "r": { "word": "rid", "emoji": "🧹" }
+      }
+    },
+    {
+      "id": "en-op-01",
+      "level": 1,
+      "pattern": "_op",
+      "changeIndex": 0,
+      "startLetter": "m",
+      "choices": ["h", "m", "t", "z"],
+      "validAnswers": {
+        "h": { "word": "hop", "emoji": "🐇" },
+        "m": { "word": "mop", "emoji": "🧹" },
+        "t": { "word": "top", "emoji": "🔝" }
+      }
+    },
+    {
+      "id": "en-ot-01",
+      "level": 1,
+      "pattern": "_ot",
+      "changeIndex": 0,
+      "startLetter": "h",
+      "choices": ["c", "h", "p", "z"],
+      "validAnswers": {
+        "c": { "word": "cot", "emoji": "🛏️" },
+        "h": { "word": "hot", "emoji": "🔥" },
+        "p": { "word": "pot", "emoji": "🪴" }
+      }
+    },
+    {
+      "id": "en-og-01",
+      "level": 1,
+      "pattern": "_og",
+      "changeIndex": 0,
+      "startLetter": "d",
+      "choices": ["d", "f", "l", "z"],
+      "validAnswers": {
+        "d": { "word": "dog", "emoji": "🐶" },
+        "f": { "word": "fog", "emoji": "🌫️" },
+        "l": { "word": "log", "emoji": "🪵" }
+      }
+    },
+    {
+      "id": "en-ug-01",
+      "level": 1,
+      "pattern": "_ug",
+      "changeIndex": 0,
+      "startLetter": "m",
+      "choices": ["b", "h", "m", "z"],
+      "validAnswers": {
+        "b": { "word": "bug", "emoji": "🐞" },
+        "h": { "word": "hug", "emoji": "🤗" },
+        "m": { "word": "mug", "emoji": "☕" }
+      }
+    },
+    {
+      "id": "en-un-01",
+      "level": 1,
+      "pattern": "_un",
+      "changeIndex": 0,
+      "startLetter": "f",
+      "choices": ["b", "f", "r", "z"],
+      "validAnswers": {
+        "b": { "word": "bun", "emoji": "🍞" },
+        "f": { "word": "fun", "emoji": "🎉" },
+        "r": { "word": "run", "emoji": "🏃" }
+      }
+    },
+    {
+      "id": "en-ut-01",
+      "level": 1,
+      "pattern": "_ut",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "c", "h", "z"],
+      "validAnswers": {
+        "b": { "word": "but", "emoji": "↔️" },
+        "c": { "word": "cut", "emoji": "✂️" },
+        "h": { "word": "hut", "emoji": "🛖" }
+      }
+    },
+    {
+      "id": "en-ab-01",
+      "level": 1,
+      "pattern": "_ab",
+      "changeIndex": 0,
+      "startLetter": "c",
+      "choices": ["c", "d", "t", "z"],
+      "validAnswers": {
+        "c": { "word": "cab", "emoji": "🚕" },
+        "d": { "word": "dab", "emoji": "💃" },
+        "t": { "word": "tab", "emoji": "📑" }
+      }
+    },
+    {
+      "id": "en-at-02",
+      "level": 2,
+      "pattern": "c_t",
+      "changeIndex": 1,
+      "startLetter": "a",
+      "choices": ["a", "o", "u", "z"],
+      "validAnswers": {
+        "a": { "word": "cat", "emoji": "🐱" },
+        "o": { "word": "cot", "emoji": "🛏️" },
+        "u": { "word": "cut", "emoji": "✂️" }
+      }
+    },
+    {
+      "id": "en-p-t-01",
+      "level": 2,
+      "pattern": "p_t",
+      "changeIndex": 1,
+      "startLetter": "a",
+      "choices": ["a", "e", "i", "z"],
+      "validAnswers": {
+        "a": { "word": "pat", "emoji": "👏" },
+        "e": { "word": "pet", "emoji": "🐶" },
+        "i": { "word": "pit", "emoji": "🕳️" }
+      }
+    },
+    {
+      "id": "en-h-t-01",
+      "level": 2,
+      "pattern": "h_t",
+      "changeIndex": 1,
+      "startLetter": "a",
+      "choices": ["a", "i", "o", "z"],
+      "validAnswers": {
+        "a": { "word": "hat", "emoji": "🎩" },
+        "i": { "word": "hit", "emoji": "🏏" },
+        "o": { "word": "hot", "emoji": "🔥" }
+      }
+    },
+    {
+      "id": "en-m-p-01",
+      "level": 2,
+      "pattern": "m_p",
+      "changeIndex": 1,
+      "startLetter": "a",
+      "choices": ["a", "i", "o", "z"],
+      "validAnswers": {
+        "a": { "word": "map", "emoji": "🗺️" },
+        "i": { "word": "mip", "emoji": "🔈" },
+        "o": { "word": "mop", "emoji": "🧹" }
+      }
+    },
+    {
+      "id": "en-b-g-01",
+      "level": 2,
+      "pattern": "b_g",
+      "changeIndex": 1,
+      "startLetter": "a",
+      "choices": ["a", "e", "u", "z"],
+      "validAnswers": {
+        "a": { "word": "bag", "emoji": "👜" },
+        "e": { "word": "beg", "emoji": "🙏" },
+        "u": { "word": "bug", "emoji": "🐞" }
+      }
+    }
+  ],
+  "fr": [
+    {
+      "id": "fr-ac-01",
+      "level": 1,
+      "pattern": "_ac",
+      "changeIndex": 0,
+      "startLetter": "s",
+      "choices": ["b", "l", "s", "z"],
+      "validAnswers": {
+        "b": { "word": "bac", "emoji": "🗑️" },
+        "l": { "word": "lac", "emoji": "🏞️" },
+        "s": { "word": "sac", "emoji": "👜" }
+      }
+    },
+    {
+      "id": "fr-ol-01",
+      "level": 1,
+      "pattern": "_ol",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "c", "s", "z"],
+      "validAnswers": {
+        "b": { "word": "bol", "emoji": "🥣" },
+        "c": { "word": "col", "emoji": "🧥" },
+        "s": { "word": "sol", "emoji": "🌍" }
+      }
+    },
+    {
+      "id": "fr-il-01",
+      "level": 1,
+      "pattern": "_il",
+      "changeIndex": 0,
+      "startLetter": "f",
+      "choices": ["f", "m", "v", "z"],
+      "validAnswers": {
+        "f": { "word": "fil", "emoji": "🧵" },
+        "m": { "word": "mil", "emoji": "🌾" },
+        "v": { "word": "vil", "emoji": "🏙️" }
+      }
+    },
+    {
+      "id": "fr-or-01",
+      "level": 1,
+      "pattern": "_or",
+      "changeIndex": 0,
+      "startLetter": "m",
+      "choices": ["b", "d", "m", "z"],
+      "validAnswers": {
+        "b": { "word": "bor", "emoji": "🧭" },
+        "d": { "word": "dor", "emoji": "🟡" },
+        "m": { "word": "mor", "emoji": "⚓" }
+      }
+    },
+    {
+      "id": "fr-as-01",
+      "level": 1,
+      "pattern": "_as",
+      "changeIndex": 0,
+      "startLetter": "p",
+      "choices": ["b", "c", "p", "z"],
+      "validAnswers": {
+        "b": { "word": "bas", "emoji": "⬇️" },
+        "c": { "word": "cas", "emoji": "📌" },
+        "p": { "word": "pas", "emoji": "👣" }
+      }
+    },
+    {
+      "id": "fr-an-01",
+      "level": 1,
+      "pattern": "_an",
+      "changeIndex": 0,
+      "startLetter": "p",
+      "choices": ["b", "p", "r", "z"],
+      "validAnswers": {
+        "b": { "word": "ban", "emoji": "🚫" },
+        "p": { "word": "pan", "emoji": "🧺" },
+        "r": { "word": "ran", "emoji": "🐸" }
+      }
+    },
+    {
+      "id": "fr-in-01",
+      "level": 1,
+      "pattern": "_in",
+      "changeIndex": 0,
+      "startLetter": "f",
+      "choices": ["f", "l", "m", "z"],
+      "validAnswers": {
+        "f": { "word": "fin", "emoji": "🏁" },
+        "l": { "word": "lin", "emoji": "🌾" },
+        "m": { "word": "min", "emoji": "🤏" }
+      }
+    },
+    {
+      "id": "fr-on-01",
+      "level": 1,
+      "pattern": "_on",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "m", "s", "z"],
+      "validAnswers": {
+        "b": { "word": "bon", "emoji": "👍" },
+        "m": { "word": "mon", "emoji": "🙋" },
+        "s": { "word": "son", "emoji": "🔊" }
+      }
+    },
+    {
+      "id": "fr-ou-01",
+      "level": 1,
+      "pattern": "_ou",
+      "changeIndex": 0,
+      "startLetter": "l",
+      "choices": ["c", "l", "r", "z"],
+      "validAnswers": {
+        "c": { "word": "cou", "emoji": "🦒" },
+        "l": { "word": "lou", "emoji": "🐺" },
+        "r": { "word": "rou", "emoji": "🛞" }
+      }
+    },
+    {
+      "id": "fr-eau-01",
+      "level": 1,
+      "pattern": "_eau",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "p", "r", "z"],
+      "validAnswers": {
+        "b": { "word": "beau", "emoji": "✨" },
+        "p": { "word": "peau", "emoji": "🖐️" },
+        "r": { "word": "reau", "emoji": "🌊" }
+      }
+    },
+    {
+      "id": "fr-ain-01",
+      "level": 2,
+      "pattern": "_ain",
+      "changeIndex": 0,
+      "startLetter": "m",
+      "choices": ["b", "m", "p", "z"],
+      "validAnswers": {
+        "b": { "word": "bain", "emoji": "🛁" },
+        "m": { "word": "main", "emoji": "✋" },
+        "p": { "word": "pain", "emoji": "🥖" }
+      }
+    },
+    {
+      "id": "fr-our-01",
+      "level": 2,
+      "pattern": "_our",
+      "changeIndex": 0,
+      "startLetter": "t",
+      "choices": ["c", "f", "t", "z"],
+      "validAnswers": {
+        "c": { "word": "cour", "emoji": "🏫" },
+        "f": { "word": "four", "emoji": "🔥" },
+        "t": { "word": "tour", "emoji": "🗼" }
+      }
+    },
+    {
+      "id": "fr-ose-01",
+      "level": 2,
+      "pattern": "_ose",
+      "changeIndex": 0,
+      "startLetter": "r",
+      "choices": ["d", "p", "r", "z"],
+      "validAnswers": {
+        "d": { "word": "dose", "emoji": "💊" },
+        "p": { "word": "pose", "emoji": "🧘" },
+        "r": { "word": "rose", "emoji": "🌹" }
+      }
+    },
+    {
+      "id": "fr-oule-01",
+      "level": 2,
+      "pattern": "_oule",
+      "changeIndex": 0,
+      "startLetter": "p",
+      "choices": ["b", "f", "p", "z"],
+      "validAnswers": {
+        "b": { "word": "boule", "emoji": "⚽" },
+        "f": { "word": "foule", "emoji": "👥" },
+        "p": { "word": "poule", "emoji": "🐔" }
+      }
+    },
+    {
+      "id": "fr-oupe-01",
+      "level": 2,
+      "pattern": "_oupe",
+      "changeIndex": 0,
+      "startLetter": "s",
+      "choices": ["c", "l", "s", "z"],
+      "validAnswers": {
+        "c": { "word": "coupe", "emoji": "🏆" },
+        "l": { "word": "loupe", "emoji": "🔍" },
+        "s": { "word": "soupe", "emoji": "🍲" }
+      }
+    },
+    {
+      "id": "fr-ette-01",
+      "level": 2,
+      "pattern": "_ette",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "f", "t", "z"],
+      "validAnswers": {
+        "b": { "word": "bette", "emoji": "🥬" },
+        "f": { "word": "fette", "emoji": "🧀" },
+        "t": { "word": "tette", "emoji": "🍼" }
+      }
+    },
+    {
+      "id": "fr-elle-01",
+      "level": 2,
+      "pattern": "_elle",
+      "changeIndex": 0,
+      "startLetter": "b",
+      "choices": ["b", "f", "s", "z"],
+      "validAnswers": {
+        "b": { "word": "belle", "emoji": "🌸" },
+        "f": { "word": "felle", "emoji": "🔥" },
+        "s": { "word": "selle", "emoji": "🐎" }
+      }
+    },
+    {
+      "id": "fr-ire-01",
+      "level": 2,
+      "pattern": "_ire",
+      "changeIndex": 0,
+      "startLetter": "l",
+      "choices": ["d", "l", "p", "z"],
+      "validAnswers": {
+        "d": { "word": "dire", "emoji": "💬" },
+        "l": { "word": "lire", "emoji": "📖" },
+        "p": { "word": "pire", "emoji": "😣" }
+      }
+    },
+    {
+      "id": "fr-ame-01",
+      "level": 2,
+      "pattern": "_ame",
+      "changeIndex": 0,
+      "startLetter": "d",
+      "choices": ["d", "f", "r", "z"],
+      "validAnswers": {
+        "d": { "word": "dame", "emoji": "👩" },
+        "f": { "word": "fame", "emoji": "⭐" },
+        "r": { "word": "rame", "emoji": "🚣" }
+      }
+    },
+    {
+      "id": "fr-oule-02",
+      "level": 2,
+      "pattern": "b_ule",
+      "changeIndex": 1,
+      "startLetter": "o",
+      "choices": ["a", "e", "o", "z"],
+      "validAnswers": {
+        "a": { "word": "baule", "emoji": "🏖️" },
+        "e": { "word": "beule", "emoji": "🤕" },
+        "o": { "word": "boule", "emoji": "⚽" }
+      }
+    },
+    {
+      "id": "fr-l-p-01",
+      "level": 2,
+      "pattern": "l_p",
+      "changeIndex": 1,
+      "startLetter": "a",
+      "choices": ["a", "i", "o", "z"],
+      "validAnswers": {
+        "a": { "word": "lap", "emoji": "🐇" },
+        "i": { "word": "lip", "emoji": "💋" },
+        "o": { "word": "lop", "emoji": "🐎" }
+      }
+    },
+    {
+      "id": "fr-m-r-01",
+      "level": 2,
+      "pattern": "m_r",
+      "changeIndex": 1,
+      "startLetter": "e",
+      "choices": ["a", "e", "i", "z"],
+      "validAnswers": {
+        "a": { "word": "mar", "emoji": "🌊" },
+        "e": { "word": "mer", "emoji": "🌊" },
+        "i": { "word": "mir", "emoji": "🎯" }
+      }
+    },
+    {
+      "id": "fr-s-l-01",
+      "level": 2,
+      "pattern": "s_l",
+      "changeIndex": 1,
+      "startLetter": "e",
+      "choices": ["a", "e", "o", "z"],
+      "validAnswers": {
+        "a": { "word": "sal", "emoji": "🧂" },
+        "e": { "word": "sel", "emoji": "🧂" },
+        "o": { "word": "sol", "emoji": "🌍" }
+      }
+    },
+    {
+      "id": "fr-v-l-01",
+      "level": 2,
+      "pattern": "v_l",
+      "changeIndex": 1,
+      "startLetter": "o",
+      "choices": ["a", "e", "o", "z"],
+      "validAnswers": {
+        "a": { "word": "val", "emoji": "🏞️" },
+        "e": { "word": "vel", "emoji": "🚲" },
+        "o": { "word": "vol", "emoji": "✈️" }
+      }
+    },
+    {
+      "id": "fr-b-l-01",
+      "level": 2,
+      "pattern": "b_l",
+      "changeIndex": 1,
+      "startLetter": "o",
+      "choices": ["a", "e", "o", "z"],
+      "validAnswers": {
+        "a": { "word": "bal", "emoji": "💃" },
+        "e": { "word": "bel", "emoji": "🕯️" },
+        "o": { "word": "bol", "emoji": "🥣" }
+      }
+    }
+  ]
+}

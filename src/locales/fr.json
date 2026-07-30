@@ -415,15 +415,27 @@
             "backToMenu": "Retour au menu",
     "noHearts": "Aucun cœur restant !"
   },
-"finalWordBuilder": {
-  "allLockedTitle": "Tous les jeux verrouillés !",
-  "allLockedDesc": "Tu as perdu tous tes cœurs dans le jeu Constructeur de Mots Final.",
-  "warningTitle": "Attention !",
-  "warningDesc": "Si tu perds tous tes cœurs dans ce jeu, tous les autres jeux seront aussi verrouillés.",
-  "warningLockAll": "Tu perds tous tes cœurs ? Tous les jeux seront bloqués !",
-  "warningUnderstood": "Compris !"
-}
-,
+
+  "finalWordBuilder": {
+    "title": "Constructeur de mots",
+    "changeOneLetter": "Change une lettre pour créer un nouveau mot",
+    "startWord": "Mot de départ",
+    "changePurpleLetter": "Change la lettre violette",
+    "chooseNewLetter": "Choisis une nouvelle lettre",
+    "youChangedOneLetter": "Tu as changé une lettre !",
+    "newWord": "Nouveau mot",
+    "realWord": "Tu as créé un vrai mot !",
+    "tryAnother": "Cela ne forme pas un mot. Réessaie.",
+    "next": "Mot suivant",
+    "round": "Manche",
+    "allLockedTitle": "Tous les jeux sont verrouillés !",
+    "allLockedDesc": "Tu as perdu tous tes cœurs dans le jeu Constructeur de mots final.",
+          "warningTitle": "Attention !",
+  "warningDesc": "Si tu perds tous tes cœurs dans ce jeu, TOUS les jeux seront verrouillés, pas seulement celui-ci. Joue avec prudence !",
+  "warningLockAll": "0 cœurs = tous les jeux verrouillés",
+  "warningUnderstood": "D'accord !"
+  },
+
   "support": {
     "title": "Support",
     "subtitle": "Besoin d’aide ? Envoie-nous un message",

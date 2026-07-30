@@ -422,16 +422,29 @@
         "backToMenu": "Terug naar menu",
     "noHearts": "Geen hartjes meer!"
   },
-    "finalWordBuilder": {
-      "warningTitle": "Let op!",
-  "warningDesc": "Als je al je hartjes verliest in dit spel, worden ALLE spellen vergrendeld, niet alleen dit spel. Speel voorzichtig!",
+ 
+
+  "finalWordBuilder": {
+    "title": "Woordbouwer",
+    "changeOneLetter": "Verander één letter en maak een nieuw woord",
+    "startWord": "Startwoord",
+    "changePurpleLetter": "Verander de paarse letter",
+    "chooseNewLetter": "Kies een nieuwe letter",
+    "youChangedOneLetter": "Je veranderde één letter!",
+    "newWord": "Nieuw woord",
+    "realWord": "Je maakte een echt woord!",
+    "tryAnother": "Dat maakt geen woord. Probeer opnieuw.",
+    "next": "Volgend woord",
+    "round": "Ronde",
+        "allLockedTitle": "Alle spellen vergrendeld!",
+      "allLockedDesc": "Je hebt al je hartjes verloren in het Finale Woorden Bouw-spel.",
+            "warningTitle": "Waarschuwing!",
+  "warningDesc": "Als je al je hartjes verliest in dit spel, worden ALLE spellen vergrendeld, niet alleen dit. Speel voorzichtig!",
   "warningLockAll": "0 hartjes = alle spellen vergrendeld",
-  "warningUnderstood": "Begrepen!",
-  "allLockedDesc": "Je hebt al je hartjes verloren in het Finale Woorden Bouw spel.",
-  "word": "Woord",
-  "cancel": "Annuleren",
-    "allLockedTitle": "Alle spellen vergrendeld!"
+  "warningUnderstood": "Begrepen!"
   },
+
+
 "support": {
   "title": "Ondersteuning",
   "subtitle": "Hulp nodig? Stuur ons een bericht",
