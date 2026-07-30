@@ -267,7 +267,9 @@ const statCards = [
   {
     label: t("parentDashboard.totalPlaytime"),
     value: `${Math.round(totalPlaytime)} min`,
-    sub: `${(totalPlaytime / 60).toFixed(1)}h total`,
+    sub: `${(totalPlaytime / 60).toFixed(1)}h ${t("parentDashboard.total", {
+      defaultValue: "total",
+    })}`,
     color: "border-violet-100 bg-white",
   },
   {
