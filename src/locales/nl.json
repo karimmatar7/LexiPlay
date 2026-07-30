@@ -171,7 +171,8 @@
     "timeLocked": "Tijdslimiet bereikt",
     "keysNeeded": "Sleutels nodig",
     "keys": "sleutels",
-    "unlockFor" : "Ontgrendel voor"
+    "unlockFor" : "Ontgrendel voor",
+        "unlocking": "Ontgrendelen…"
   },
   "wordMatch": {
     "title": "Woord Match",

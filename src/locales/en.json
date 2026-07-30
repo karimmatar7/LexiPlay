@@ -117,7 +117,8 @@
     "timeLocked": "Time limit reached",
     "keysNeeded": "Keys needed",
     "keys": "keys",
-    "unlockFor" : "Unlock for"
+    "unlockFor" : "Unlock for",
+    "unlocking": "Unlocking…"
   },
 "resetPassword": {
   "title": "Create a new password",

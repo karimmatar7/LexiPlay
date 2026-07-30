@@ -172,7 +172,8 @@
     "timeLocked": "Limite de temps atteinte",
     "keysNeeded": "Clés nécessaires",
     "keys": "clés",
-        "unlockFor" : "Débloquer pour"
+        "unlockFor" : "Débloquer pour",
+            "unlocking": "Déblocage…"
   },
   "wordMatch": {
     "title": "Association de mots",
