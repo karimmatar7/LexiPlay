@@ -134,6 +134,20 @@ export default function GamesGrid({
           ? t("gameCards.limitReached")
           : t("gameCards.wordMaze.unlockMsg"),
       },
+           {
+        id: "letterDraw",
+        icon: pencilIcon,
+        title: t("gameCards.letterDraw.title"),
+        desc: t("gameCards.letterDraw.desc"),
+        active: displayLetterDraw,
+        to: "/letterdraw",
+        bgColor: "bg-orange-100",
+        borderColor: "border-orange-400",
+        pickerColor: "from-orange-300 to-amber-400",
+        keysRequired: keyThresholds.letterDraw,
+        purchased: purchasedLetterDraw,
+        unlockMsg: letterDrawMessage,
+      },
       {
         id: "finalWordBuilder",
         icon: cupIcon,
@@ -149,20 +163,6 @@ export default function GamesGrid({
         unlockMsg: blocked
           ? t("gameCards.limitReached")
           : t("gameCards.finalWordBuilder.unlockMsg"),
-      },
-      {
-        id: "letterDraw",
-        icon: pencilIcon,
-        title: t("gameCards.letterDraw.title"),
-        desc: t("gameCards.letterDraw.desc"),
-        active: displayLetterDraw,
-        to: "/letterdraw",
-        bgColor: "bg-orange-100",
-        borderColor: "border-orange-400",
-        pickerColor: "from-orange-300 to-amber-400",
-        keysRequired: keyThresholds.letterDraw,
-        purchased: purchasedLetterDraw,
-        unlockMsg: letterDrawMessage,
       },
     ];
 

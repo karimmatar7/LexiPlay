@@ -1,5 +1,6 @@
 import React from "react";
 import GameCard from "./GameCard";
+import randomIcon from "../assets/icons/shuffle.png";
 
 export default function RandomGameCard({
   icon,
@@ -11,7 +12,7 @@ export default function RandomGameCard({
 }) {
   return (
     <GameCard
-      icon={icon}
+      icon={randomIcon}
       title={title}
       desc={desc}
       active
