@@ -14,7 +14,7 @@ import PrintButton from "../components/dashboard/PrintButton";
 import PrintReport from "../components/dashboard/PrintReport";
 import ProgressAssistant from "../components/dashboard/ProgressAssistant";
 import StatCards from "../components/dashboard/StatCards";
-
+import AvatarCanvas from "../components/AvatarCanvas";
 import streakIcon from "../assets/icons/fire.png";
 import keyIcon from "../assets/icons/key.png";
 
@@ -332,12 +332,18 @@ const statCards = [
           <header className="rounded-3xl border border-white/80 bg-white/85 p-4 shadow-[0_16px_40px_rgba(15,23,42,0.05)] backdrop-blur-sm sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                <div
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-xl text-white shadow-[0_8px_18px_rgba(124,58,237,0.25)] sm:h-14 sm:w-14 sm:text-2xl"
-                  aria-hidden="true"
-                >
-                  👤
-                </div>
+       <div
+  className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full sm:h-14 sm:w-14"
+  aria-hidden="true"
+>
+  {stats.avatar ? (
+    <AvatarCanvas avatar={stats.avatar} size={56} animated={false} fullBody={false} />
+  ) : (
+    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-500 to-indigo-600 text-xl text-white sm:text-2xl">
+      👤
+    </div>
+  )}
+</div>
 
                 <div className="min-w-0">
                   <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-violet-500">
