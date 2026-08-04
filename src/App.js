@@ -3,6 +3,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { SettingsProvider } from "./context/SettingsContext";
 import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
+import WhyLexiPlay from "./pages/WhyLexiPlay";
 import GameMenu from "./pages/GameMenu";
 import WordMatch from "./pages/WordMatch";
 import LetterBuild from "./pages/LetterBuild";
@@ -86,16 +88,16 @@ setLangLoaded(true);
       <Router>
         <Routes>
          {/* Auth */}
-  <Route
-    path="/"
-    element={
-      user ? (
-        <Navigate to="/menu" replace />
-      ) : (
-        <AuthPage onLogin={setUser} />
-      )
-    }
-  />
+<Route path="/" element={<LandingPage />} />
+
+<Route
+  path="/auth"
+  element={
+    user ? <Navigate to="/menu" replace /> : <AuthPage onLogin={setUser} />
+  }
+/>
+
+<Route path="/why-lexiplay" element={<WhyLexiPlay />} />
 
   <Route
     path="/auth/callback"
