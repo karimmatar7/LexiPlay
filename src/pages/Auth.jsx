@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "../context/SettingsContext.jsx";
+import LanguageButton from "../components/LanguageButton";
+import useAppLanguage from "../hooks/useAppLanguage";
 import {
   getCurrentProfile,
   sendPasswordResetEmail,
@@ -13,8 +14,8 @@ import googleIcon from "../assets/icons/google.svg";
 
 export default function AuthPage({ onLogin }) {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const { language, setLanguage } = useSettings();
+  const { t } = useTranslation();
+  const { currentLanguage, setAppLanguage } = useAppLanguage();
 
   const [mode, setMode] = useState("login");
   const [fullName, setFullName] = useState("");
@@ -25,34 +26,6 @@ export default function AuthPage({ onLogin }) {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const currentLanguage = (
-    language ||
-    i18n.resolvedLanguage ||
-    i18n.language ||
-    "en"
-  )
-    .split("-")[0]
-    .toLowerCase();
-
-  const languageCode =
-    currentLanguage === "nl"
-      ? "NL"
-      : currentLanguage === "fr"
-        ? "FR"
-        : "EN";
-
-  const changeLanguage = async () => {
-    const nextLanguage =
-      currentLanguage === "en"
-        ? "nl"
-        : currentLanguage === "nl"
-          ? "fr"
-          : "en";
-
-    setLanguage(nextLanguage);
-    await i18n.changeLanguage(nextLanguage);
-  };
 
   const getErrorMessage = (err) => {
     const lowerMessage = err?.message?.toLowerCase() || "";
@@ -80,8 +53,7 @@ export default function AuthPage({ onLogin }) {
     const userLanguage = user?.settings?.language;
 
     if (userLanguage && userLanguage !== currentLanguage) {
-      setLanguage(userLanguage);
-      await i18n.changeLanguage(userLanguage);
+      await setAppLanguage(userLanguage);
     }
   };
 
@@ -238,58 +210,34 @@ export default function AuthPage({ onLogin }) {
   return (
     <main className="min-h-screen bg-[#faf9fc] text-slate-900">
       {/* Navigation */}
-     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-  <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-8 lg:px-10">
-    <button
-      type="button"
-      onClick={() => navigate("/")}
-      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 text-sm font-bold text-slate-700 transition hover:border-purple-300 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 sm:px-4"
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        className="h-4 w-4"
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="m15 18-6-6 6-6"
-        />
-      </svg>
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
+        <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-8 lg:px-10">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 text-sm font-bold text-slate-700 transition hover:border-purple-300 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 sm:px-4"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-4 w-4"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m15 18-6-6 6-6"
+              />
+            </svg>
 
-      <span>{t("auth.back")}</span>
-    </button>
+            <span>{t("auth.back")}</span>
+          </button>
 
-    <button
-      type="button"
-      onClick={changeLanguage}
-      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 text-sm font-bold text-slate-700 transition hover:border-purple-300 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
-      aria-label={t("changeLanguage")}
-      title={t("changeLanguage")}
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        className="h-4 w-4"
-        aria-hidden="true"
-      >
-        <circle cx="12" cy="12" r="9" />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"
-        />
-      </svg>
-
-      {languageCode}
-    </button>
-  </nav>
-</header>
+          <LanguageButton />
+        </nav>
+      </header>
 
       {/* Main authentication layout */}
       <section className="mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-7xl items-center gap-8 px-4 py-6 sm:min-h-[calc(100vh-80px)] sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,500px)] lg:gap-14 lg:px-10 lg:py-12 xl:gap-20">

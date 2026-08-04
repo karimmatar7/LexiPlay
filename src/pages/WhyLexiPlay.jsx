@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "../context/SettingsContext";
+import LanguageButton from "../components/LanguageButton";
 import scientificSources from "../data/scientificSources.json";
 
 const principles = [
@@ -29,39 +29,10 @@ const principles = [
 
 export default function WhyLexiPlay() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const { language, setLanguage } = useSettings();
+  const { t } = useTranslation();
 
   const [showSources, setShowSources] = useState(false);
   const closeButtonRef = useRef(null);
-
-  const currentLanguage = (
-    language ||
-    i18n.resolvedLanguage ||
-    i18n.language ||
-    "en"
-  )
-    .split("-")[0]
-    .toLowerCase();
-
-  const languageCode =
-    currentLanguage === "nl"
-      ? "NL"
-      : currentLanguage === "fr"
-        ? "FR"
-        : "EN";
-
-  const changeLanguage = async () => {
-    const nextLanguage =
-      currentLanguage === "en"
-        ? "nl"
-        : currentLanguage === "nl"
-          ? "fr"
-          : "en";
-
-    setLanguage(nextLanguage);
-    await i18n.changeLanguage(nextLanguage);
-  };
 
   const openSources = () => {
     setShowSources(true);
@@ -127,31 +98,7 @@ export default function WhyLexiPlay() {
             </button>
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={changeLanguage}
-                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 transition hover:border-purple-300 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
-                aria-label={t("changeLanguage")}
-                title={t("changeLanguage")}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"
-                  />
-                </svg>
-
-                {languageCode}
-              </button>
+              <LanguageButton />
 
               <div
                 className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100"
@@ -187,8 +134,6 @@ export default function WhyLexiPlay() {
             </div>
 
             <div className="flex items-center gap-3">
-
-                
               <button
                 type="button"
                 onClick={() => navigate("/")}
@@ -211,32 +156,8 @@ export default function WhyLexiPlay() {
 
                 {t("why.back")}
               </button>
-              <button
-                type="button"
-                onClick={changeLanguage}
-                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 text-sm font-bold text-slate-700 transition hover:border-purple-300 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
-                aria-label={t("changeLanguage")}
-                title={t("changeLanguage")}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"
-                  />
-                </svg>
 
-                {languageCode}
-              </button>
-
+              <LanguageButton />
 
               <button
                 type="button"

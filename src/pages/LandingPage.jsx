@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "../context/SettingsContext";
+import LanguageButton from "../components/LanguageButton";
 
 const features = [
   {
@@ -91,44 +91,16 @@ const features = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const { language, setLanguage } = useSettings();
-
-  const currentLanguage = (
-    language ||
-    i18n.resolvedLanguage ||
-    i18n.language ||
-    "en"
-  )
-    .split("-")[0]
-    .toLowerCase();
-
-  const languageCode =
-    currentLanguage === "nl"
-      ? "NL"
-      : currentLanguage === "fr"
-        ? "FR"
-        : "EN";
-
-  const changeLanguage = async () => {
-    const nextLanguage =
-      currentLanguage === "en"
-        ? "nl"
-        : currentLanguage === "nl"
-          ? "fr"
-          : "en";
-
-    setLanguage(nextLanguage);
-    await i18n.changeLanguage(nextLanguage);
-  };
+  const { t } = useTranslation();
 
   return (
     <main className="min-h-screen bg-[#faf9fc] text-slate-900">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-8 lg:px-10">
+          {/* Decorative logo */}
           <div
-            className="flex items-center gap-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
+            className="flex items-center gap-2.5"
             aria-label={t("landing.homeAriaLabel")}
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100">
@@ -146,31 +118,7 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={changeLanguage}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 text-sm font-bold text-slate-700 transition hover:border-purple-300 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
-              aria-label={t("landing.changeLanguage")}
-              title={t("landing.changeLanguage")}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"
-                />
-              </svg>
-
-              {languageCode}
-            </button>
+            <LanguageButton labelKey="landing.changeLanguage" />
 
             <button
               type="button"
@@ -185,7 +133,7 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="mx-auto grid w-full max-w-7xl items-center gap-8 px-4 py-8 sm:px-8 sm:py-12 lg:min-h-[calc(100vh-80px)] lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-10 lg:py-14">
-        {/* Illustration: first on mobile, right on desktop */}
+        {/* Illustration */}
         <div className="order-1 flex items-center justify-center lg:order-2">
           <div className="relative flex h-[210px] w-[210px] items-center justify-center rounded-full bg-purple-100 sm:h-[300px] sm:w-[300px] lg:h-[380px] lg:w-[380px]">
             <div className="absolute inset-4 rounded-full border border-purple-200 sm:inset-5" />
@@ -271,7 +219,7 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {/* Compact feature summary */}
+          {/* Feature summary */}
           <div className="mt-8 grid grid-cols-3 gap-2 sm:mt-10 sm:gap-4">
             {features.map((feature) => (
               <article
@@ -293,7 +241,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Mobile login option */}
+          {/* Mobile login */}
           <p className="mt-6 text-sm text-slate-500 sm:hidden">
             {t("landing.alreadyHaveAccount")}{" "}
             <button
